@@ -95,12 +95,12 @@ const semStatus: SemToken[][] = [
 
 const semBgTxt: SemToken[][] = [
   [
-    { name: '--color-bg-primary',   hex: '#ffffff', alias: 'Light mode default' },
+    { name: '--color-bg-primary',   hex: '#ffffff', alias: 'Page background' },
     { name: '--color-bg-secondary', hex: '#f8fafc', alias: '' },
     { name: '--color-bg-tertiary',  hex: '#f1f5f9', alias: '' },
   ],
   [
-    { name: '--color-text-inverse',   hex: '#ffffff', alias: 'On dark surfaces' },
+    { name: '--color-text-inverse',   hex: '#ffffff', alias: 'On colored surfaces' },
     { name: '--color-text-muted',     hex: '#94a3b8', alias: '' },
     { name: '--color-text-tertiary',  hex: '#64748b', alias: '' },
     { name: '--color-text-secondary', hex: '#475569', alias: '' },
@@ -365,7 +365,7 @@ function typeFamily(heading: boolean): string {
       <Notes>
         <li>Only use semantic colors when used purposefully in an appropriate component, like warning colors in a warning icon.</li>
         <li><code>--color-primary</code> = <code>--color-pink-600</code> (#DB2777) — selected for WCAG AA contrast on white</li>
-        <li>Dark mode overrides via <code>@media (prefers-color-scheme: dark)</code> and <code>[data-theme="dark"]</code>; accent scales stay fixed in both modes</li>
+        <li>Light mode only — <code>:root</code> pins <code>color-scheme: light</code>; the site does not respond to OS dark mode</li>
         <li>Needs colors are semantic-only (no scale) — use only within the needs/wellness UI, not as general purpose colors</li>
         <li><code>--color-bg-canvas: #000000</code> is reserved for the 3D/WebGL viewport background</li>
       </Notes>

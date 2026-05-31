@@ -3,6 +3,8 @@
 
 :root {
 
+  color-scheme: light; /* Light mode only — pin UA controls (scrollbars, inputs) to light */
+
   /* ── COLOR PALETTES ─────────────────────────────────────────────────────── */
 
   /* Pink — Primary Accent */
@@ -338,96 +340,4 @@
   --transition-fast:   150ms ease-in-out;
   --transition-normal: 250ms ease-in-out;
   --transition-slow:   350ms ease-in-out;
-}
-
-/* ── DARK MODE ──────────────────────────────────────────────────────────────── */
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg-primary:   #0f172a;
-    --color-bg-secondary: #1e293b;
-    --color-bg-tertiary:  #334155;
-
-    --color-text-primary:   #f8fafc;
-    --color-text-secondary: #e2e8f0;
-    --color-text-tertiary:  #cbd5e1;
-    --color-text-muted:     #94a3b8;
-
-    --color-border-light:  var(--color-neutral-700);
-    --color-border-medium: var(--color-neutral-600);
-    --color-border-dark:   var(--color-neutral-500);
-
-    --color-primary-bg:   rgba(236, 72, 153, 0.1);
-    --color-secondary-bg: rgba(34, 197, 94, 0.1);
-    --color-success-bg:   rgba(34, 197, 94, 0.1);
-    --color-warning-bg:   rgba(245, 158, 11, 0.1);
-    --color-error-bg:     rgba(239, 68, 68, 0.1);
-    --color-info-bg:      rgba(59, 130, 246, 0.1);
-  }
-}
-
-[data-theme="dark"] {
-  --color-bg-primary:   #0f172a;
-  --color-bg-secondary: #1e293b;
-  --color-bg-tertiary:  #334155;
-
-  --color-text-primary:   #f8fafc;
-  --color-text-secondary: #e2e8f0;
-  --color-text-tertiary:  #cbd5e1;
-  --color-text-muted:     #94a3b8;
-
-  --color-border-light:  var(--color-neutral-700);
-  --color-border-medium: var(--color-neutral-600);
-  --color-border-dark:   var(--color-neutral-500);
-
-  --color-primary-bg:   rgba(236, 72, 153, 0.1);
-  --color-secondary-bg: rgba(34, 197, 94, 0.1);
-  --color-success-bg:   rgba(34, 197, 94, 0.1);
-  --color-warning-bg:   rgba(245, 158, 11, 0.1);
-  --color-error-bg:     rgba(239, 68, 68, 0.1);
-  --color-info-bg:      rgba(59, 130, 246, 0.1);
-}
-
-/* ── DARK SURFACE TOKENS — `data-theme="dark"` scope only ────────────────────── */
-/* Panels, popovers, dropdowns, buttons, tiles, rows. Shipped in the live game UI. */
-
-[data-theme="dark"] {
-  /* Surfaces */
-  --color-surface-panel:    #1e293b;            /* dropdown / popover body */
-  --color-surface-elevated: #334155;            /* tile / pill / list item on panel */
-  --color-surface-sunken:   #0f172a;            /* progress bar track, well */
-  --color-surface-overlay:  rgba(15, 23, 42, 0.92);
-
-  /* Borders & dividers */
-  --color-border-panel: #334155;
-  --color-border-tile:  #475569;
-  --color-divider:      #334155;
-
-  /* Buttons */
-  --color-btn-bg:           #334155;
-  --color-btn-bg-hover:     #475569;
-  --color-btn-bg-active:    #1e293b;
-  --color-btn-fg:           #f1f5f9;
-  --color-btn-primary-bg:   #475569;            /* primary action on dark panel — slate fill */
-  --color-btn-primary-fg:   #f1f5f9;
-  --color-btn-secondary-bg: transparent;
-  --color-btn-secondary-fg: #cbd5e1;
-
-  /* Need urgency tints — warmer dark variants */
-  --color-need-bg-critical:      rgba(220, 38, 38, .18);
-  --color-need-bg-warning:       rgba(234, 88, 12, .18);
-  --color-need-bg-moderate:      rgba(148, 163, 184, .15);
-  --color-need-bg-satisfied:     rgba(23, 135, 64, .18);
-  --color-need-border-critical:  #f87171;
-  --color-need-border-warning:   #fb923c;
-  --color-need-border-moderate:  #64748b;
-  --color-need-border-satisfied: #4ade80;
-  --color-need-text-critical:    #fca5a5;
-  --color-need-text-warning:     #fdba74;
-  --color-need-text-moderate:    #cbd5e1;
-  --color-need-text-satisfied:   #bbf7d0;
-
-  /* Shadows — deeper for dark panels */
-  --shadow-panel: 0 20px 30px -5px rgba(0, 0, 0, .5), 0 10px 15px -3px rgba(0, 0, 0, .3);
-  --shadow-tile:  0 4px 6px -1px rgba(0, 0, 0, .3), 0 2px 4px -1px rgba(0, 0, 0, .15);
 }
