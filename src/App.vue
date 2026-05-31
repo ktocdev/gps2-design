@@ -2,7 +2,5 @@
 </script>
 
 <template>
-  <main>
-    <p>GPS2 Design</p>
-  </main>
+  <RouterView />
 </template>
