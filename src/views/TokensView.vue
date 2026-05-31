@@ -268,13 +268,13 @@ function typeFamily(heading: boolean): string {
         <div class="subsection" v-for="p in paletteDefs" :key="p.id">
           <div class="sub-title">
             {{ p.label }}
-            <span v-if="p.desc || p.code" style="font-weight:400;color:#94a3b8;text-transform:none;letter-spacing:0">
+            <span v-if="p.desc || p.code" style="font-weight:400;color:var(--color-neutral-400);text-transform:none;letter-spacing:0">
               {{ p.desc ? p.desc + ' · ' : '' }}<code style="font-family:Consolas,monospace;font-size:10px;">{{ p.code }}</code>
             </span>
           </div>
           <div class="palette-row">
             <div class="swatch" v-for="(hex, i) in p.colors" :key="i">
-              <div class="swatch-color" :style="{ background: hex }"></div>
+              <div class="swatch-color" :style="{ background: `var(--color-${p.id}-${steps[i]})` }"></div>
               <div class="swatch-info">
                 <div class="swatch-step">{{ steps[i] }}</div>
                 <div class="swatch-hex">{{ hex.toUpperCase() }}</div>
@@ -290,7 +290,7 @@ function typeFamily(heading: boolean): string {
           <div class="semantic-grid">
             <div class="sem-row" v-for="(row, ri) in semAction" :key="ri">
               <div class="sem-token" v-for="t in row" :key="t.name">
-                <div class="sem-swatch" :style="{ background: t.hex, outline: t.hex === '#ffffff' ? '1px solid #e2e8f0' : undefined }"></div>
+                <div class="sem-swatch" :style="{ background: `var(${t.name})`, outline: t.hex === '#ffffff' ? '1px solid var(--color-neutral-200)' : undefined }"></div>
                 <div class="sem-info">
                   <div class="sem-name">{{ t.name }}</div>
                   <div class="sem-hex">{{ t.hex.toUpperCase() }}</div>
@@ -307,7 +307,7 @@ function typeFamily(heading: boolean): string {
           <div class="semantic-grid">
             <div class="sem-row" v-for="(row, ri) in semStatus" :key="ri">
               <div class="sem-token" v-for="t in row" :key="t.name">
-                <div class="sem-swatch" :style="{ background: t.hex }"></div>
+                <div class="sem-swatch" :style="{ background: `var(${t.name})` }"></div>
                 <div class="sem-info">
                   <div class="sem-name">{{ t.name }}</div>
                   <div class="sem-hex">{{ t.hex.toUpperCase() }}</div>
@@ -324,7 +324,7 @@ function typeFamily(heading: boolean): string {
           <div class="semantic-grid">
             <div class="sem-row" v-for="(row, ri) in semBgTxt" :key="ri">
               <div class="sem-token" v-for="t in row" :key="t.name">
-                <div class="sem-swatch" :style="{ background: t.hex, outline: t.hex === '#ffffff' ? '1px solid #e2e8f0' : undefined }"></div>
+                <div class="sem-swatch" :style="{ background: `var(${t.name})`, outline: t.hex === '#ffffff' ? '1px solid var(--color-neutral-200)' : undefined }"></div>
                 <div class="sem-info">
                   <div class="sem-name">{{ t.name }}</div>
                   <div class="sem-hex">{{ t.hex.toUpperCase() }}</div>
@@ -340,12 +340,12 @@ function typeFamily(heading: boolean): string {
           <div class="sub-title">Wood — Structural UI Surfaces</div>
           <div class="needs-grid">
             <div class="need-token" v-for="n in woodTokens" :key="n.var">
-              <div class="need-swatch" :style="{ background: n.hex }"></div>
+              <div class="need-swatch" :style="{ background: `var(${n.var})` }"></div>
               <div class="need-info">
                 <div class="need-name">{{ n.name }}</div>
                 <div class="need-var">{{ n.var }}</div>
                 <div class="need-hex">{{ n.hex.toUpperCase() }}</div>
-                <div style="font-size:9px;color:#94a3b8;margin-top:3px;">{{ n.use }}</div>
+                <div style="font-size:9px;color:var(--color-neutral-400);margin-top:3px;">{{ n.use }}</div>
               </div>
             </div>
           </div>
@@ -356,12 +356,12 @@ function typeFamily(heading: boolean): string {
           <div class="sub-title">Needs — Game-Specific Semantic Colors</div>
           <div class="needs-grid">
             <div class="need-token" v-for="n in needs" :key="n.var">
-              <div class="need-swatch" :style="{ background: n.hex }"></div>
+              <div class="need-swatch" :style="{ background: `var(${n.var})` }"></div>
               <div class="need-info">
                 <div class="need-name">{{ n.name }}</div>
                 <div class="need-var">{{ n.var }}</div>
                 <div class="need-hex">{{ n.hex.toUpperCase() }}</div>
-                <div style="font-family:Consolas,monospace;font-size:9px;color:#a78bfa;margin-top:2px;">↳ {{ n.ramp }}</div>
+                <div style="font-family:Consolas,monospace;font-size:9px;color:var(--color-violet-400);margin-top:2px;">↳ {{ n.ramp }}</div>
               </div>
             </div>
           </div>
@@ -369,15 +369,15 @@ function typeFamily(heading: boolean): string {
 
         <!-- Game colors -->
         <div class="subsection">
-          <div class="sub-title">Game Colors <span style="font-weight:400;color:#94a3b8;text-transform:none;letter-spacing:0">— Panel header strips · icon discs · awning stripes · action boards</span></div>
+          <div class="sub-title">Game Colors <span style="font-weight:400;color:var(--color-neutral-400);text-transform:none;letter-spacing:0">— Panel header strips · icon discs · awning stripes · action boards</span></div>
           <div class="needs-grid">
             <div class="need-token" v-for="c in gameColors" :key="c.name">
-              <div class="need-swatch" :style="{ background: c.hex }"></div>
+              <div class="need-swatch" :style="{ background: `var(${c.name})` }"></div>
               <div class="need-info">
                 <div class="need-name">{{ c.name }}</div>
-                <div style="font-family:Consolas,monospace;font-size:9px;color:#94a3b8;">{{ c.hex.toUpperCase() }}</div>
-                <div style="font-size:9px;color:#94a3b8;margin-top:2px;">{{ c.use }}</div>
-                <div style="font-family:Consolas,monospace;font-size:9px;color:#a78bfa;margin-top:2px;">{{ c.alias }}</div>
+                <div style="font-family:Consolas,monospace;font-size:9px;color:var(--color-neutral-400);">{{ c.hex.toUpperCase() }}</div>
+                <div style="font-size:9px;color:var(--color-neutral-400);margin-top:2px;">{{ c.use }}</div>
+                <div style="font-family:Consolas,monospace;font-size:9px;color:var(--color-violet-400);margin-top:2px;">{{ c.alias }}</div>
               </div>
             </div>
           </div>
@@ -437,21 +437,21 @@ function typeFamily(heading: boolean): string {
         </div>
 
         <div class="subsection">
-          <div class="sub-title">Screen-Specific Fonts — Adoption Certificate <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#94a3b8;">not global tokens</span></div>
-          <div style="background:#fffbeb;border:1px solid #fde68a;border-left:3px solid #f59e0b;border-radius:8px;padding:16px 20px;">
-            <div style="font-size:11px;color:#92400e;margin-bottom:14px;">Hardcoded in <code style="font-family:Consolas,monospace;font-size:11px;background:rgba(245,158,11,.15);padding:1px 5px;border-radius:3px;">AdoptionCertificate.jsx</code> for the parchment certificate aesthetic — do not use globally.</div>
+          <div class="sub-title">Screen-Specific Fonts — Adoption Certificate <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--color-neutral-400);">not global tokens</span></div>
+          <div style="background:var(--color-gold-50);border:1px solid var(--color-gold-200);border-left:3px solid var(--color-gold-400);border-radius:8px;padding:16px 20px;">
+            <div style="font-size:11px;color:var(--color-wood-dark);margin-bottom:14px;">Hardcoded in <code style="font-family:Consolas,monospace;font-size:11px;background:rgba(245,158,11,.15);padding:1px 5px;border-radius:3px;">AdoptionCertificate.jsx</code> for the parchment certificate aesthetic — do not use globally.</div>
             <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;">
-              <div class="ff-card" style="border-color:#fde68a;">
+              <div class="ff-card" style="border-color:var(--color-gold-200);">
                 <div class="ff-sample" style="font-family:Georgia,'Times New Roman',serif;font-size:18px;">Certificate of Adoption</div>
-                <div class="ff-label" style="color:#92400e;">Serif — Certificate Formal</div>
-                <div class="ff-var" style="color:#b45309;">Georgia, "Times New Roman", serif</div>
+                <div class="ff-label" style="color:var(--color-wood-dark);">Serif — Certificate Formal</div>
+                <div class="ff-var" style="color:var(--color-wood-mid);">Georgia, "Times New Roman", serif</div>
                 <div class="ff-note">System font — no import needed</div>
                 <div class="ff-note" style="margin-top:3px;">Certificate title, stats table, preamble body, footer meta, signature titles, wax seal, ADOPTED stamp</div>
               </div>
-              <div class="ff-card" style="border-color:#fde68a;">
+              <div class="ff-card" style="border-color:var(--color-gold-200);">
                 <div class="ff-sample" style="font-family:'Caveat',cursive;font-size:26px;font-weight:700;">Hazel Whiskers</div>
-                <div class="ff-label" style="color:#92400e;">Script — Handwritten Signatures</div>
-                <div class="ff-var" style="color:#b45309;">'Caveat', cursive</div>
+                <div class="ff-label" style="color:var(--color-wood-dark);">Script — Handwritten Signatures</div>
+                <div class="ff-var" style="color:var(--color-wood-mid);">'Caveat', cursive</div>
                 <div class="ff-note">Caveat · Google Fonts · wght 400, 700</div>
                 <div class="ff-note" style="margin-top:3px;">Endorsement signatures, pig display name in card header, name callout in preamble</div>
               </div>
@@ -503,7 +503,7 @@ function typeFamily(heading: boolean): string {
         <div class="subsection">
           <div class="sub-title">Line Heights</div>
           <div class="lh-table">
-            <div class="lh-row" style="background:#f8fafc;">
+            <div class="lh-row" style="background:var(--color-neutral-50);">
               <span class="lh-token">--line-height-tight</span>
               <span class="lh-val">1.25</span>
               <p class="lh-text" style="line-height:1.25;">Social animals that thrive with companionship. Regular interaction builds trust and deepens the bond between pet and owner over time.</p>
@@ -513,7 +513,7 @@ function typeFamily(heading: boolean): string {
               <span class="lh-val">1.5</span>
               <p class="lh-text" style="line-height:1.5;">Social animals that thrive with companionship. Regular interaction builds trust and deepens the bond between pet and owner over time.</p>
             </div>
-            <div class="lh-row" style="background:#f8fafc;">
+            <div class="lh-row" style="background:var(--color-neutral-50);">
               <span class="lh-token">--line-height-relaxed</span>
               <span class="lh-val">1.75</span>
               <p class="lh-text" style="line-height:1.75;">Social animals that thrive with companionship. Regular interaction builds trust and deepens the bond between pet and owner over time.</p>
