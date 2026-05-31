@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GPS2 — Design Tokens</title>
+  <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Nunito:wght@400;500;600;700&family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; }
+    body { font-family: 'Nunito', sans-serif; font-size: 14px; line-height: 1.5; color: #1e293b; background: #fff; display: flex; min-height: 100vh; }
+
+    /* Sidebar */
+    .sidebar { width: 192px; flex-shrink: 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; background: #f8fafc; border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; }
+    .sidebar-brand { padding: 20px 16px 16px; border-bottom: 1px solid #e2e8f0; }
+    .sidebar-brand h1 { font-family: 'Gaegu', cursive; font-size: 26px; font-weight: 700; color: #db2777; line-height: 1; }
+    .sidebar-brand span { display: block; font-size: 11px; color: #94a3b8; margin-top: 2px; }
+    .nav-label { padding: 14px 16px 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: #94a3b8; display: block; }
+    .nav-item { display: block; padding: 5px 16px; font-size: 13px; color: #475569; text-decoration: none; border-left: 2px solid transparent; transition: all 100ms; }
+    .nav-item:hover, .nav-item.active { color: #db2777; border-left-color: #db2777; background: rgba(219,39,119,.05); }
+
+    /* Layout */
+    .main { flex: 1; padding: 44px 56px 96px; max-width: 980px; overflow-x: hidden; }
+    .page-header { margin-bottom: 52px; padding-bottom: 24px; border-bottom: 2px solid #e2e8f0; }
+    .page-title { font-family: 'Gaegu', cursive; font-size: 44px; font-weight: 700; color: #1e293b; line-height: 1; }
+    .page-title span { color: #db2777; }
+    .page-meta { margin-top: 10px; font-size: 13px; color: #64748b; display: flex; align-items: center; gap: 12px; }
+    .page-meta code { font-family: Consolas, monospace; font-size: 12px; background: #f1f5f9; padding: 2px 7px; border-radius: 4px; color: #475569; }
+    .badge { background: #fce7f3; color: #db2777; padding: 2px 9px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+
+    /* Section */
+    .section { margin-bottom: 72px; scroll-margin-top: 20px; }
+    .section-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 28px; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0; }
+    .section-title { font-family: 'Gaegu', cursive; font-size: 28px; font-weight: 700; color: #1e293b; line-height: 1; }
+    .section-count { font-size: 12px; color: #94a3b8; }
+    .subsection { margin-bottom: 32px; }
+    .sub-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #64748b; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .sub-title::after { content: ''; flex: 1; height: 1px; background: #f1f5f9; }
+
+    /* Palettes */
+    .palette-row { display: flex; border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0; }
+    .swatch { flex: 1; min-width: 0; }
+    .swatch-color { height: 44px; }
+    .swatch-info { padding: 6px 7px; background: #fff; border-top: 1px solid #f1f5f9; overflow: hidden; }
+    .swatch-step { font-family: Consolas, monospace; font-size: 11px; font-weight: 700; color: #334155; }
+    .swatch-hex { font-family: Consolas, monospace; font-size: 10px; color: #64748b; }
+    .swatch-var { font-family: Consolas, monospace; font-size: 9px; color: #94a3b8; word-break: break-all; line-height: 1.3; }
+
+    /* Semantic tokens */
+    .semantic-grid { display: flex; flex-direction: column; gap: 8px; }
+    .sem-row { display: flex; gap: 8px; }
+    .sem-row .sem-token { flex: 1; min-width: 0; }
+    .sem-token { border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
+    .sem-swatch { height: 52px; }
+    .sem-info { padding: 8px 10px; background: #fff; }
+    .sem-name { font-family: Consolas, monospace; font-size: 10.5px; font-weight: 600; color: #334155; }
+    .sem-hex { font-family: Consolas, monospace; font-size: 10px; color: #64748b; margin-top: 2px; }
+    .sem-alias { font-family: Consolas, monospace; font-size: 9px; color: #94a3b8; margin-top: 2px; font-style: italic; }
+
+    /* Needs */
+    .needs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 10px; }
+    .need-token { border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
+    .need-swatch { height: 40px; }
+    .need-info { padding: 7px 9px; background: #fff; }
+    .need-name { font-size: 12px; font-weight: 600; color: #334155; }
+    .need-var { font-family: Consolas, monospace; font-size: 9.5px; color: #64748b; margin-top: 2px; }
+    .need-hex { font-family: Consolas, monospace; font-size: 9.5px; color: #94a3b8; }
+
+    /* Type scale */
+    .type-scale { border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
+    .type-row { display: grid; grid-template-columns: 148px 1fr 200px; align-items: center; padding: 12px 16px; gap: 16px; border-bottom: 1px solid #f1f5f9; }
+    .type-row:last-child { border-bottom: none; }
+    .type-row:nth-child(even) { background: #f8fafc; }
+    .type-token-name { font-family: Consolas, monospace; font-size: 11px; font-weight: 600; color: #db2777; }
+    .type-token-value { font-family: Consolas, monospace; font-size: 10px; color: #64748b; margin-top: 2px; }
+    .type-props { display: flex; flex-direction: column; gap: 1px; text-align: right; }
+    .type-prop { font-size: 10px; color: #94a3b8; font-family: Consolas, monospace; }
+
+    /* Font family cards */
+    .ff-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .ff-card { border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; }
+    .ff-sample { font-size: 21px; line-height: 1.3; color: #1e293b; margin-bottom: 10px; }
+    .ff-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: #64748b; }
+    .ff-var { font-family: Consolas, monospace; font-size: 10px; color: #94a3b8; margin-top: 2px; }
+    .ff-note { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+
+    /* Weight rows */
+    .weight-list { border: 1px solid #e2e8f0; border-radius: 8px; padding: 0 16px; overflow: hidden; }
+    .weight-row { display: flex; align-items: baseline; gap: 20px; padding: 11px 0; border-bottom: 1px solid #f1f5f9; }
+    .weight-row:last-child { border-bottom: none; }
+    .weight-meta { width: 200px; flex-shrink: 0; }
+    .weight-var { font-family: Consolas, monospace; font-size: 11px; color: #db2777; }
+    .weight-val { font-family: Consolas, monospace; font-size: 10px; color: #94a3b8; }
+
+    /* Line height */
+    .lh-table { border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
+    .lh-row { display: grid; grid-template-columns: 200px 72px 1fr; gap: 16px; padding: 12px 16px; border-bottom: 1px solid #f1f5f9; align-items: start; }
+    .lh-row:last-child { border-bottom: none; }
+    .lh-row:nth-child(even) { background: #f8fafc; }
+    .lh-token { font-family: Consolas, monospace; font-size: 11px; color: #db2777; font-weight: 600; }
+    .lh-val { font-family: Consolas, monospace; font-size: 11px; color: #475569; }
+    .lh-text { font-size: 12px; color: #1e293b; }
+
+    /* Spacing */
+    .spacing-list { border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
+    .sp-row { display: grid; grid-template-columns: 148px 72px 64px 1fr; align-items: center; padding: 9px 16px; gap: 12px; border-bottom: 1px solid #f1f5f9; }
+    .sp-row:last-child { border-bottom: none; }
+    .sp-row:nth-child(even) { background: #f8fafc; }
+    .sp-var { font-family: Consolas, monospace; font-size: 11px; font-weight: 600; color: #db2777; }
+    .sp-rem { font-family: Consolas, monospace; font-size: 11px; color: #475569; }
+    .sp-px { font-family: Consolas, monospace; font-size: 11px; color: #64748b; }
+    .sp-bar { height: 10px; background: #fbcfe8; border-radius: 3px; border: 1px solid #f9a8d4; }
+
+    /* Radius */
+    .radius-grid { display: flex; flex-wrap: wrap; gap: 20px; }
+    .radius-card { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .radius-box { width: 72px; height: 72px; background: #fce7f3; border: 2px solid #f9a8d4; }
+    .radius-var { font-family: Consolas, monospace; font-size: 11px; font-weight: 600; color: #db2777; text-align: center; }
+    .radius-val { font-family: Consolas, monospace; font-size: 10px; color: #64748b; text-align: center; }
+
+    /* Shadows */
+    .shadow-grid { display: flex; gap: 16px; flex-wrap: wrap; }
+    .shadow-card { flex: 1; min-width: 140px; display: flex; flex-direction: column; gap: 10px; }
+    .shadow-box { height: 72px; background: #fff; border-radius: 8px; border: 1px solid #f1f5f9; }
+    .shadow-box--warm { background: #fef3c7; border-color: #fde68a; }
+    .shadow-var { font-family: Consolas, monospace; font-size: 11px; font-weight: 600; color: #db2777; }
+    .shadow-val { font-family: Consolas, monospace; font-size: 9.5px; color: #64748b; line-height: 1.6; word-break: break-all; }
+    .shadow-use { font-size: 10.5px; color: #94a3b8; }
+
+    /* Tables */
+    .token-table { width: 100%; border-collapse: collapse; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; font-size: 13px; }
+    .token-table th { background: #f8fafc; padding: 9px 14px; text-align: left; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: #64748b; border-bottom: 1px solid #e2e8f0; }
+    .token-table td { padding: 10px 14px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+    .token-table tr:last-child td { border-bottom: none; }
+    .token-table tr:nth-child(even) td { background: #f8fafc; }
+    .token-table code { background: #f1f5f9; padding: 2px 6px; border-radius: 3px; font-family: Consolas, monospace; font-size: 11.5px; color: #db2777; }
+
+    /* Notes */
+    .notes { background: #fffbeb; border: 1px solid #fde68a; border-left: 3px solid #f59e0b; border-radius: 6px; padding: 14px 16px; margin-top: 20px; }
+    .notes h4 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #92400e; margin-bottom: 8px; }
+    .notes ul { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+    .notes li { font-size: 12px; color: #78350f; padding-left: 14px; position: relative; }
+    .notes li::before { content: '→'; position: absolute; left: 0; color: #f59e0b; }
+    .notes code { background: rgba(245,158,11,.15); padding: 1px 5px; border-radius: 3px; font-family: Consolas, monospace; font-size: 11px; }
+
+    /* Transition demo */
+    .transition-box { display: inline-block; width: 28px; height: 16px; background: #db2777; border-radius: 4px; }
+    tr:hover .transition-box { transform: translateX(10px); background: #be185d; }
+
+  </style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar-brand">
+    <h1>GPS2</h1>
+    <span>Design Tokens v1.0</span>
+  </div>
+  <span class="nav-label">Tokens</span>
+  <a href="#colors" class="nav-item">Colors</a>
+  <a href="#typography" class="nav-item">Typography</a>
+  <a href="#spacing" class="nav-item">Spacing</a>
+  <a href="#radius" class="nav-item">Border Radius</a>
+  <a href="#shadows" class="nav-item">Shadows</a>
+  <a href="#z-index" class="nav-item">Z-Index</a>
+  <a href="#transitions" class="nav-item">Transitions</a>
+
+</nav>
+
+<main class="main">
+
+  <header class="page-header">
+    <h1 class="page-title">GPS2 <span>Design Tokens</span></h1>
+    <div class="page-meta">
+      <span>Source: <code>src/styles/variables.css</code></span>
+      <span class="badge">v1.0 · May 2026</span>
+    </div>
+  </header>
+
+  <!-- ── COLORS ─────────────────────────────────────────────────────── -->
+  <section class="section" id="colors">
+    <div class="section-header">
+      <h2 class="section-title">Colors</h2>
+      <span class="section-count">11 palettes · 10-step scales · 12 game colors · 11 need tokens</span>
+    </div>
+
+    <div class="subsection">
+      <div class="sub-title">Pink <span style="font-weight:400;color:#94a3b8;text-transform:none;letter-spacing:0">— Primary Accent · <code style="font-family:Consolas,monospace;font-size:10px;">--color-pink-*</code></span></div>
+      <div class="palette-row" id="pal-pink"></div>
+    </div>
+    <div class="subsection">
+      <div class="sub-title">Green <span style="font-weight:400;color:#94a3b8;text-transform:none;letter-spacing:0">— Secondary Accent · <code style="font-family:Consolas,monospace;font-size:10px;">--color-green-*</code></span></div>
+      <div class="palette-row" id="pal-green"></div>
+    </div>
+    <div class="subsection">
+      <div class="sub-title">Violet <span style="font-weight:400;color:#94a3b8;text-transform:none;letter-spacing:0">· <code style="font-family:Consolas,monospace;font-size:10px;">--color-violet-*</code></span></div>
+      <div class="palette-row" id="pal-violet"></div>
+    </div>
+    <div class="subsection">
+      <div class="sub-title">Yellow <span style="font-weight:400;color:#94a3b8;text-transform:none;letter-spacing:0">· <code style="font-family:Consolas,monospace;font-size:10px;">--color-yellow-*</code></span></div>
+      <div class="palette-row" id="pal-yellow"></div>
+    </div>
+    <div class="subsection">
+      <div class="sub-title">Cyan <span style="font-weight:400;color:#94a3b8;text-transform:none;letter-spacing:0">· <code style="font-family:Consolas,monospace;font-size:10px;">--color-cyan-*</code></span></div>
+      <div class="palette-row" id="pal-cyan"></div>
+    </div>
+    <div class="subsection">
+      <div class="sub-title">Neutral <span style="font-weight:400;color:#94a3b8;text-transform:none;letter-spacing:0">· <code style="font-family:Consolas,monospace;font-size:10px;">--color-neutral-*</code></span></div>
+      <div class="palette-row" id="pal-neutral"></div>
+    </div>
+    <div class="subsection">
+      <div class="sub-title">Gold <span style="font-weight:400;color:#94a3b8;text-transform:none;letter-spacing:0">— Amber → Orange · <code style="font-family:Consolas,monospace;font-size:10px;">--color-gold-*</code></span></div>
+      <div class="palette-row" id="pal-gold"></div>
+    </div>
+    <div class="subsection">
+      <div class="sub-title">Red <span style="font-weight:400;color:#94a3b8;text-transform:none;letter-spacing:0">· <code style="font-family:Consolas,monospace;font-size:10px;">--color-red-*</code></span></div>
+      <div class="palette-row" id="pal-red"></div>
+    </div>
+    <div class="subsection">
+      <div class="sub-title">Blue <span style="font-weight:400;color:#94a3b8;text-transform:none;letter-spacing:0">· <code style="font-family:Consolas,monospace;font-size:10px;">--color-blue-*</code></span></div>
+      <div class="palette-row" id="pal-blue"></div>
+    </div>
+    <div class="subsection">
+      <div class="sub-title">Semantic — Primary &amp; Secondary Action</div>
+      <div class="semantic-grid" id="sem-action"></div>
+    </div>
+    <div class="subsection">
+      <div class="sub-title">Semantic — Status</div>
+      <div class="semantic-grid" id="sem-status"></div>
+    </div>
+    <div class="subsection">
+      <div class="sub-title">Semantic — Background &amp; Text</div>
+      <div class="semantic-grid" id="sem-bgtxt"></div>
+    </div>
+    <div class="subsection">
+      <div class="sub-title">Wood — Structural UI Surfaces</div>
+      <div class="needs-grid" id="wood-tokens"></div>
+    </div>
+    <div class="subsection">
+      <div class="sub-title">Needs — Game-Specific Semantic Colors</div>
+      <div class="needs-grid" id="needs"></div>
+    </div>
+
+    <div class="subsection">
+      <div class="sub-title">Game Colors <span style="font-weight:400;color:#94a3b8;text-transform:none;letter-spacing:0">— Panel header strips · icon discs · awning stripes · action boards</span></div>
+      <div class="needs-grid">
+        <div class="need-token">
+          <div class="need-swatch" style="background:#ec4899;"></div>
+          <div class="need-info">
+            <div class="need-name">--color-pink</div>
+            <div style="font-family:Consolas,monospace;font-size:9px;color:#94a3b8;">#EC4899</div>
+            <div style="font-size:9px;color:#94a3b8;margin-top:2px;">Give Food · Grocery · Primary CTA</div>
+            <div style="font-family:Consolas,monospace;font-size:9px;color:#a78bfa;margin-top:2px;">↳ --color-pink-500</div>
+          </div>
+        </div>
+        <div class="need-token">
+          <div class="need-swatch" style="background:#db2777;"></div>
+          <div class="need-info">
+            <div class="need-name">--color-pink-deep</div>
+            <div style="font-family:Consolas,monospace;font-size:9px;color:#94a3b8;">#DB2777</div>
+            <div style="font-size:9px;color:#94a3b8;margin-top:2px;">Primary CTA bottom stop</div>
+            <div style="font-family:Consolas,monospace;font-size:9px;color:#a78bfa;margin-top:2px;">↳ --color-pink-600</div>
+          </div>
+        </div>
+        <div class="need-token">
+          <div class="need-swatch" style="background:#ea580c;"></div>
+          <div class="need-info">
+            <div class="need-name">--color-orange</div>
+            <div style="font-family:Consolas,monospace;font-size:9px;color:#94a3b8;">#EA580C</div>
+            <div style="font-size:9px;color:#94a3b8;margin-top:2px;">Action board (play · social)</div>
+            <div style="font-family:Consolas,monospace;font-size:9px;color:#a78bfa;margin-top:2px;">↳ --color-gold-500</div>
+          </div>
+        </div>
+        <div class="need-token">
+          <div class="need-swatch" style="background:#f59e0b;"></div>
+          <div class="need-info">
+            <div class="need-name">--color-gold-deep</div>
+            <div style="font-family:Consolas,monospace;font-size:9px;color:#94a3b8;">#F59E0B</div>
+            <div style="font-size:9px;color:#94a3b8;margin-top:2px;">Activity icon border</div>
+            <div style="font-family:Consolas,monospace;font-size:9px;color:#a78bfa;margin-top:2px;">↳ --color-gold-400</div>
+          </div>
+        </div>
+        <div class="need-token">
+          <div class="need-swatch" style="background:#fbbf24;"></div>
+          <div class="need-info">
+            <div class="need-name">--color-gold</div>
+            <div style="font-family:Consolas,monospace;font-size:9px;color:#94a3b8;">#FBBF24</div>
+            <div style="font-size:9px;color:#94a3b8;margin-top:2px;">Activity · Today's Picks</div>
+            <div style="font-family:Consolas,monospace;font-size:9px;color:#a78bfa;margin-top:2px;">↳ --color-gold-300</div>
+          </div>
+        </div>
+        <div class="need-token">
+          <div class="need-swatch" style="background:#4ade80;"></div>
+          <div class="need-info">
+            <div class="need-name">--color-lime</div>
+            <div style="font-family:Consolas,monospace;font-size:9px;color:#94a3b8;">#4ADE80</div>
+            <div style="font-size:9px;color:#94a3b8;margin-top:2px;">Habitat · Hay Loft</div>
+            <div style="font-family:Consolas,monospace;font-size:9px;color:#a78bfa;margin-top:2px;">↳ --color-green-400</div>
+          </div>
+        </div>
+        <div class="need-token">
+          <div class="need-swatch" style="background:#84cc16;"></div>
+          <div class="need-info">
+            <div class="need-name">--color-ivy</div>
+            <div style="font-family:Consolas,monospace;font-size:9px;color:#94a3b8;">#84CC16</div>
+            <div style="font-size:9px;color:#94a3b8;margin-top:2px;">Hay Loft · Habitat Status</div>
+            <div style="font-family:Consolas,monospace;font-size:9px;color:#a78bfa;margin-top:2px;">↳ bespoke</div>
+          </div>
+        </div>
+        <div class="need-token">
+          <div class="need-swatch" style="background:#178740;"></div>
+          <div class="need-info">
+            <div class="need-name">--color-green</div>
+            <div style="font-family:Consolas,monospace;font-size:9px;color:#94a3b8;">#178740</div>
+            <div style="font-size:9px;color:#94a3b8;margin-top:2px;">Habitat icon border · player action</div>
+            <div style="font-family:Consolas,monospace;font-size:9px;color:#a78bfa;margin-top:2px;">↳ --color-green-600</div>
+          </div>
+        </div>
+        <div class="need-token">
+          <div class="need-swatch" style="background:#06b6d4;"></div>
+          <div class="need-info">
+            <div class="need-name">--color-sky</div>
+            <div style="font-family:Consolas,monospace;font-size:9px;color:#94a3b8;">#06B6D4</div>
+            <div style="font-size:9px;color:#94a3b8;margin-top:2px;">Habitat dept awning</div>
+            <div style="font-family:Consolas,monospace;font-size:9px;color:#a78bfa;margin-top:2px;">↳ --color-cyan-500</div>
+          </div>
+        </div>
+        <div class="need-token">
+          <div class="need-swatch" style="background:#22d3ee;"></div>
+          <div class="need-info">
+            <div class="need-name">--color-cyan</div>
+            <div style="font-family:Consolas,monospace;font-size:9px;color:#94a3b8;">#22D3EE</div>
+            <div style="font-size:9px;color:#94a3b8;margin-top:2px;">Action board (hygiene · water)</div>
+            <div style="font-family:Consolas,monospace;font-size:9px;color:#a78bfa;margin-top:2px;">↳ --color-cyan-400</div>
+          </div>
+        </div>
+        <div class="need-token">
+          <div class="need-swatch" style="background:#a78bfa;"></div>
+          <div class="need-info">
+            <div class="need-name">--color-violet</div>
+            <div style="font-family:Consolas,monospace;font-size:9px;color:#94a3b8;">#A78BFA</div>
+            <div style="font-size:9px;color:#94a3b8;margin-top:2px;">Inventory pill · action board</div>
+            <div style="font-family:Consolas,monospace;font-size:9px;color:#a78bfa;margin-top:2px;">↳ --color-violet-400</div>
+          </div>
+        </div>
+        <div class="need-token">
+          <div class="need-swatch" style="background:#8b5cf6;"></div>
+          <div class="need-info">
+            <div class="need-name">--color-violet-mid</div>
+            <div style="font-family:Consolas,monospace;font-size:9px;color:#94a3b8;">#8B5CF6</div>
+            <div style="font-size:9px;color:#94a3b8;margin-top:2px;">Activity badge · Bedding awning</div>
+            <div style="font-family:Consolas,monospace;font-size:9px;color:#a78bfa;margin-top:2px;">↳ --color-violet-500</div>
+          </div>
+        </div>
+        <div class="need-token">
+          <div class="need-swatch" style="background:#7c3aed;"></div>
+          <div class="need-info">
+            <div class="need-name">--color-violet-deep</div>
+            <div style="font-family:Consolas,monospace;font-size:9px;color:#94a3b8;">#7C3AED</div>
+            <div style="font-size:9px;color:#94a3b8;margin-top:2px;">Inventory icon border</div>
+            <div style="font-family:Consolas,monospace;font-size:9px;color:#a78bfa;margin-top:2px;">↳ --color-violet-600</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="notes">
+      <h4>Notes</h4>
+      <ul>
+        <li>Only use semantic colors when used purposefully in an appropriate component, like warning colors in a warning icon.</li>
+        <li><code>--color-primary</code> = <code>--color-pink-600</code> (#DB2777) — selected for WCAG AA contrast on white</li>
+        <li>Dark mode overrides via <code>@media (prefers-color-scheme: dark)</code> and <code>[data-theme="dark"]</code>; accent scales stay fixed in both modes</li>
+        <li>Needs colors are semantic-only (no scale) — use only within the needs/wellness UI, not as general purpose colors</li>
+        <li><code>--color-bg-canvas: #000000</code> is reserved for the 3D/WebGL viewport background</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ── TYPOGRAPHY ─────────────────────────────────────────────────── -->
+  <section class="section" id="typography">
+    <div class="section-header">
+      <h2 class="section-title">Typography</h2>
+      <span class="section-count">4 families + 2 screen-specific · 8 sizes · 4 weights · 3 line-heights</span>
+    </div>
+
+    <div class="subsection">
+      <div class="sub-title">Font Families</div>
+      <div class="ff-grid">
+        <div class="ff-card">
+          <div class="ff-sample" style="font-family:'Gaegu',cursive;font-weight:700;">Guinea Pig Sim</div>
+          <div class="ff-label">Heading</div>
+          <div class="ff-var">--font-family-heading</div>
+          <div class="ff-note">Gaegu · wght 300, 400, 700</div>
+          <div class="ff-note" style="margin-top:3px;">h1–h6, panel titles, game UI</div>
+        </div>
+        <div class="ff-card">
+          <div class="ff-sample" style="font-family:'Nunito',sans-serif;">The quick brown fox</div>
+          <div class="ff-label">Body</div>
+          <div class="ff-var">--font-family-body</div>
+          <div class="ff-note">Nunito · wght 300–700, italic</div>
+          <div class="ff-note" style="margin-top:3px;">Body copy, labels, inputs, buttons</div>
+        </div>
+        <div class="ff-card">
+          <div class="ff-sample" style="font-family:Consolas,monospace;font-size:17px;">#db2777 · 0.375rem</div>
+          <div class="ff-label">Mono</div>
+          <div class="ff-var">--font-family-mono</div>
+          <div class="ff-note">Consolas, Monaco · system</div>
+          <div class="ff-note" style="margin-top:3px;">Code, token values, debug UI</div>
+        </div>
+        <div class="ff-card">
+          <div class="ff-sample" style="font-family:'Roboto',sans-serif;">42 / 100 · 3.2 oz</div>
+          <div class="ff-label">Stats</div>
+          <div class="ff-var">--font-family-stats</div>
+          <div class="ff-note">Roboto · wght 400, 500, 700</div>
+          <div class="ff-note" style="margin-top:3px;">Numeric stat grids (stats.css)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="sub-title">Screen-Specific Fonts — Adoption Certificate <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#94a3b8;">not global tokens</span></div>
+      <div style="background:#fffbeb;border:1px solid #fde68a;border-left:3px solid #f59e0b;border-radius:8px;padding:16px 20px;">
+        <div style="font-size:11px;color:#92400e;margin-bottom:14px;">Hardcoded in <code style="font-family:Consolas,monospace;font-size:11px;background:rgba(245,158,11,.15);padding:1px 5px;border-radius:3px;">AdoptionCertificate.jsx</code> for the parchment certificate aesthetic — do not use globally.</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;">
+          <div class="ff-card" style="border-color:#fde68a;">
+            <div class="ff-sample" style="font-family:Georgia,'Times New Roman',serif;font-size:18px;">Certificate of Adoption</div>
+            <div class="ff-label" style="color:#92400e;">Serif — Certificate Formal</div>
+            <div class="ff-var" style="color:#b45309;">Georgia, "Times New Roman", serif</div>
+            <div class="ff-note">System font — no import needed</div>
+            <div class="ff-note" style="margin-top:3px;">Certificate title, stats table, preamble body, footer meta, signature titles, wax seal, ADOPTED stamp</div>
+          </div>
+          <div class="ff-card" style="border-color:#fde68a;">
+            <div class="ff-sample" style="font-family:'Caveat',cursive;font-size:26px;font-weight:700;">Hazel Whiskers</div>
+            <div class="ff-label" style="color:#92400e;">Script — Handwritten Signatures</div>
+            <div class="ff-var" style="color:#b45309;">'Caveat', cursive</div>
+            <div class="ff-note">Caveat · Google Fonts · wght 400, 700</div>
+            <div class="ff-note" style="margin-top:3px;">Endorsement signatures, pig display name in card header, name callout in preamble</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="sub-title">Type Scale</div>
+      <div class="type-scale" id="type-scale"></div>
+    </div>
+
+    <div class="subsection">
+      <div class="sub-title">Font Weights</div>
+      <div class="weight-list">
+        <div class="weight-row">
+          <div class="weight-meta"><div class="weight-var">--font-weight-normal</div><div class="weight-val">400</div></div>
+          <span style="font-size:18px;font-weight:400;">The quick brown fox jumps over the lazy dog</span>
+        </div>
+        <div class="weight-row">
+          <div class="weight-meta"><div class="weight-var">--font-weight-medium</div><div class="weight-val">500</div></div>
+          <span style="font-size:18px;font-weight:500;">The quick brown fox jumps over the lazy dog</span>
+        </div>
+        <div class="weight-row">
+          <div class="weight-meta"><div class="weight-var">--font-weight-semibold</div><div class="weight-val">600</div></div>
+          <span style="font-size:18px;font-weight:600;">The quick brown fox jumps over the lazy dog</span>
+        </div>
+        <div class="weight-row">
+          <div class="weight-meta"><div class="weight-var">--font-weight-bold / --font-weight-heading</div><div class="weight-val">700</div></div>
+          <span style="font-size:18px;font-weight:700;">The quick brown fox jumps over the lazy dog</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="sub-title">Line Heights</div>
+      <div class="lh-table">
+        <div class="lh-row" style="background:#f8fafc;">
+          <span class="lh-token">--line-height-tight</span>
+          <span class="lh-val">1.25</span>
+          <p class="lh-text" style="line-height:1.25;">Social animals that thrive with companionship. Regular interaction builds trust and deepens the bond between pet and owner over time.</p>
+        </div>
+        <div class="lh-row">
+          <span class="lh-token">--line-height-normal</span>
+          <span class="lh-val">1.5</span>
+          <p class="lh-text" style="line-height:1.5;">Social animals that thrive with companionship. Regular interaction builds trust and deepens the bond between pet and owner over time.</p>
+        </div>
+        <div class="lh-row" style="background:#f8fafc;">
+          <span class="lh-token">--line-height-relaxed</span>
+          <span class="lh-val">1.75</span>
+          <p class="lh-text" style="line-height:1.75;">Social animals that thrive with companionship. Regular interaction builds trust and deepens the bond between pet and owner over time.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="notes">
+      <h4>Notes</h4>
+      <ul>
+        <li>Body font is <code>Nunito</code> (replaced Inter) — loaded via <code>colors_and_type.css</code> at wght 300–700 + italic</li>
+        <li>Base font size is <code>16px</code> on <code>html</code>; all <code>rem</code> values scale from this root</li>
+        <li>Responsive heading scale: h1–h3 scale ×1.125 at 640px, ×1.25 at 1024px via <code>calc()</code> inside media queries</li>
+        <li><code>--font-weight-heading</code> is an alias for 700 — always use for h1–h6 elements</li>
+        <li><code>-webkit-font-smoothing: antialiased</code> applied globally on <code>body</code></li>
+        <li>Heading font (Gaegu) is a handwritten-style display face — avoid using below 14px</li>
+        <li>Georgia and Caveat are <strong>not global tokens</strong> — scoped exclusively to <code>AdoptionCertificate.jsx</code>; do not use elsewhere</li>
+        <li><code>--font-family-stats</code> (Roboto) is used only in <code>stats.css</code> stat grid components</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ── SPACING ────────────────────────────────────────────────────── -->
+  <section class="section" id="spacing">
+    <div class="section-header">
+      <h2 class="section-title">Spacing</h2>
+      <span class="section-count">10 base steps · 6 semantic aliases · 4px base unit</span>
+    </div>
+
+    <div class="subsection">
+      <div class="sub-title">Base Scale — --space-*</div>
+      <div class="spacing-list" id="spacing-list"></div>
+    </div>
+
+    <div class="subsection">
+      <div class="sub-title">Semantic Aliases — --spacing-*</div>
+      <table class="token-table">
+        <thead><tr><th>Token</th><th>Resolves To</th><th>px</th><th>Intended Usage</th></tr></thead>
+        <tbody>
+          <tr><td><code>--spacing-2xs</code></td><td><code>--space-1</code></td><td>4px</td><td>Tight gaps, icon nudges, inline offsets</td></tr>
+          <tr><td><code>--spacing-xs</code></td><td><code>--space-2</code></td><td>8px</td><td>Compact item gaps, badge padding</td></tr>
+          <tr><td><code>--spacing-sm</code></td><td><code>--space-3</code></td><td>12px</td><td>Inline gaps, compact list items</td></tr>
+          <tr><td><code>--spacing-md</code></td><td><code>--space-4</code></td><td>16px</td><td>Default component padding, standard gap</td></tr>
+          <tr><td><code>--spacing-lg</code></td><td><code>--space-5</code></td><td>20px</td><td>Section internal spacing, looser gaps</td></tr>
+          <tr><td><code>--spacing-xl</code></td><td><code>--space-6</code></td><td>24px</td><td>Panel padding (desktop), section dividers</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="notes">
+      <h4>Notes</h4>
+      <ul>
+        <li>All spacing tokens defined in <code>rem</code>; pixel values assume <code>html { font-size: 16px }</code></li>
+        <li>Scale skips <code>--space-7</code> and <code>--space-9</code> — intentional gaps to avoid ambiguity</li>
+        <li>Prefer <code>--spacing-*</code> semantic aliases in component code; use <code>--space-*</code> for precise one-off values</li>
+        <li>Min touch targets: button sm=40px, md=44px, lg=48px (iOS HIG minimum)</li>
+        <li>Habitat sidebar width: 360px fixed; collapses to 100% width / max-height 300px on mobile</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ── BORDER RADIUS ──────────────────────────────────────────────── -->
+  <section class="section" id="radius">
+    <div class="section-header">
+      <h2 class="section-title">Border Radius</h2>
+      <span class="section-count">8 tokens · logical property variants</span>
+    </div>
+
+    <div class="subsection">
+      <div class="sub-title">Radius Scale</div>
+      <div class="radius-grid" id="radius-grid"></div>
+    </div>
+
+    <div class="subsection">
+      <div class="sub-title">Logical Property Variants (RTL support)</div>
+      <table class="token-table">
+        <thead><tr><th>Token</th><th>Default Value</th><th>Resolves To (LTR)</th></tr></thead>
+        <tbody>
+          <tr><td><code>--border-radius-start-start</code></td><td><code>--radius-base · 4px</code></td><td>Top-left</td></tr>
+          <tr><td><code>--border-radius-start-end</code></td><td><code>--radius-base · 4px</code></td><td>Top-right</td></tr>
+          <tr><td><code>--border-radius-end-start</code></td><td><code>--radius-base · 4px</code></td><td>Bottom-left</td></tr>
+          <tr><td><code>--border-radius-end-end</code></td><td><code>--radius-base · 4px</code></td><td>Bottom-right</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="notes">
+      <h4>Notes</h4>
+      <ul>
+        <li>Components use logical border-radius properties (<code>border-start-start-radius</code> etc.) throughout for LTR/RTL parity</li>
+        <li>Button radii: sm → <code>--radius-base</code> (4px), md → <code>--radius-md</code> (6px), lg → <code>--radius-lg</code> (8px)</li>
+        <li>Panel: <code>--radius-md</code> on mobile → <code>--radius-lg</code> on desktop (769px+)</li>
+        <li><code>--radius-full</code> (9999px) used for pill badges, chips, FABs, and segmented controls overflow container</li>
+        <li>Subpanel accent bar (<code>.panel--accent::before</code>) has no border-radius — it's a 4px-wide flush strip</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ── SHADOWS ────────────────────────────────────────────────────── -->
+  <section class="section" id="shadows">
+    <div class="section-header">
+      <h2 class="section-title">Shadows</h2>
+      <span class="section-count">5 elevation · 16 component tokens</span>
+    </div>
+
+    <div class="subsection">
+      <div class="sub-title">Elevation Scale</div>
+      <div class="shadow-grid" id="shadow-grid"></div>
+    </div>
+
+    <div class="subsection" style="margin-top:28px;">
+      <div class="sub-title">Component tokens — game-specific · warm-brown + inset families</div>
+      <div class="shadow-grid" id="shadow-comp-grid"></div>
+    </div>
+
+    <div class="notes">
+      <h4>Notes</h4>
+      <ul>
+        <li>All shadows use <code>rgb(0 0 0 / alpha)</code> modern syntax — not compatible with IE11</li>
+        <li>Panel resting state: <code>--shadow-sm</code>; hover state: <code>--shadow-md</code> (set via <code>transition: all var(--transition-normal)</code>)</li>
+        <li>Modal / dialog elevation: <code>--shadow-xl</code></li>
+        <li>Disabled buttons: <code>box-shadow: none !important</code> overrides all elevation</li>
+        <li>Colored hover shadows (primary/danger/warning) are per-component RGBA values at 0.1 opacity — not tokens</li>
+        <li>Tooltip backdrop blur: <code>backdrop-filter: blur(1px)</code> used on loading panel overlay, not as a token</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ── Z-INDEX ────────────────────────────────────────────────────── -->
+  <section class="section" id="z-index">
+    <div class="section-header">
+      <h2 class="section-title">Z-Index</h2>
+      <span class="section-count">7 layers · increments of 10</span>
+    </div>
+
+    <table class="token-table">
+      <thead><tr><th>Token</th><th>Value</th><th>Layer</th><th>Usage</th></tr></thead>
+      <tbody>
+        <tr><td><code>--z-index-dropdown</code></td><td>1000</td><td>1 / 7</td><td>Dropdown menus, context menus, select popouts</td></tr>
+        <tr><td><code>--z-index-sticky</code></td><td>1020</td><td>2 / 7</td><td>Sticky headers, sticky sidebars</td></tr>
+        <tr><td><code>--z-index-fixed</code></td><td>1030</td><td>3 / 7</td><td>Fixed navigation bars, FAB buttons, game HUD</td></tr>
+        <tr><td><code>--z-index-modal-backdrop</code></td><td>1040</td><td>4 / 7</td><td>Modal overlay scrim / background dimmer</td></tr>
+        <tr><td><code>--z-index-modal</code></td><td>1050</td><td>5 / 7</td><td>Modal dialogs, bottom sheets, drawers</td></tr>
+        <tr><td><code>--z-index-popover</code></td><td>1060</td><td>6 / 7</td><td>Popovers, floating info panels, command palettes</td></tr>
+        <tr><td><code>--z-index-tooltip</code></td><td>1070</td><td>7 / 7</td><td>Tooltips — always topmost, above all other layers</td></tr>
+      </tbody>
+    </table>
+
+    <div class="notes">
+      <h4>Notes</h4>
+      <ul>
+        <li>All layers increment by 10, leaving room for intermediate values if a future component needs them</li>
+        <li>Tooltip (1070) is always the ceiling — it must appear above modals and popovers per UX convention</li>
+        <li>3D WebGL canvas (<code>--color-bg-canvas: #000000</code>) lives at <code>z-index: 0</code>; all UI layers stack above</li>
+        <li>FAB subnavigation uses <code>position: fixed</code> — respect <code>--z-index-fixed</code> (1030)</li>
+        <li>Do not use arbitrary z-index values in components — always reference a token</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ── TRANSITIONS ────────────────────────────────────────────────── -->
+  <section class="section" id="transitions">
+    <div class="section-header">
+      <h2 class="section-title">Transitions</h2>
+      <span class="section-count">3 speeds · ease-in-out easing</span>
+    </div>
+
+    <table class="token-table">
+      <thead><tr><th>Token</th><th>Value</th><th>Usage</th><th style="width:80px;">Demo ↗ hover</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>--transition-fast</code></td>
+          <td><code>150ms ease-in-out</code></td>
+          <td>Button states, focus rings, hover color shifts, tooltip opacity fade</td>
+          <td><div class="transition-box" style="transition:transform 150ms ease-in-out, background 150ms ease-in-out;"></div></td>
+        </tr>
+        <tr>
+          <td><code>--transition-normal</code></td>
+          <td><code>250ms ease-in-out</code></td>
+          <td>Panel hover states, accordion expand/collapse, page-level transitions</td>
+          <td><div class="transition-box" style="transition:transform 250ms ease-in-out, background 250ms ease-in-out;"></div></td>
+        </tr>
+        <tr>
+          <td><code>--transition-slow</code></td>
+          <td><code>350ms ease-in-out</code></td>
+          <td>Modal open/close, slide-in drawers, complex layout animations</td>
+          <td><div class="transition-box" style="transition:transform 350ms ease-in-out, background 350ms ease-in-out;"></div></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="notes">
+      <h4>Notes</h4>
+      <ul>
+        <li><code>@media (prefers-reduced-motion: reduce)</code> — transitions set to <code>none</code> in panel, button, and tooltip components</li>
+        <li>Button hover: adds <code>translateY(-1px)</code>; active state removes it — both via <code>--transition-fast</code></li>
+        <li>Avoid <code>transition: all</code> on performance-critical components; specify individual properties explicitly</li>
+        <li>3D WebGL animations and frame pacing are managed separately outside this token system</li>
+        <li>Tooltip opacity fade uses <code>--transition-fast</code>; the tooltip itself has no transform animation</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Textures moved to GPS2 Design Elements.html -->
+  <section class="section" id="textures" style="display:none">
+    <div class="section-header">
+      <h2 class="section-title">Textures</h2>
+      <span class="section-count">CSS-only · no external assets · 4 pattern families · 9 variants</span>
+    </div>
+
+    <div class="subsection">
+      <div class="sub-title">Wood</div>
+      <div class="texture-grid">
+        <div class="texture-card">
+          <div class="texture-demo" style="position:relative; background:linear-gradient(180deg,#c2700d 0%,#a05a0c 50%,#87470b 100%); box-shadow:inset 0 2px 0 rgba(255,235,200,.22),inset 0 -2px 0 rgba(0,0,0,.4);">
+            <div style="position:absolute;inset:0;background:repeating-linear-gradient(180deg,rgba(255,255,255,.04) 0 3px,transparent 3px 6px);"></div>
+            <div style="position:absolute;top:10px;left:10px;width:8px;height:8px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fde68a,#1c1917);"></div>
+            <div style="position:absolute;top:10px;right:10px;width:8px;height:8px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fde68a,#1c1917);"></div>
+            <div style="position:absolute;bottom:10px;left:10px;width:8px;height:8px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fde68a,#1c1917);"></div>
+            <div style="position:absolute;bottom:10px;right:10px;width:8px;height:8px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fde68a,#1c1917);"></div>
+          </div>
+          <div class="texture-info">
+            <div class="texture-name">Wood Plank — SimTopBar</div>
+            <div class="texture-use">SimTopBar habitat bar · bolted plank below header</div>
+            <div class="texture-css">background: linear-gradient(180deg, #c2700d 0%, #a05a0c 50%, #87470b 100%)<br>grain overlay: repeating-linear-gradient(180deg, rgba(255,255,255,.04) 0 3px, transparent 3px 6px)<br>box-shadow: inset 0 2px 0 rgba(255,235,200,.22), inset 0 -2px 0 rgba(0,0,0,.4), 0 6px 8px -3px rgba(0,0,0,.35)</div>
+          </div>
+        </div>
+        <div class="texture-card">
+          <div class="texture-demo" style="position:relative; background:linear-gradient(180deg,#b45309 0%,#92400e 50%,#78350f 100%); box-shadow:0 10px 14px -4px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.25),inset 0 -2px 0 rgba(0,0,0,.4); display:flex; align-items:flex-end; justify-content:flex-end; padding:8px 12px;">
+            <div style="position:absolute;top:20px;left:8%;right:8%;height:1px;background:rgba(0,0,0,.22);"></div>
+            <div style="position:absolute;top:44px;left:14%;right:22%;height:1px;background:rgba(0,0,0,.18);"></div>
+            <div style="position:absolute;top:66px;left:28%;right:10%;height:1px;background:rgba(0,0,0,.14);"></div>
+            <div style="background:#fef3c7;border:2px solid #7c2d12;border-radius:4px;padding:1px 8px 2px;font-size:11px;font-weight:700;color:#7c2d12;text-transform:uppercase;letter-spacing:.1em;transform:rotate(2deg);box-shadow:0 2px 3px rgba(0,0,0,.2);font-family:'Nunito',sans-serif;">PRICE</div>
+          </div>
+          <div class="texture-info">
+            <div class="texture-name">Wood Shelf — Supplies Store</div>
+            <div class="texture-use">SuppliesStore shelving · items rest on top</div>
+            <div class="texture-css">background: linear-gradient(180deg, #b45309 0%, #92400e 50%, #78350f 100%)<br>grain: 3× horizontal rgba(0,0,0,.22/.18/.14) hairlines at different offsets<br>bracket: clipPath polygon triangles at left/right base in #78350f→#451a03</div>
+          </div>
+        </div>
+        <div class="texture-card">
+          <div class="texture-demo" style="position:relative; background:linear-gradient(180deg,#b45309 0%,#92400e 50%,#78350f 100%); box-shadow:inset 0 2px 0 rgba(255,255,255,.2),inset 0 -2px 0 rgba(0,0,0,.4);">
+            <div style="position:absolute;inset:6px 8px;border-radius:8px;pointer-events:none;background-image:repeating-linear-gradient(180deg,transparent 0 18px,rgba(0,0,0,.18) 18px 19px,transparent 19px 21px,rgba(0,0,0,.10) 21px 22px,transparent 22px 38px);"></div>
+            <div style="position:absolute;top:3px;left:8px;right:8px;height:1px;background:rgba(255,255,255,.22);border-radius:1px;"></div>
+            <div style="position:absolute;bottom:3px;left:8px;right:8px;height:2px;background:rgba(0,0,0,.32);border-radius:1px;"></div>
+          </div>
+          <div class="texture-info">
+            <div class="texture-name">Wood Frame — Pet Store Cage</div>
+            <div class="texture-use">Pet Store cage outer frame · same base gradient as shelf but denser 2-hairline grain</div>
+            <div class="texture-css">background: linear-gradient(180deg, #b45309 0%, #92400e 50%, #78350f 100%)<br>grain: repeating-linear-gradient(180deg, transparent 0 18px, rgba(0,0,0,.18) 18px 19px, transparent 19px 21px, rgba(0,0,0,.10) 21px 22px, transparent 22px 38px)<br>top highlight: rgba(255,255,255,.22) · bottom shadow: rgba(0,0,0,.32)</div>
+          </div>
+        </div>
+        <div class="texture-card">
+          <div class="texture-demo" style="position:relative; background:linear-gradient(180deg,#d97706 0%,#b45309 100%); box-shadow:0 22px 28px -8px rgba(69,26,3,.5),inset 0 2px 0 rgba(255,255,255,.2),inset 0 -3px 0 rgba(69,26,3,.3);">
+            <div style="position:absolute;inset:12px;border-radius:4px;pointer-events:none;background-image:repeating-linear-gradient(180deg,transparent 0 22px,rgba(0,0,0,.18) 22px 24px,transparent 24px 26px);"></div>
+            <div style="position:absolute;top:6px;left:6px;width:8px;height:8px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fde68a,#451a03);box-shadow:inset 0 -1px 1px rgba(0,0,0,.4);"></div>
+            <div style="position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fde68a,#451a03);box-shadow:inset 0 -1px 1px rgba(0,0,0,.4);"></div>
+            <div style="position:absolute;bottom:6px;left:6px;width:8px;height:8px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fde68a,#451a03);box-shadow:inset 0 -1px 1px rgba(0,0,0,.4);"></div>
+            <div style="position:absolute;bottom:6px;right:6px;width:8px;height:8px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fde68a,#451a03);box-shadow:inset 0 -1px 1px rgba(0,0,0,.4);"></div>
+          </div>
+          <div class="texture-info">
+            <div class="texture-name">Wood Frame — Bonded Pair Slot</div>
+            <div class="texture-use">Pet Store "Pick your bonded pair" selected slot · warmer amber-brown · dark brass studs</div>
+            <div class="texture-css">background: linear-gradient(180deg, #d97706 0%, #b45309 100%)<br>grain: repeating-linear-gradient(180deg, transparent 0 22px, rgba(0,0,0,.18) 22px 24px, transparent 24px 26px)<br>brass stud: radial-gradient(circle at 30% 30%, #fde68a, #451a03) — darker centre than SimTopBar variant<br>box-shadow: 0 22px 28px -8px rgba(69,26,3,.5), inset 0 2px 0 rgba(255,255,255,.2), inset 0 -3px 0 rgba(69,26,3,.3)</div>
+          </div>
+        </div>
+      <div class="texture-grid">
+        <div class="texture-card">
+          <div class="texture-demo" style="background:linear-gradient(180deg,#fffbeb 0%,#fef3c7 100%); border-bottom:1px solid #e2e8f0; display:flex; align-items:center; justify-content:center;">
+            <div style="font-family:'Gaegu',cursive;font-size:22px;font-weight:700;color:#451a03;text-align:center;line-height:1.2;">Parchment Panel<br><span style="font-family:'Nunito',sans-serif;font-size:12px;font-weight:400;color:#92400e;">Notice-board fill</span></div>
+          </div>
+          <div class="texture-info">
+            <div class="texture-name">Parchment — Simple</div>
+            <div class="texture-use">SimTopBar dropdowns · Tutorial cards · cage popovers · HelpOverlay · banners</div>
+            <div class="texture-css">background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%)<br>frame: 4px solid #92400e (Tutorial) / 3px solid #451a03 (cert)<br>inner hairline: 1px solid rgba(146,64,14,.35) inset 10px</div>
+          </div>
+        </div>
+        <div class="texture-card">
+          <div class="texture-demo" style="background:repeating-linear-gradient(90deg,rgba(146,64,14,.025) 0 1px,transparent 1px 5px),repeating-linear-gradient(0deg,rgba(146,64,14,.02) 0 1px,transparent 1px 7px),radial-gradient(ellipse at 50% 0%,#fffbeb 0%,#fef3c7 60%,#fde68a 100%); border-bottom:1px solid #e2e8f0; display:flex; align-items:center; justify-content:center;">
+            <div style="font-family:Georgia,serif;font-size:16px;font-weight:700;color:#451a03;letter-spacing:.02em;text-shadow:0 1px 0 rgba(255,255,255,.55);">Certificate <em style="font-weight:400;">of</em> Adoption</div>
+          </div>
+          <div class="texture-info">
+            <div class="texture-name">Parchment — Ornate (Certificate)</div>
+            <div class="texture-use">AdoptionCertificate only · cross-hatch noise + radial warm bleed</div>
+            <div class="texture-css">background:<br>  repeating-linear-gradient(90deg, rgba(146,64,14,.025) 0 1px, transparent 1px 5px),<br>  repeating-linear-gradient(0deg, rgba(146,64,14,.02) 0 1px, transparent 1px 7px),<br>  radial-gradient(ellipse at 50% 0%, #fffbeb 0%, #fef3c7 60%, #fde68a 100%)</div>
+          </div>
+        </div>
+        <div class="texture-card">
+          <div class="texture-demo" style="position:relative; background:linear-gradient(180deg,#fffbeb 0%,#fef3c7 100%); border-bottom:1px solid #e2e8f0;">
+            <div style="position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0 7px,rgba(120,53,15,.05) 7px 8px);"></div>
+            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#92400e;font-style:italic;">parchment + paper grain overlay</div>
+          </div>
+          <div class="texture-info">
+            <div class="texture-name">Paper Grain Overlay</div>
+            <div class="texture-use">Layered over parchment in SimTopBar dropdowns and Tutorial cards</div>
+            <div class="texture-css">backgroundImage: repeating-linear-gradient(180deg, transparent 0 7px, rgba(120,53,15,.05) 7px 8px)<br>position: absolute · inset: 20px 6px 6px (below awning stripe)<br>pointer-events: none · aria-hidden: true</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="sub-title">Awning Stripe <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#94a3b8;">repeating-linear-gradient(90deg, {accent} 0 14px, #fffbeb 14px 28px)</span></div>
+      <div style="border:1px solid #e2e8f0; border-radius:8px; overflow:hidden; margin-bottom:12px;">
+        <table class="token-table" style="margin:0;">
+          <thead><tr><th>Accent</th><th>Hex</th><th>Token</th><th>Used On</th><th style="width:150px;">Preview</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Pink</td><td><code>#ec4899</code></td><td><code>--color-pink-500</code></td><td>Per-pig drawers, targeting banner, pig info popover</td>
+              <td><div style="height:14px;background:repeating-linear-gradient(90deg,#ec4899 0 14px,#fffbeb 14px 28px);border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.18);"></div></td>
+            </tr>
+            <tr>
+              <td>Amber</td><td><code>#fbbf24</code></td><td><code>--color-gold-300</code></td><td>Activity panel, placement/inventory banners</td>
+              <td><div style="height:14px;background:repeating-linear-gradient(90deg,#fbbf24 0 14px,#fffbeb 14px 28px);border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.18);"></div></td>
+            </tr>
+            <tr>
+              <td>Violet</td><td><code>#a78bfa</code></td><td><code>--color-violet-400</code></td><td>Placed-item popover, inventory dropdown</td>
+              <td><div style="height:14px;background:repeating-linear-gradient(90deg,#a78bfa 0 14px,#fffbeb 14px 28px);border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.18);"></div></td>
+            </tr>
+            <tr>
+              <td>Green</td><td><code>#84cc16</code></td><td><span style="color:#94a3b8;font-size:11px;">— hardcoded</span></td><td>Inventory panel (SimTopBar)</td>
+              <td><div style="height:14px;background:repeating-linear-gradient(90deg,#84cc16 0 14px,#fffbeb 14px 28px);border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.18);"></div></td>
+            </tr>
+            <tr>
+              <td>Per-item: Water</td><td><code>#38bdf8</code></td><td><span style="color:#94a3b8;font-size:11px;">— hardcoded</span></td><td>Water bottle popover</td>
+              <td><div style="height:14px;background:repeating-linear-gradient(90deg,#38bdf8 0 14px,#fffbeb 14px 28px);border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.18);"></div></td>
+            </tr>
+            <tr>
+              <td>Per-item: Hay</td><td><code>#d97706</code></td><td><span style="color:#94a3b8;font-size:11px;">— hardcoded</span></td><td>Hay rack popover</td>
+              <td><div style="height:14px;background:repeating-linear-gradient(90deg,#d97706 0 14px,#fffbeb 14px 28px);border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.18);"></div></td>
+            </tr>
+            <tr>
+              <td>Per-item: Chew</td><td><code>#fb923c</code></td><td><span style="color:#94a3b8;font-size:11px;">— hardcoded</span></td><td>Chew toy popover</td>
+              <td><div style="height:14px;background:repeating-linear-gradient(90deg,#fb923c 0 14px,#fffbeb 14px 28px);border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.18);"></div></td>
+            </tr>
+            <tr>
+              <td>Per-item: Basket</td><td><code>#84cc16</code></td><td><span style="color:#94a3b8;font-size:11px;">— hardcoded</span></td><td>Basket / hideout popover</td>
+              <td><div style="height:14px;background:repeating-linear-gradient(90deg,#84cc16 0 14px,#fffbeb 14px 28px);border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.18);"></div></td>
+            </tr>
+            <tr>
+              <td>Per-item: Igloo</td><td><code>#a78bfa</code></td><td><code>--color-violet-400</code></td><td>Igloo popover</td>
+              <td><div style="height:14px;background:repeating-linear-gradient(90deg,#a78bfa 0 14px,#fffbeb 14px 28px);border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.18);"></div></td>
+            </tr>
+            <tr>
+              <td>Per-item: Cookie / Carrot</td><td><code>#f59e0b</code></td><td><code>--color-gold-400</code></td><td>Treat popovers</td>
+              <td><div style="height:14px;background:repeating-linear-gradient(90deg,#f59e0b 0 14px,#fffbeb 14px 28px);border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.18);"></div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:10px 14px;">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin-bottom:6px;">Sizing variants</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div style="display:flex;align-items:center;gap:12px;"><div style="width:80px;font-family:Consolas,monospace;font-size:10px;color:#64748b;">10px · banner</div><div style="flex:1;height:10px;background:repeating-linear-gradient(90deg,#ec4899 0 14px,#fffbeb 14px 28px);border:1px solid #e2e8f0;border-radius:2px;"></div></div>
+          <div style="display:flex;align-items:center;gap:12px;"><div style="width:80px;font-family:Consolas,monospace;font-size:10px;color:#64748b;">12px · popover</div><div style="flex:1;height:12px;background:repeating-linear-gradient(90deg,#ec4899 0 14px,#fffbeb 14px 28px);border:1px solid #e2e8f0;border-radius:2px;"></div></div>
+          <div style="display:flex;align-items:center;gap:12px;"><div style="width:80px;font-family:Consolas,monospace;font-size:10px;color:#64748b;">14px · dropdown</div><div style="flex:1;height:14px;background:repeating-linear-gradient(90deg,#ec4899 0 14px,#fffbeb 14px 28px);border:1px solid #e2e8f0;border-radius:2px;"></div></div>
+          <div style="display:flex;align-items:center;gap:12px;"><div style="width:80px;font-family:Consolas,monospace;font-size:10px;color:#64748b;">18px · help</div><div style="flex:1;height:18px;background:repeating-linear-gradient(90deg,#ec4899 0 18px,#fffbeb 18px 36px);border:1px solid #e2e8f0;border-radius:2px;"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="sub-title">Hardware — Brass Studs &amp; Nailed Signs</div>
+      <div class="texture-grid">
+        <div class="texture-card">
+          <div class="texture-demo" style="background:#fef3c7; border-bottom:1px solid #e2e8f0; display:flex; align-items:center; justify-content:center; gap:16px;">
+            <div style="width:10px;height:10px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fde68a,#1c1917);box-shadow:0 1px 2px rgba(0,0,0,.4);"></div>
+            <div style="width:8px;height:8px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fde68a,#1c1917);box-shadow:0 1px 2px rgba(0,0,0,.4);"></div>
+            <div style="width:6px;height:6px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fde68a,#1c1917);box-shadow:0 1px 2px rgba(0,0,0,.4);"></div>
+            <div style="font-size:11px;color:#92400e;">8px / 10px variants</div>
+          </div>
+          <div class="texture-info">
+            <div class="texture-name">Brass Rivet / Stud</div>
+            <div class="texture-use">Corners of all parchment panels · 4× per panel · SimTopBar end-cap bolts</div>
+            <div class="texture-css">background: radial-gradient(circle at 30% 30%, #fde68a, #1c1917)<br>size: 8px (SimTopBar), 10px (Tutorial/popover corners)<br>border-radius: 50%</div>
+          </div>
+        </div>
+        <div class="texture-card">
+          <div class="texture-demo" style="background:#f8f0e0; border-bottom:1px solid #e2e8f0; display:flex; align-items:center; justify-content:center; gap:12px;">
+            <div style="background:#fef3c7;border:2px solid #7c2d12;border-radius:4px;padding:2px 10px 3px;font-size:13px;font-weight:700;color:#7c2d12;text-transform:uppercase;letter-spacing:.1em;transform:rotate(-2deg);box-shadow:0 2px 3px rgba(0,0,0,.2);font-family:'Nunito',sans-serif;">HAY</div>
+            <div style="background:#fef3c7;border:2px solid #7c2d12;border-radius:4px;padding:2px 10px 3px;font-size:13px;font-weight:700;color:#7c2d12;text-transform:uppercase;letter-spacing:.1em;transform:rotate(1.5deg);box-shadow:0 2px 3px rgba(0,0,0,.2);font-family:'Nunito',sans-serif;">FOOD</div>
+            <div style="background:#fef3c7;border:2px solid #7c2d12;border-radius:4px;padding:2px 10px 3px;font-size:13px;font-weight:700;color:#7c2d12;text-transform:uppercase;letter-spacing:.1em;transform:rotate(-1deg);box-shadow:0 2px 3px rgba(0,0,0,.2);font-family:'Nunito',sans-serif;">SALE</div>
+          </div>
+          <div class="texture-info">
+            <div class="texture-name">Nailed Sign Label / Price Tag</div>
+            <div class="texture-use">Shelf labels (SuppliesStore) · SignPill triggers (SimTopBar) · cage item tags</div>
+            <div class="texture-css">background: #fef3c7 · border: 2px solid #7c2d12<br>border-radius: 4px · color: #7c2d12<br>font-weight: 700 · text-transform: uppercase · letter-spacing: .1em<br>transform: rotate(±1–2deg) · box-shadow: 0 2px 3px rgba(0,0,0,.2)</div>
+          </div>
+        </div>
+        <div class="texture-card">
+          <div class="texture-demo" style="background:#f8f0e0; border-bottom:1px solid #e2e8f0; display:flex; align-items:center; justify-content:center;">
+            <div style="width:72px;height:72px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#f59e0b 0%,#b91c1c 55%,#7f1d1d 100%);border:2px solid #450a0a;box-shadow:inset 0 -5px 8px rgba(0,0,0,.4),0 5px 8px rgba(69,26,3,.35);display:flex;align-items:center;justify-content:center;transform:rotate(-8deg);">
+              <div style="width:60px;height:60px;border-radius:50%;border:1.5px dashed rgba(255,255,255,.55);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fef3c7;font-family:Georgia,serif;"><div style="font-size:18px;line-height:1;">🐾</div><div style="font-size:6px;letter-spacing:.16em;font-weight:800;margin-top:1px;">OFFICIAL</div><div style="font-size:6px;letter-spacing:.16em;font-weight:800;">SEAL</div></div>
+            </div>
+          </div>
+          <div class="texture-info">
+            <div class="texture-name">Wax Seal</div>
+            <div class="texture-use">AdoptionCertificate only · bottom-right corner embossed seal</div>
+            <div class="texture-css">background: radial-gradient(circle at 35% 30%, #f59e0b 0%, #b91c1c 55%, #7f1d1d 100%)<br>border: 2px solid #450a0a · border-radius: 50% · transform: rotate(-8deg)<br>inner ring: 1.5px dashed rgba(255,255,255,.55)<br>shadow: inset 0 -5px 8px rgba(0,0,0,.4), 0 5px 8px rgba(69,26,3,.35)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="notes">
+      <h4>Notes</h4>
+      <ul>
+        <li>All textures are pure CSS — no image files, no external assets; safe for offline use. Cage floor and 3D backdrop surfaces are handled by the 3D app.</li>
+        <li>Three wood variants exist: SimTopBar plank (#c2700d–#87470b), cage frame / shelf (#b45309–#78350f), and bonded pair slot (#d97706–#b45309) — they share the same grain technique but differ in base color and hairline spacing</li> used across SimTopBar, Tutorial, HelpOverlay, cage popovers, and banners</li>
+        <li>Awning stripe always sits at the top of its panel, immediately above the parchment body; paper grain overlays the parchment body below the stripe</li>
+        <li>Brass studs (<code>radial-gradient(circle at 30% 30%, #fde68a, #1c1917)</code>) are always 4-corner positioned, <code>aria-hidden="true"</code></li>
+        <li>Nailed sign labels always carry a slight rotation (±1–2°) to feel hand-placed; never exceed ±3°</li>
+        <li>Wood grain overlay (<code>rgba(255,255,255,.04)</code> repeating) must sit in a <code>position:absolute; inset:0; pointer-events:none</code> div — do not apply directly to the background shorthand</li>
+        <li>The Ornate Parchment pattern is exclusive to <code>AdoptionCertificate.jsx</code> — use Simple Parchment everywhere else</li>
+        <li>Awning stripe height varies: 10px (compact banners), 12px (item popovers), 14px (SimTopBar dropdowns), 18px (HelpOverlay full-screen)</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<script>
+// ── Data ──────────────────────────────────────────────────────────────────────
+
+const steps = [50,100,200,300,400,500,600,700,800,900];
+
+const palettes = {
+  pink:    ['#fdf2f8','#fce7f3','#fbcfe8','#f9a8d4','#f472b6','#ec4899','#db2777','#be185d','#9f1239','#831843'],
+  green:   ['#f0fdf4','#dcfce7','#bbf7d0','#86efac','#4ade80','#22c55e','#178740','#15803d','#166534','#14532d'],
+  violet:  ['#f5f3ff','#ede9fe','#ddd6fe','#c4b5fd','#a78bfa','#8b5cf6','#7c3aed','#6d28d9','#5b21b6','#4c1d95'],
+  yellow:  ['#fefce8','#fef9c3','#fef08a','#fde047','#facc15','#eab308','#ca8a04','#a16207','#854d0e','#713f12'],
+  cyan:    ['#ecfeff','#cffafe','#a5f3fc','#67e8f9','#22d3ee','#06b6d4','#0891b2','#0e7490','#155e75','#164e63'],
+  neutral: ['#f8fafc','#f1f5f9','#e2e8f0','#cbd5e1','#94a3b8','#64748b','#475569','#334155','#1e293b','#0f172a'],
+  gold:    ['#fffbeb','#fef3c7','#fde68a','#fbbf24','#f59e0b','#ea580c','#c2410c','#9a3412','#7c2d12','#431407'],
+  red:     ['#fef2f2','#fee2e2','#fecaca','#f87171','#ef4444','#dc2626','#b91c1c','#991b1b','#7f1d1d','#450a0a'],
+  blue:    ['#eff6ff','#dbeafe','#bfdbfe','#60a5fa','#3b82f6','#2563eb','#1d4ed8','#1e40af','#1e3a8a','#172554'],
+};
+
+const paletteNames = {
+  pink:'pink', green:'green', violet:'violet',
+  yellow:'yellow', cyan:'cyan', neutral:'neutral',
+  gold:'gold', red:'red', blue:'blue'
+};
+
+const semAction = [
+  [{name:'--color-primary-bg',     hex:'#fdf2f8', alias:'--color-pink-50'},
+   {name:'--color-primary',        hex:'#db2777', alias:'--color-pink-600'},
+   {name:'--color-primary-hover',  hex:'#be185d', alias:'--color-pink-700'},
+   {name:'--color-primary-active', hex:'#9f1239', alias:'--color-pink-800'}],
+  [{name:'--color-secondary-bg',     hex:'#f0fdf4', alias:'--color-green-50'},
+   {name:'--color-secondary',        hex:'#178740', alias:'--color-green-600'},
+   {name:'--color-secondary-hover',  hex:'#15803d', alias:'--color-green-700'},
+   {name:'--color-secondary-active', hex:'#166534', alias:'--color-green-800'}],
+];
+
+const semStatus = [
+  [{name:'--color-success-bg',     hex:'#f0fdf4', alias:'--color-green-50'},
+   {name:'--color-success-border', hex:'#86efac', alias:'--color-green-300'},
+   {name:'--color-success',        hex:'#178740', alias:'--color-green-600'}],
+  [{name:'--color-warning-bg',     hex:'#fffbeb', alias:'--color-gold-50'},
+   {name:'--color-warning-border', hex:'#fbbf24', alias:'--color-gold-300'},
+   {name:'--color-warning',        hex:'#ea580c', alias:'--color-gold-500'}],
+  [{name:'--color-error-bg',          hex:'#fef2f2', alias:'--color-red-50'},
+   {name:'--color-danger-surface',     hex:'#fee2e2', alias:'--color-red-100'},
+   {name:'--color-critical-surface',   hex:'#fecaca', alias:'--color-red-200'}],
+  [{name:'--color-danger-border',      hex:'#f87171', alias:'--color-red-300'},
+   {name:'--color-critical-border',    hex:'#ef4444', alias:'--color-red-400'},
+   {name:'--color-error',              hex:'#dc2626', alias:'--color-red-500'}],
+  [{name:'--color-info-bg',        hex:'#eff6ff', alias:'--color-blue-50'},
+   {name:'--color-info',           hex:'#2563eb', alias:'--color-blue-500'}],
+];
+
+const semBgTxt = [
+  [{name:'--color-bg-primary',   hex:'#ffffff',  alias:'Light mode default'},
+   {name:'--color-bg-secondary', hex:'#f8fafc',  alias:''},
+   {name:'--color-bg-tertiary',  hex:'#f1f5f9',  alias:''}],
+  [{name:'--color-text-inverse',   hex:'#ffffff', alias:'On dark surfaces'},
+   {name:'--color-text-muted',     hex:'#94a3b8', alias:''},
+   {name:'--color-text-tertiary',  hex:'#64748b', alias:''},
+   {name:'--color-text-secondary', hex:'#475569', alias:''},
+   {name:'--color-text-primary',   hex:'#1e293b', alias:''}],
+];
+
+const needs = [
+  {name:'Hunger',      hex:'#f59e0b', var:'--color-need-hunger',      ramp:'--color-gold-400'},
+  {name:'Thirst',      hex:'#06b6d4', var:'--color-need-thirst',      ramp:'--color-cyan-500'},
+  {name:'Energy',      hex:'#1e3a8a', var:'--color-need-energy',      ramp:'--color-blue-800'},
+  {name:'Shelter',     hex:'#9a3412', var:'--color-need-shelter',     ramp:'--color-gold-700'},
+  {name:'Play',        hex:'#22c55e', var:'--color-need-play',        ramp:'--color-green-500'},
+  {name:'Social',      hex:'#ec4899', var:'--color-need-social',      ramp:'--color-pink-500'},
+  {name:'Stimulation', hex:'#ea580c', var:'--color-need-stimulation', ramp:'--color-gold-500'},
+  {name:'Comfort',     hex:'#8b5cf6', var:'--color-need-comfort',     ramp:'--color-violet-500'},
+  {name:'Hygiene',     hex:'#67e8f9', var:'--color-need-hygiene',     ramp:'--color-cyan-300'},
+  {name:'Nails',       hex:'#64748b', var:'--color-need-nails',       ramp:'--color-neutral-500'},
+  {name:'Chew',        hex:'#fde68a', var:'--color-need-chew',        ramp:'--color-gold-200'},
+];
+
+const woodTokens = [
+  {name:'Wood Amber',  hex:'#d97706', var:'--color-wood-amber',  use:'Bonded pair slot · aisle plaque'},
+  {name:'Wood Light',  hex:'#c2700d', var:'--color-wood-light',  use:'SimTopBar plank'},
+  {name:'Wood Mid',    hex:'#b45309', var:'--color-wood-mid',    use:'Cage frame · shelf · beam · GPS2 brand'},
+  {name:'Wood Dark',   hex:'#92400e', var:'--color-wood-dark',   use:'Mid-grain shadow · sill'},
+  {name:'Wood Shadow', hex:'#78350f', var:'--color-wood-shadow', use:'Dark edge · leg base'},
+  {name:'Wood Border', hex:'#451a03', var:'--color-wood-border', use:'Darkest border · stud centres'},
+];
+
+
+const typeScale = [
+  {token:'--font-size-xs',   rem:'0.75rem',  px:'12px', weight:400, heading:false, label:'Caption, helper text, tooltips'},
+  {token:'--font-size-sm',   rem:'0.875rem', px:'14px', weight:400, heading:false, label:'Body small, labels, inputs'},
+  {token:'--font-size-base', rem:'1rem',     px:'16px', weight:400, heading:false, label:'Body default (html root)'},
+  {token:'--font-size-lg',   rem:'1.125rem', px:'18px', weight:500, heading:false, label:'Body large, subheadings'},
+  {token:'--font-size-xl',   rem:'1.25rem',  px:'20px', weight:600, heading:false, label:'h4 equivalent, section labels'},
+  {token:'--font-size-2xl',  rem:'1.5rem',   px:'24px', weight:700, heading:true,  label:'h3'},
+  {token:'--font-size-3xl',  rem:'1.875rem', px:'30px', weight:700, heading:true,  label:'h2'},
+  {token:'--font-size-4xl',  rem:'2.25rem',  px:'36px', weight:700, heading:true,  label:'h1'},
+];
+
+const spacingData = [
+  {token:'--space-1',  rem:'0.25rem', px:'4px'},
+  {token:'--space-2',  rem:'0.5rem',  px:'8px'},
+  {token:'--space-3',  rem:'0.75rem', px:'12px'},
+  {token:'--space-4',  rem:'1rem',    px:'16px'},
+  {token:'--space-5',  rem:'1.25rem', px:'20px'},
+  {token:'--space-6',  rem:'1.5rem',  px:'24px'},
+  {token:'--space-8',  rem:'2rem',    px:'32px'},
+  {token:'--space-10', rem:'2.5rem',  px:'40px'},
+  {token:'--space-12', rem:'3rem',    px:'48px'},
+  {token:'--space-16', rem:'4rem',    px:'64px'},
+];
+
+const radiusData = [
+  {token:'--radius-none', val:'0',        px:'0px'},
+  {token:'--radius-sm',   val:'0.125rem', px:'2px'},
+  {token:'--radius-base', val:'0.25rem',  px:'4px'},
+  {token:'--radius-md',   val:'0.375rem', px:'6px'},
+  {token:'--radius-lg',   val:'0.5rem',   px:'8px'},
+  {token:'--radius-xl',   val:'0.75rem',  px:'12px'},
+  {token:'--radius-2xl',  val:'1rem',     px:'16px'},
+  {token:'--radius-full', val:'9999px',   px:'9999px'},
+];
+
+const shadowData = [
+  {token:'--shadow-sm',   val:'0 1px 2px 0 rgb(0 0 0 / 0.05)',                                                              use:'Panel resting, subtle card lift'},
+  {token:'--shadow-base', val:'0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',                             use:'Elevated card surface'},
+  {token:'--shadow-md',   val:'0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',                          use:'Button hover, panel hover'},
+  {token:'--shadow-lg',   val:'0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',                        use:'Floating panel, dropdown'},
+  {token:'--shadow-xl',   val:'0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',                       use:'Modal, dialog'},
+];
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function $ (id) { return document.getElementById(id) || document.createElement('div'); }
+
+// ── Renderers ─────────────────────────────────────────────────────────────────
+
+function renderPalette(id, name, colors) {
+  $(id).innerHTML = colors.map((hex, i) => `
+    <div class="swatch">
+      <div class="swatch-color" style="background:${hex}"></div>
+      <div class="swatch-info">
+        <div class="swatch-step">${steps[i]}</div>
+        <div class="swatch-hex">${hex.toUpperCase()}</div>
+        <div class="swatch-var">--color-${name}-${steps[i]}</div>
+      </div>
+    </div>`).join('');
+}
+
+function semCard(t) {
+  return `<div class="sem-token">
+    <div class="sem-swatch" style="background:${t.hex};${t.hex==='#ffffff'?'outline:1px solid #e2e8f0;':''}"></div>
+    <div class="sem-info">
+      <div class="sem-name">${t.name}</div>
+      <div class="sem-hex">${t.hex.toUpperCase()}</div>
+      ${t.alias ? `<div class="sem-alias">${t.alias}</div>` : ''}
+    </div>
+  </div>`;
+}
+function renderSemGrid(id, rows) {
+  $(id).innerHTML = rows.map(row =>
+    `<div class="sem-row">${row.map(semCard).join('')}</div>`
+  ).join('');
+}
+
+const itemAccents = [
+  {name:'Food Container', hex:'#f59e0b', var:'--color-item-food-container', need:'Hunger',      needVar:'--color-need-hunger',      needHex:'#f59e0b'},
+  {name:'Water',          hex:'#06b6d4', var:'--color-item-water',          need:'Thirst',      needVar:'--color-need-thirst',      needHex:'#06b6d4'},
+  {name:'Energy',         hex:'#1e3a8a', var:'--color-item-energy',         need:'Energy',      needVar:'--color-need-energy',      needHex:'#1e3a8a'},
+  {name:'Shelter',        hex:'#92400e', var:'--color-item-shelter',        need:'Shelter',     needVar:'--color-need-shelter',     needHex:'#92400e'},
+  {name:'Play',           hex:'#10b981', var:'--color-item-play',           need:'Play',        needVar:'--color-need-play',        needHex:'#10b981'},
+  {name:'Stimulation',    hex:'#ea580c', var:'--color-item-stimulation',    need:'Stimulation', needVar:'--color-need-stimulation', needHex:'#ea580c'},
+  {name:'Comfort',        hex:'#818cf8', var:'--color-item-comfort',        need:'Comfort',     needVar:'--color-need-comfort',     needHex:'#818cf8'},
+  {name:'Chew',           hex:'#d4c47a', var:'--color-item-chew',           need:'Chew',        needVar:'--color-need-chew',        needHex:'#d4c47a'},
+];
+
+function renderItemAccents() {
+  $('item-accents').innerHTML = itemAccents.map(n => `
+    <div class="need-token">
+      <div style="height:40px;display:flex;">
+        <div style="flex:1;background:${n.hex}"></div>
+        ${n.needHex !== n.hex ? `<div style="flex:1;background:${n.needHex};opacity:.7;"></div>` : ''}
+      </div>
+      <div class="need-info">
+        <div class="need-name">${n.name}</div>
+        <div class="need-var">${n.var}</div>
+        <div class="need-hex">${n.hex.toUpperCase()}</div>
+        <div style="font-size:9px;color:#94a3b8;margin-top:3px;font-family:Consolas,monospace;">→ ${n.needVar}</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderWood() {
+  $('wood-tokens').innerHTML = woodTokens.map(n => `
+    <div class="need-token">
+      <div class="need-swatch" style="background:${n.hex}"></div>
+      <div class="need-info">
+        <div class="need-name">${n.name}</div>
+        <div class="need-var">${n.var}</div>
+        <div class="need-hex">${n.hex.toUpperCase()}</div>
+        <div style="font-size:9px;color:#94a3b8;margin-top:3px;">${n.use}</div>
+      </div>
+    </div>`).join('');
+}
+
+
+function renderNeeds() {
+  $('needs').innerHTML = needs.map(n => `
+    <div class="need-token">
+      <div class="need-swatch" style="background:${n.hex}"></div>
+      <div class="need-info">
+        <div class="need-name">${n.name}</div>
+        <div class="need-var">${n.var}</div>
+        <div class="need-hex">${n.hex.toUpperCase()}</div>
+        <div style="font-family:Consolas,monospace;font-size:9px;color:#a78bfa;margin-top:2px;">↳ ${n.ramp}</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderTypeScale() {
+  $('type-scale').innerHTML = typeScale.map(t => `
+    <div class="type-row">
+      <div><div class="type-token-name">${t.token}</div><div class="type-token-value">${t.rem} · ${t.px}</div></div>
+      <div style="font-size:${t.rem};font-weight:${t.weight};font-family:${t.heading?"'Gaegu',cursive":"'Nunito',sans-serif"};overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">${t.label}</div>
+      <div class="type-props">
+        <span class="type-prop">family: ${t.heading?'heading':'body'}</span>
+        <span class="type-prop">weight: ${t.weight}</span>
+      </div>
+    </div>`).join('');
+}
+
+function renderSpacing() {
+  const maxPx = 64;
+  $('spacing-list').innerHTML = spacingData.map(s => {
+    const pct = Math.round((parseInt(s.px) / maxPx) * 100);
+    return `
+    <div class="sp-row">
+      <span class="sp-var">${s.token}</span>
+      <span class="sp-rem">${s.rem}</span>
+      <span class="sp-px">${s.px}</span>
+      <div><div class="sp-bar" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+}
+
+function renderRadius() {
+  $('radius-grid').innerHTML = radiusData.map(r => `
+    <div class="radius-card">
+      <div class="radius-box" style="border-radius:${r.val}"></div>
+      <div class="radius-var">${r.token}</div>
+      <div class="radius-val">${r.px}</div>
+    </div>`).join('');
+}
+
+const componentShadowData = [
+  {token:'--shadow-rivet',       val:'inset 0 -1px 1px rgba(0,0,0,.42)',                                                                                                                         use:'Decorative rivets — sp-rivet · ab-rivet (merged α.45/α.40)',    bg:'default'},
+  {token:'--shadow-ball',        val:'0 2px 3px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.4)',                                                                                            use:'Rod balls + connector orbs — ab-ball · ab-connector (merged α.35/α.30)', bg:'default'},
+  {token:'--shadow-badge',       val:'0 2px 3px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.3)',                                                                                            use:'Sign Pill badge + suffix tag — sp-badge · sp-suffix (shared)',  bg:'default'},
+  {token:'--shadow-disc',        val:'0 2px 3px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.4)',                                                                                            use:'Icon Sticker sm — Sign Pill inline icon disc (sp-icon)',         bg:'default'},
+  {token:'--shadow-lift-sm',     val:'0 3px 6px rgba(0,0,0,.2)',                                                                                                                                 use:'Category label — default state',                                bg:'default'},
+  {token:'--shadow-lift-md',     val:'0 5px 8px rgba(0,0,0,.25)',                                                                                                                                use:'Category label — hover state',                                  bg:'default'},
+  {token:'--shadow-lift-lg',     val:'0 6px 10px -2px rgba(0,0,0,.3)',                                                                                                                           use:'Category label — active state',                                 bg:'default'},
+  {token:'--shadow-cta',         val:'0 10px 15px -3px rgba(0,0,0,.25), 0 4px 6px -2px rgba(0,0,0,.15), inset 0 1px 0 rgba(255,255,255,.35)',                                                   use:'Primary CTA — default',                                         bg:'default'},
+  {token:'--shadow-cta-pressed', val:'0 4px 6px -2px rgba(0,0,0,.25), 0 2px 4px -1px rgba(0,0,0,.15), inset 0 1px 0 rgba(255,255,255,.25)',                                                     use:'Primary CTA — pressed',                                         bg:'default'},
+  {token:'--shadow-cta-header',  val:'0 6px 10px -2px rgba(219,39,119,.45), 0 2px 4px -1px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.4), inset 0 -2px 0 rgba(0,0,0,.18)',               use:'Primary CTA — header tab active (pink tint)',                    bg:'default'},
+  {token:'--shadow-pill',        val:'0 6px 8px -2px rgba(69,26,3,.4), 0 2px 4px -1px rgba(69,26,3,.25), inset 0 2px 0 rgba(255,255,255,.55), inset 0 -1px 0 rgba(146,64,14,.22)',              use:'Sign Pill — default',                                           bg:'warm'},
+  {token:'--shadow-pill-active', val:'0 10px 14px -4px rgba(69,26,3,.55), 0 4px 6px -2px rgba(69,26,3,.35), inset 0 2px 0 rgba(255,255,255,.6), inset 0 -1px 0 rgba(146,64,14,.25)',            use:'Sign Pill — active/open',                                       bg:'warm'},
+  {token:'--shadow-frame',       val:'0 8px 14px -4px rgba(69,26,3,.45), 0 3px 6px -2px rgba(69,26,3,.3), inset 0 2px 0 rgba(255,255,255,.55), inset 0 -2px 0 rgba(0,0,0,.18)',                 use:'Action Board frame — default',                                  bg:'warm'},
+  {token:'--shadow-frame-hover', val:'0 14px 20px -4px rgba(69,26,3,.5), 0 6px 10px -2px rgba(69,26,3,.35), inset 0 2px 0 rgba(255,255,255,.55), inset 0 -2px 0 rgba(0,0,0,.18)',               use:'Action Board frame — hover',                                    bg:'warm'},
+  {token:'--shadow-amber-pill',  val:'0 6px 10px -2px rgba(120,53,15,.4), 0 2px 4px -1px rgba(120,53,15,.25), inset 0 1px 0 rgba(255,255,255,.6), inset 0 -1px 0 rgba(146,64,14,.25)',          use:'Currency display + Icon button (shared — exact duplicate)',       bg:'warm'},
+  {token:'--shadow-confirm',     val:'0 6px 10px -2px rgba(0,0,0,.28), 0 2px 4px -1px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.4)',                                                     use:'Confirm / Pause button',                                        bg:'default'},
+];
+
+function renderComponentShadows() {
+  $('shadow-comp-grid').innerHTML = componentShadowData.map(s => `
+    <div class="shadow-card">
+      <div class="shadow-box${s.bg === 'warm' ? ' shadow-box--warm' : ''}" style="box-shadow:${s.val}"></div>
+      <div class="shadow-var">${s.token}</div>
+      <div class="shadow-val" style="margin-top:4px;">${s.val}</div>
+      <div class="shadow-use">${s.use}</div>
+    </div>`).join('');
+}
+
+function renderShadows() {
+  $('shadow-grid').innerHTML = shadowData.map(s => `
+    <div class="shadow-card">
+      <div class="shadow-box" style="box-shadow:${s.val}"></div>
+      <div class="shadow-var">${s.token}</div>
+      <div class="shadow-val" style="margin-top:4px;">${s.val}</div>
+      <div class="shadow-use">${s.use}</div>
+    </div>`).join('');
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+
+renderSemGrid('sem-action', semAction);
+renderSemGrid('sem-status', semStatus);
+renderSemGrid('sem-bgtxt',  semBgTxt);
+
+Object.keys(palettes).forEach(k => renderPalette(`pal-${k}`, paletteNames[k], palettes[k]));
+
+// ── Semantic map ─────────────────────────────────────────────────────────────
+
+const semanticMap = [
+  { palette: 'Pink', swatch: '#db2777', aliases: [
+    { token: '--color-primary',         step: '600', hex: '#db2777' },
+    { token: '--color-primary-hover',   step: '700', hex: '#be185d' },
+    { token: '--color-primary-active',  step: '800', hex: '#9f1239' },
+    { token: '--color-primary-bg',      step: '50',  hex: '#fdf2f8' },
+  ]},
+  { palette: 'Green', swatch: '#178740', aliases: [
+    { token: '--color-secondary',         step: '600', hex: '#178740' },
+    { token: '--color-secondary-hover',   step: '700', hex: '#15803d' },
+    { token: '--color-secondary-active',  step: '800', hex: '#166534' },
+    { token: '--color-secondary-bg',      step: '50',  hex: '#f0fdf4' },
+    { token: '--color-success',           step: '600', hex: '#178740' },
+    { token: '--color-success-bg',        step: '50',  hex: '#f0fdf4' },
+    { token: '--color-success-border',    step: '300', hex: '#86efac' },
+  ]},
+  { palette: 'Gold', swatch: '#ea580c', aliases: [
+    { token: '--color-warning',           step: '500', hex: '#ea580c' },
+    { token: '--color-warning-hover',     step: '600', hex: '#c2410c' },
+    { token: '--color-warning-bg',        step: '50',  hex: '#fffbeb' },
+    { token: '--color-warning-border',    step: '300', hex: '#fbbf24' },
+  ]},
+  { palette: 'Red', swatch: '#dc2626', aliases: [
+    { token: '--color-error',             step: '500', hex: '#dc2626' },
+    { token: '--color-error-bg',          step: '50',  hex: '#fef2f2' },
+    { token: '--color-danger-surface',    step: '100', hex: '#fee2e2' },
+    { token: '--color-danger-border',     step: '300', hex: '#f87171' },
+    { token: '--color-critical-surface',  step: '200', hex: '#fecaca' },
+    { token: '--color-critical-border',   step: '400', hex: '#ef4444' },
+  ]},
+  { palette: 'Blue', swatch: '#2563eb', aliases: [
+    { token: '--color-info',              step: '500', hex: '#2563eb' },
+    { token: '--color-info-hover',        step: '600', hex: '#1d4ed8' },
+    { token: '--color-info-bg',           step: '50',  hex: '#eff6ff' },
+  ]},
+];
+
+function renderSemanticMap() {
+  const el = $('semantic-map');
+  if (!el) return;
+  el.innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:0;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;">
+      <div style="display:grid;grid-template-columns:160px 1fr;background:#f8fafc;border-bottom:1px solid #e2e8f0;">
+        <div style="padding:8px 14px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#64748b;">Palette</div>
+        <div style="padding:8px 14px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#64748b;">Semantic Aliases → step used</div>
+      </div>
+      ${semanticMap.map((group, gi) => `
+        <div style="display:grid;grid-template-columns:160px 1fr;border-bottom:${gi < semanticMap.length-1 ? '1px solid #e2e8f0' : 'none'};${gi%2===1?'background:#f8fafc;':''}">
+          <div style="padding:12px 14px;display:flex;align-items:flex-start;gap:9px;border-right:1px solid #f1f5f9;">
+            <div style="width:14px;height:14px;border-radius:3px;background:${group.swatch};flex-shrink:0;margin-top:1px;"></div>
+            <span style="font-family:Consolas,monospace;font-size:12px;font-weight:700;color:#334155;">--color-${group.palette.toLowerCase()}-*</span>
+          </div>
+          <div style="padding:10px 14px;display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start;">
+            ${group.aliases.map(a => `
+              <div style="display:inline-flex;align-items:center;gap:5px;background:#fff;border:1px solid #e2e8f0;border-radius:5px;padding:3px 8px;">
+                <div style="width:10px;height:10px;border-radius:2px;background:${a.hex};flex-shrink:0;"></div>
+                <span style="font-family:Consolas,monospace;font-size:10.5px;color:#db2777;">${a.token}</span>
+                <span style="font-family:Consolas,monospace;font-size:9.5px;color:#94a3b8;">→ ${a.step}</span>
+              </div>`).join('')}
+          </div>
+        </div>`).join('')}
+    </div>`;
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+
+renderSemanticMap();
+renderNeeds();
+renderWood();
+renderItemAccents();
+renderTypeScale();
+renderSpacing();
+renderRadius();
+renderShadows();
+renderComponentShadows();
+
+// Active nav highlight on scroll
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      document.querySelectorAll('.nav-item').forEach(l =>
+        l.classList.toggle('active', l.getAttribute('href') === `#${e.target.id}`)
+      );
+    }
+  });
+}, { rootMargin: '-10% 0px -70% 0px' });
+
+document.querySelectorAll('.section').forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

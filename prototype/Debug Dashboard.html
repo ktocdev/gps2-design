@@ -1,0 +1,1242 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GPS2 â€” Debug Dashboard</title>
+<link rel="stylesheet" href="../colors_and_type.css" />
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  html, body, #root { height: 100%; margin: 0; }
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    font-family: 'Nunito', sans-serif;
+    color: #1e293b;
+    background: #f1f5f9;
+    -webkit-font-smoothing: antialiased;
+  }
+  button { font-family: inherit; }
+
+  /* ----- Parchment header (matches main player UI) ----- */
+  .dbg-header {
+    background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%);
+    border-bottom: 4px solid #92400e;
+    position: relative;
+  }
+  .dbg-header__awning {
+    height: 12px;
+    background: repeating-linear-gradient(90deg, #ec4899 0 14px, #fffbeb 14px 28px);
+    border-bottom: 2px solid #92400e;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.5), inset 0 -1px 0 rgba(0,0,0,.18);
+  }
+  .dbg-header__row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 24px 14px;
+  }
+  .dbg-header__title {
+    font-family: 'Gaegu', cursive;
+    font-size: 32px;
+    font-weight: 700;
+    color: #7c2d12;
+    margin: 0;
+    line-height: 1;
+  }
+  .dbg-header__subtitle {
+    font-size: 13px; color: #92400e; margin: 4px 0 0; font-weight: 600;
+  }
+  .dbg-header__util {
+    display: flex; gap: 8px; align-items: center;
+  }
+  .dbg-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px; border-radius: 999px;
+    background: rgba(255,255,255,.65);
+    border: 2px solid #92400e;
+    font-size: 12px; font-weight: 700; color: #7c2d12;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.6);
+  }
+  .dbg-pill .dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 2px rgba(34,197,94,.25); }
+  .dbg-pill.paused .dot { background: #f59e0b; box-shadow: 0 0 0 2px rgba(245,158,11,.25); }
+
+  /* ----- Category nav ----- */
+  .dbg-nav {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    padding: 12px 24px;
+    background: #fffbeb;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .dbg-nav__group {
+    font-size: 11px; font-weight: 800; color: #92400e;
+    letter-spacing: .08em; text-transform: uppercase;
+    padding: 6px 10px; align-self: center;
+  }
+  .dbg-nav__tab {
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #475569;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+    transition: all 120ms ease;
+  }
+  .dbg-nav__tab:hover { border-color: #ec4899; color: #1e293b; }
+  .dbg-nav__tab.active {
+    background: #fdf2f8; border-color: #ec4899; color: #831843;
+    box-shadow: 0 1px 2px rgba(190,24,93,.15);
+  }
+  .dbg-nav__divider { width: 1px; background: #e2e8f0; align-self: stretch; margin: 4px 4px; }
+
+  /* ----- Layout ----- */
+  .dbg-main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: 16px;
+    padding: 16px 24px 32px;
+    align-items: start;
+  }
+  .dbg-panels { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .dbg-side { position: sticky; top: 16px; display: flex; flex-direction: column; gap: 12px; }
+
+  /* ----- Panel ----- */
+  .panel {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(15,23,42,.04);
+  }
+  .panel__header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid #e2e8f0;
+    background: #f8fafc;
+    border-radius: 8px 8px 0 0;
+  }
+  .panel__header h3 {
+    margin: 0; font-size: 14px; font-weight: 700; color: #1e293b;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .panel__header .anchor {
+    font-size: 11px; color: #94a3b8; font-family: 'Roboto', sans-serif;
+    letter-spacing: .04em;
+  }
+  .panel__content { padding: 16px; }
+  .panel--accent { border-left: 3px solid var(--accent, #ec4899); }
+
+  /* Sub-grid for compact triple panels */
+  .panel-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .panel-row > .panel { box-shadow: none; }
+  @media (max-width: 880px) { .panel-row { grid-template-columns: 1fr; } }
+
+  /* ----- Form controls ----- */
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label {
+    font-size: 12px; font-weight: 700; color: #475569;
+    text-transform: uppercase; letter-spacing: .04em;
+  }
+  .field .hint { font-size: 11px; color: #94a3b8; font-weight: 500; text-transform: none; letter-spacing: 0; }
+
+  .input, .select {
+    width: 100%; height: 36px; padding: 0 10px;
+    border: 1px solid #cbd5e1; background: #fff; border-radius: 6px;
+    font-size: 13px; color: #1e293b; font-family: inherit;
+  }
+  .input:focus, .select:focus { outline: 2px solid #ec4899; outline-offset: 0; border-color: #ec4899; }
+  .input--ro { background: #f1f5f9; color: #475569; }
+
+  /* Toggle group (segmented control) */
+  .toggle-group {
+    display: inline-flex; padding: 3px; gap: 2px;
+    background: #f1f5f9; border-radius: 8px; border: 1px solid #e2e8f0;
+  }
+  .toggle-group button {
+    background: transparent; border: none; cursor: pointer;
+    padding: 6px 14px; border-radius: 6px;
+    font-size: 13px; font-weight: 600; color: #64748b;
+    transition: all 120ms ease;
+  }
+  .toggle-group button.on {
+    background: #ffffff; color: #831843;
+    box-shadow: 0 1px 2px rgba(15,23,42,.08), 0 0 0 1px #ec4899;
+  }
+
+  /* Buttons */
+  .btn {
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #1e293b;
+    border-radius: 6px;
+    padding: 7px 12px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 120ms ease;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn:hover:not(:disabled) { border-color: #ec4899; transform: translateY(-1px); }
+  .btn:active:not(:disabled) { transform: translateY(0); }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+  .btn--primary { background: #ec4899; border-color: #ec4899; color: #fff; }
+  .btn--primary:hover:not(:disabled) { background: #db2777; border-color: #db2777; }
+  .btn--secondary { background: #f0fdf4; border-color: #4ade80; color: #15803d; }
+  .btn--secondary:hover:not(:disabled) { background: #dcfce7; border-color: #22c55e; }
+  .btn--warning { background: #fef3c7; border-color: #f59e0b; color: #92400e; }
+  .btn--danger { background: #fef2f2; border-color: #f87171; color: #b91c1c; }
+  .btn--ghost { background: transparent; border-color: transparent; color: #64748b; }
+  .btn--ghost:hover:not(:disabled) { background: #f1f5f9; }
+  .btn--sm { padding: 4px 10px; font-size: 12px; }
+
+  .btn-row { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  /* Slider field */
+  .slider {
+    display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; align-items: center;
+  }
+  .slider__head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    grid-column: 1 / -1;
+    margin-bottom: 2px;
+  }
+  .slider__label { font-size: 13px; font-weight: 600; color: #1e293b; display: flex; align-items: center; gap: 6px; }
+  .slider__value {
+    font-family: 'Roboto', sans-serif; font-size: 12px; font-weight: 700;
+    background: #f1f5f9; border: 1px solid #e2e8f0;
+    padding: 2px 8px; border-radius: 999px;
+    color: #1e293b; min-width: 52px; text-align: center;
+  }
+  .slider__hint { font-size: 11px; color: #94a3b8; }
+  .slider input[type="range"] {
+    -webkit-appearance: none; appearance: none;
+    grid-column: 1 / -1;
+    width: 100%; height: 6px;
+    background: linear-gradient(to right, var(--accent, #ec4899) var(--pct, 50%), #e2e8f0 var(--pct, 50%));
+    border-radius: 999px;
+    outline: none;
+  }
+  .slider input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: #ffffff; border: 2px solid var(--accent, #ec4899);
+    box-shadow: 0 1px 2px rgba(15,23,42,.2); cursor: pointer;
+  }
+  .slider input[type="range"]::-moz-range-thumb {
+    width: 16px; height: 16px; border-radius: 50%;
+    background: #ffffff; border: 2px solid var(--accent, #ec4899); cursor: pointer;
+  }
+  .slider__minmax {
+    grid-column: 1 / -1;
+    display: flex; justify-content: space-between;
+    font-family: 'Roboto', sans-serif; font-size: 10px; color: #94a3b8;
+    margin-top: -2px;
+  }
+
+  /* Stat list */
+  .stats { display: flex; flex-direction: column; gap: 6px; }
+  .stat {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 10px;
+    background: #f8fafc; border-radius: 6px;
+    font-size: 12px;
+  }
+  .stat__label { color: #64748b; font-weight: 600; }
+  .stat__value { color: #1e293b; font-weight: 700; font-family: 'Roboto', sans-serif; }
+  .stat__value.muted { color: #94a3b8; font-weight: 600; }
+
+  .section-title {
+    font-size: 11px; font-weight: 800; color: #475569;
+    text-transform: uppercase; letter-spacing: .08em;
+    margin: 0 0 8px;
+  }
+  .section + .section { margin-top: 16px; padding-top: 16px; border-top: 1px solid #e2e8f0; }
+
+  .pig-tab-row { display: inline-flex; padding: 3px; gap: 2px; background: #f1f5f9; border-radius: 8px; border: 1px solid #e2e8f0; }
+  .pig-tab { background: transparent; border: none; cursor: pointer; padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; color: #64748b; display: inline-flex; align-items: center; gap: 4px; }
+  .pig-tab.on { background: #fff; color: #831843; box-shadow: 0 1px 2px rgba(15,23,42,.08), 0 0 0 1px #ec4899; }
+
+  /* Status badge */
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px; border-radius: 999px;
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .04em;
+    border: 1px solid;
+  }
+  .badge--ok    { background: #f0fdf4; border-color: #86efac; color: #166534; }
+  .badge--warn  { background: #fffbeb; border-color: #fcd34d; color: #92400e; }
+  .badge--err   { background: #fef2f2; border-color: #fca5a5; color: #991b1b; }
+  .badge--info  { background: #eff6ff; border-color: #93c5fd; color: #1e40af; }
+
+  /* ----- Live preview (right sidebar) ----- */
+  .preview-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .preview-card__head {
+    padding: 8px 14px;
+    background: linear-gradient(90deg, #fdf2f8, #fffbeb);
+    font-size: 11px; font-weight: 800; color: #831843;
+    letter-spacing: .08em; text-transform: uppercase;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid #f1d2c4;
+  }
+  .preview-stage {
+    position: relative; background: #87ceeb;
+    height: 220px; overflow: hidden;
+  }
+  .preview-cage {
+    position: absolute; left: 50%; top: 56%;
+    transform: translate(-50%, -50%) perspective(700px) rotateX(50deg) rotateZ(-2deg);
+    width: 280px; height: 200px;
+    background: #d0d0d0;
+    background-image:
+      radial-gradient(circle at 25% 30%, #b8b8b8 0 1px, transparent 2px),
+      radial-gradient(circle at 70% 70%, #b8b8b8 0 1px, transparent 2px);
+    background-size: 60px 60px;
+    box-shadow: inset 0 0 0 8px #e8e8e8, inset 0 0 0 10px #9a9a9a;
+    border-radius: 3px;
+  }
+  .preview-pig {
+    position: absolute; font-size: 26px;
+    transform-origin: 50% 100%;
+    transform: rotateX(-50deg) rotateZ(2deg);
+    filter: drop-shadow(0 3px 2px rgba(0,0,0,.25));
+    transition: left 600ms ease, top 600ms ease;
+  }
+  .preview-pig.selected::after {
+    content: ""; position: absolute; left: 50%; top: 50%;
+    width: 30px; height: 30px; border: 2px solid #fbbf24; border-radius: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .preview-need-row {
+    display: grid; grid-template-columns: 70px 1fr 32px;
+    align-items: center; gap: 8px;
+    font-size: 11px;
+  }
+  .preview-need-row .label { color: #475569; font-weight: 600; }
+  .preview-need-row .bar {
+    height: 6px; background: #f1f5f9; border-radius: 999px; overflow: hidden;
+  }
+  .preview-need-row .fill { height: 100%; border-radius: 999px; transition: width 200ms ease; }
+  .preview-need-row .v { font-family: 'Roboto', sans-serif; font-size: 11px; font-weight: 700; color: #1e293b; text-align: right; }
+
+  .activity {
+    background: #0f172a; color: #cbd5e1;
+    font-family: 'Consolas', monospace; font-size: 11px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #1e293b;
+    max-height: 140px; overflow-y: auto;
+  }
+  .activity .ts { color: #64748b; }
+  .activity .ev { color: #f9a8d4; }
+
+  /* Info button */
+  .info-btn {
+    width: 18px; height: 18px; border-radius: 50%;
+    border: 1px solid #cbd5e1; background: #f8fafc;
+    font-size: 11px; font-weight: 700; color: #64748b;
+    cursor: help;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+
+  /* Scrollbars (subtle) */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useMemo, useRef } = React;
+
+// ---------- Domain data ----------
+const NEED_META = {
+  hunger:      { label: 'Hunger',      color: '#f59e0b', cat: 'critical' },
+  thirst:      { label: 'Thirst',      color: '#06b6d4', cat: 'critical' },
+  energy:      { label: 'Energy',      color: '#1e3a8a', cat: 'critical' },
+  shelter:     { label: 'Shelter',     color: '#92400e', cat: 'environmental' },
+  hygiene:     { label: 'Hygiene',     color: '#0ea5e9', cat: 'environmental' },
+  chew:        { label: 'Chew',        color: '#a8a29e', cat: 'environmental' },
+  play:        { label: 'Play',        color: '#22c55e', cat: 'wellness' },
+  social:      { label: 'Social',      color: '#ec4899', cat: 'wellness' },
+  comfort:     { label: 'Comfort',     color: '#6366f1', cat: 'wellness' },
+  nails:       { label: 'Nails',       color: '#64748b', cat: 'wellness' },
+  stimulation: { label: 'Stimulation', color: '#fb923c', cat: 'wellness' },
+};
+const NEED_KEYS_BY_CAT = {
+  critical:      ['hunger', 'thirst', 'energy'],
+  environmental: ['shelter', 'hygiene', 'chew'],
+  wellness:      ['play', 'social', 'comfort', 'nails', 'stimulation'],
+};
+
+const SEED_PIGS = [
+  {
+    id: 'gp-truffle', name: 'Truffle', breed: 'American', gender: 'sow', age: 14,
+    emoji: 'ðŸ¹', hue: 0, x: 1.4, y: 1.2,
+    needs: { hunger: 78, thirst: 62, energy: 84, shelter: 88, hygiene: 56, chew: 70, play: 45, social: 60, comfort: 72, nails: 80, stimulation: 50 },
+    friendship: 41, totalInteractions: 23, lastInteractionAt: Date.now() - 2 * 60 * 60 * 1000,
+    activity: 'idle', goal: 'none',
+  },
+  {
+    id: 'gp-cinnamon', name: 'Cinnamon', breed: 'Abyssinian', gender: 'boar', age: 11,
+    emoji: 'ðŸ­', hue: 30, x: 4.6, y: 2.4,
+    needs: { hunger: 65, thirst: 71, energy: 90, shelter: 80, hygiene: 78, chew: 55, play: 60, social: 72, comfort: 68, nails: 90, stimulation: 65 },
+    friendship: 67, totalInteractions: 41, lastInteractionAt: Date.now() - 30 * 60 * 1000,
+    activity: 'wander', goal: 'wander',
+  },
+];
+
+const DEFAULT_THRESHOLDS = {
+  hunger: 35, thirst: 30, energy: 25, shelter: 40, hygiene: 30, chew: 35, play: 30,
+};
+const THRESHOLD_HINTS = {
+  hunger:  'Will seek food when hunger drops below this',
+  thirst:  'Will seek water when thirst drops below this',
+  energy:  'Will sleep when energy drops below this',
+  shelter: 'Will seek shelter when shelter drops below this',
+  hygiene: 'Will groom when hygiene drops below this',
+  chew:    'Will use chew items when chew drops below this',
+  play:    'Will use toys when play drops below this',
+};
+
+const BEHAVIOR_TRIGGERS = [
+  { id: 'eat',          label: 'Trigger Eat',     icon: 'ðŸ½ï¸', need: 'hunger' },
+  { id: 'drink',        label: 'Trigger Drink',   icon: 'ðŸ’§', need: 'thirst' },
+  { id: 'sleep',        label: 'Trigger Sleep',   icon: 'ðŸ˜´', need: 'energy' },
+  { id: 'seek_shelter', label: 'Seek Shelter',    icon: 'ðŸ ', need: 'shelter' },
+  { id: 'groom',        label: 'Trigger Groom',   icon: 'ðŸ§¼', need: 'hygiene' },
+  { id: 'chew',         label: 'Trigger Chew',    icon: 'ðŸ¦·', need: 'chew' },
+  { id: 'play',         label: 'Trigger Play',    icon: 'ðŸŽ¾', need: 'play' },
+  { id: 'socialize',    label: 'Socialize',       icon: 'ðŸ¤', need: 'social', requiresPartner: true },
+  { id: 'wander',       label: 'Trigger Wander',  icon: 'ðŸš¶', need: null },
+];
+
+const STORE_CATEGORIES = [
+  { id: 'hay',     label: 'Hay',     emoji: 'ðŸŒ¾', items: ['Timothy Hay', 'Orchard Hay', 'Alfalfa Hay'] },
+  { id: 'food',    label: 'Fresh Food', emoji: 'ðŸ¥•', items: ['Carrot', 'Romaine', 'Bell Pepper', 'Apple', 'Strawberry'] },
+  { id: 'bedding', label: 'Bedding', emoji: 'ðŸŸ¦', items: ['Fleece Liner', 'Paper Bedding', 'Aspen Shavings'] },
+  { id: 'habitat', label: 'Habitat', emoji: 'ðŸ ', items: ['Tunnel', 'Cozy House', 'Chew Stick', 'Ball'] },
+];
+
+// ---------- Helpers ----------
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+function fmtTime() {
+  const d = new Date();
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
+}
+function relTime(ts) {
+  const d = Math.floor((Date.now() - ts) / 1000);
+  if (d < 60) return `${d}s ago`;
+  if (d < 3600) return `${Math.floor(d / 60)}m ago`;
+  if (d < 86400) return `${Math.floor(d / 3600)}h ago`;
+  return `${Math.floor(d / 86400)}d ago`;
+}
+
+// ---------- Atomic UI ----------
+function Slider({ value, min = 0, max = 100, step = 1, accent = '#ec4899', suffix = '%', onChange, hint, label, showMinMax = true }) {
+  const pct = ((value - min) / (max - min)) * 100;
+  return (
+    <div className="slider" style={{ '--accent': accent, '--pct': pct + '%' }}>
+      <div className="slider__head">
+        <span className="slider__label">{label}</span>
+        <span className="slider__value">{value}{suffix}</span>
+      </div>
+      <input type="range" min={min} max={max} step={step} value={value} onChange={(e) => onChange(Number(e.target.value))} />
+      {showMinMax && (
+        <div className="slider__minmax"><span>{min}{suffix}</span><span>{max}{suffix}</span></div>
+      )}
+      {hint && <div className="slider__hint" style={{ gridColumn: '1 / -1', marginTop: -2 }}>{hint}</div>}
+    </div>
+  );
+}
+
+function ToggleGroup({ value, options, onChange }) {
+  return (
+    <div className="toggle-group">
+      {options.map(o => (
+        <button key={o.value} className={value === o.value ? 'on' : ''} onClick={() => onChange(o.value)}>{o.label}</button>
+      ))}
+    </div>
+  );
+}
+
+function Select({ value, options, onChange }) {
+  return (
+    <select className="select" value={value} onChange={(e) => onChange(e.target.value)}>
+      {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+    </select>
+  );
+}
+
+function InfoButton({ message }) {
+  return <span className="info-btn" title={message} aria-label={message}>i</span>;
+}
+
+function StatRow({ label, value, muted }) {
+  return (
+    <div className="stat"><span className="stat__label">{label}</span><span className={'stat__value' + (muted ? ' muted' : '')}>{value}</span></div>
+  );
+}
+
+function PigTabs({ pigs, value, onChange }) {
+  return (
+    <div className="pig-tab-row">
+      {pigs.map((p, i) => (
+        <button key={p.id} className={'pig-tab' + (value === p.id ? ' on' : '')} onClick={() => onChange(p.id)}>
+          <span style={{ filter: `hue-rotate(${p.hue}deg)` }}>{p.emoji}</span> {p.name}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// ---------- App ----------
+function App() {
+  const TABS = [
+    { id: 'controller',  label: 'Game Controller', icon: 'ðŸŽ®', cat: 'Core' },
+    { id: 'needs',       label: 'Needs',           icon: 'ðŸŽ', cat: 'Core' },
+    { id: 'autonomy',    label: 'Autonomy',        icon: 'ðŸ§ ', cat: 'Gameplay' },
+    { id: 'friendship',  label: 'Friendship',      icon: 'ðŸ’–', cat: 'Gameplay' },
+    { id: 'bonding',     label: 'Bonding',         icon: 'ðŸ¤', cat: 'Gameplay' },
+    { id: 'habitat',     label: '2D Habitat',      icon: 'ðŸ ', cat: 'Environment' },
+    { id: 'supplies',    label: 'Supplies Store',  icon: 'ðŸ›’', cat: 'Environment' },
+  ];
+  const [activeTab, setActiveTab] = useState('controller');
+
+  // ----- Core state shared across panels (this is the "live model") -----
+  const [pigs, setPigs] = useState(SEED_PIGS);
+  const [selectedId, setSelectedId] = useState('gp-truffle');
+  const selected = pigs.find(p => p.id === selectedId) || pigs[0];
+
+  const [sessionStartedAt] = useState(Date.now() - 24 * 60 * 1000);
+  const [isPaused, setIsPaused] = useState(false);
+  const [viewMode, setViewMode] = useState('2d');           // 2d | 3d
+  const [perfMode, setPerfMode] = useState('standard');     // standard | reduced
+  const [tutorialMode, setTutorialMode] = useState('auto'); // auto | always_show | never_show
+  const [errorReporting, setErrorReporting] = useState(true);
+  const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
+
+  // Habitat conditions
+  const [habitat, setHabitat] = useState({
+    waterLevel: 72, hayFreshness: 58, poopLevel: 35, beddingClean: 64, chewItemDurability: 82,
+  });
+
+  // Autonomy
+  const [thresholds, setThresholds] = useState({
+    'gp-truffle': { ...DEFAULT_THRESHOLDS },
+    'gp-cinnamon': { ...DEFAULT_THRESHOLDS, hunger: 45 },
+  });
+  const [tickMs, setTickMs] = useState(1000);
+
+  // Bond (one bidirectional value between the two pigs)
+  const [bondLevel, setBondLevel] = useState(54);
+
+  // Currency & inventory stock counts
+  const [coins, setCoins] = useState(420);
+  const [stock, setStock] = useState({
+    hay: { 'Timothy Hay': 48, 'Orchard Hay': 12, 'Alfalfa Hay': 6 },
+    food: { 'Carrot': 9, 'Romaine': 5, 'Bell Pepper': 2, 'Apple': 1, 'Strawberry': 0 },
+    bedding: { 'Fleece Liner': 3, 'Paper Bedding': 7, 'Aspen Shavings': 4 },
+    habitat: { 'Tunnel': 1, 'Cozy House': 2, 'Chew Stick': 5, 'Ball': 1 },
+  });
+
+  // Activity log
+  const [log, setLog] = useState(() => ([
+    { t: fmtTime(), e: 'Debug session opened â€” auto-paused on entry' },
+    { t: fmtTime(), e: 'Game state: paused (reason: navigation)' },
+  ]));
+  const addLog = (e) => setLog(L => [...L.slice(-40), { t: fmtTime(), e }]);
+
+  // ----- Live simulation: pigs wander + needs decay when not paused -----
+  useEffect(() => {
+    if (isPaused) return;
+    const id = setInterval(() => {
+      setPigs(ps => ps.map(p => ({
+        ...p,
+        x: clamp(p.x + (Math.random() - 0.5) * 0.6, 0.2, 6.5),
+        y: clamp(p.y + (Math.random() - 0.5) * 0.4, 0.2, 4.5),
+      })));
+      setPigs(ps => ps.map(p => {
+        const out = { ...p.needs };
+        for (const k of Object.keys(out)) out[k] = clamp(out[k] - Math.random() * 0.6, 0, 100);
+        return { ...p, needs: out };
+      }));
+      setHabitat(h => ({
+        waterLevel: clamp(h.waterLevel - 0.15, 0, 100),
+        hayFreshness: clamp(h.hayFreshness - 0.12, 0, 100),
+        poopLevel: clamp(h.poopLevel + 0.25, 0, 100),
+        beddingClean: clamp(h.beddingClean - 0.1, 0, 100),
+        chewItemDurability: clamp(h.chewItemDurability - 0.08, 0, 100),
+      }));
+    }, tickMs);
+    return () => clearInterval(id);
+  }, [isPaused, tickMs]);
+
+  // ----- Mutators -----
+  const updateNeed = (pigId, key, value) => {
+    setPigs(ps => ps.map(p => p.id === pigId ? { ...p, needs: { ...p.needs, [key]: value } } : p));
+  };
+  const replenishAll = (pigId) => {
+    setPigs(ps => ps.map(p => {
+      if (p.id !== pigId) return p;
+      const out = {}; for (const k of Object.keys(p.needs)) out[k] = 100;
+      return { ...p, needs: out };
+    }));
+    addLog(`Replenished all needs on ${pigs.find(p => p.id === pigId).name}`);
+  };
+  const setThreshold = (pigId, key, value) => {
+    setThresholds(t => ({ ...t, [pigId]: { ...t[pigId], [key]: value } }));
+  };
+
+  const triggerBehavior = (pigId, behavior) => {
+    const b = BEHAVIOR_TRIGGERS.find(x => x.id === behavior);
+    if (!b) return;
+    const pig = pigs.find(p => p.id === pigId);
+    if (b.requiresPartner && pigs.length < 2) { addLog(`âŒ ${pig.name} has no companion to ${b.id}`); return; }
+    // Manual trigger: per repo, drop the corresponding need to ~0 then satisfy to 100
+    setPigs(ps => ps.map(p => {
+      if (p.id !== pigId) return p;
+      const out = { ...p.needs };
+      if (b.need) out[b.need] = 100; // fast-forward: full satisfaction after trigger
+      return { ...p, needs: out, activity: b.id, goal: b.id };
+    }));
+    addLog(`â–¶ Manual trigger: ${pig.name} â†’ ${b.id}`);
+    setTimeout(() => {
+      setPigs(ps => ps.map(p => p.id === pigId ? { ...p, activity: 'idle', goal: 'none' } : p));
+    }, 2400);
+  };
+  const cancelBehavior = (pigId) => {
+    setPigs(ps => ps.map(p => p.id === pigId ? { ...p, activity: 'idle', goal: 'none' } : p));
+    addLog(`âœ• Canceled behavior on ${pigs.find(p => p.id === pigId).name}`);
+  };
+
+  const handlePauseToggle = () => {
+    setIsPaused(p => !p);
+    addLog(isPaused ? 'â–¶ Game resumed' : 'â¸ Game paused (reason: manual)');
+  };
+
+  // ----- Header pieces -----
+  const tabsByCat = TABS.reduce((acc, t) => { (acc[t.cat] = acc[t.cat] || []).push(t); return acc; }, {});
+
+  // Animation: a tiny per-render percentage used in the live preview header
+  // helps signal "this is live".
+  const sessionMinutes = Math.floor((Date.now() - sessionStartedAt) / 60000);
+
+  return (
+    <div style={{ minHeight: '100%' }}>
+      {/* ============ HEADER ============ */}
+      <header className="dbg-header">
+        <div className="dbg-header__awning" />
+        <div className="dbg-header__row">
+          <div>
+            <h1 className="dbg-header__title">ðŸ”§ GPS2 Debug Dashboard</h1>
+            <p className="dbg-header__subtitle">Development & testing interface Â· auto-paused on entry Â· v0.7.3-dev</p>
+          </div>
+          <div className="dbg-header__util">
+            <span className={'dbg-pill' + (isPaused ? ' paused' : '')}>
+              <span className="dot" />
+              {isPaused ? 'Paused' : 'Live'} Â· session {sessionMinutes}m
+            </span>
+            <button className="btn btn--sm btn--ghost" onClick={() => addLog('ðŸ’¾ State exported')}>ðŸ’¾ Export state</button>
+            <a className="btn btn--sm" href="index.html" target="_top">â† Back to game</a>
+          </div>
+        </div>
+      </header>
+
+      {/* ============ TAB NAV ============ */}
+      <nav className="dbg-nav">
+        {Object.entries(tabsByCat).map(([cat, tabs], i) => (
+          <React.Fragment key={cat}>
+            {i > 0 && <div className="dbg-nav__divider" />}
+            <span className="dbg-nav__group">{cat}</span>
+            {tabs.map(t => (
+              <button key={t.id} className={'dbg-nav__tab' + (activeTab === t.id ? ' active' : '')} onClick={() => setActiveTab(t.id)}>
+                <span>{t.icon}</span> {t.label}
+              </button>
+            ))}
+          </React.Fragment>
+        ))}
+      </nav>
+
+      {/* ============ BODY ============ */}
+      <main className="dbg-main">
+        <section className="dbg-panels">
+          {activeTab === 'controller'  && <ControllerPanel
+            pigs={pigs} selectedId={selectedId} setSelectedId={setSelectedId}
+            isPaused={isPaused} onTogglePause={handlePauseToggle}
+            viewMode={viewMode} setViewMode={(v) => { setViewMode(v); addLog(`View mode â†’ ${v.toUpperCase()}`); }}
+            perfMode={perfMode} setPerfMode={(v) => { setPerfMode(v); addLog(`Performance â†’ ${v}`); }}
+            tutorialMode={tutorialMode} setTutorialMode={(v) => { setTutorialMode(v); addLog(`Tutorial mode â†’ ${v}`); }}
+            errorReporting={errorReporting} setErrorReporting={(v) => { setErrorReporting(v); addLog(`Error reporting ${v ? 'on' : 'off'}`); }}
+            isFirstTimeUser={isFirstTimeUser} setIsFirstTimeUser={setIsFirstTimeUser}
+            sessionStartedAt={sessionStartedAt} coins={coins}
+          />}
+          {activeTab === 'needs'       && <NeedsPanel
+            pigs={pigs} selectedId={selectedId} setSelectedId={setSelectedId}
+            updateNeed={updateNeed} replenishAll={replenishAll}
+          />}
+          {activeTab === 'autonomy'    && <AutonomyPanel
+            pigs={pigs} selectedId={selectedId} setSelectedId={setSelectedId}
+            thresholds={thresholds} setThreshold={setThreshold}
+            tickMs={tickMs} setTickMs={(v) => { setTickMs(v); addLog(`Game loop â†’ ${v}ms`); }}
+            triggerBehavior={triggerBehavior} cancelBehavior={cancelBehavior}
+          />}
+          {activeTab === 'friendship'  && <FriendshipPanel
+            pigs={pigs} selectedId={selectedId} setSelectedId={setSelectedId}
+            setPigs={setPigs} addLog={addLog}
+          />}
+          {activeTab === 'bonding'     && <BondingPanel
+            pigs={pigs} bondLevel={bondLevel} setBondLevel={(v) => { setBondLevel(v); addLog(`Bond ${pigs[0].name} â†” ${pigs[1].name} â†’ ${v}`); }}
+          />}
+          {activeTab === 'habitat'     && <HabitatPanel habitat={habitat} setHabitat={setHabitat} addLog={addLog} />}
+          {activeTab === 'supplies'    && <SuppliesPanel coins={coins} setCoins={setCoins} stock={stock} setStock={setStock} addLog={addLog} />}
+        </section>
+
+        <aside className="dbg-side">
+          <LivePreview pigs={pigs} selectedId={selectedId} setSelectedId={setSelectedId}
+            isPaused={isPaused} habitat={habitat} bondLevel={bondLevel} viewMode={viewMode}
+            coins={coins} log={log} />
+        </aside>
+      </main>
+    </div>
+  );
+}
+
+// ============ PANELS ============
+
+function ControllerPanel({ pigs, selectedId, setSelectedId, isPaused, onTogglePause, viewMode, setViewMode, perfMode, setPerfMode, tutorialMode, setTutorialMode, errorReporting, setErrorReporting, isFirstTimeUser, setIsFirstTimeUser, sessionStartedAt, coins }) {
+  const [gp1, setGp1] = useState(pigs[0]?.id || '');
+  const [gp2, setGp2] = useState(pigs[1]?.id || '');
+  return (
+    <>
+      <div className="panel-row">
+        <div className="panel panel--accent" style={{ '--accent': '#ec4899' }}>
+          <div className="panel__header"><h3>Session Controls</h3><span className="anchor">core/session</span></div>
+          <div className="panel__content">
+            <div className="field" style={{ alignItems: 'center', marginBottom: 14 }}>
+              <label>Game View</label>
+              <ToggleGroup value={viewMode} onChange={setViewMode} options={[
+                { value: '2d', label: 'ðŸ“ 2D' }, { value: '3d', label: 'ðŸŽ® 3D' },
+              ]} />
+            </div>
+            <button className="btn btn--primary" style={{ width: '100%' }} disabled>
+              ðŸŽ® Game in Session
+            </button>
+            <p className="slider__hint" style={{ marginTop: 8 }}>Adopt new pigs from the Pet Store panel.</p>
+          </div>
+        </div>
+
+        <div className="panel">
+          <div className="panel__header"><h3>Active Guinea Pigs</h3><span className="anchor">2 selected</span></div>
+          <div className="panel__content" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div className="field">
+              <label>Guinea Pig 1</label>
+              <select className="select input--ro" value={gp1} disabled>
+                {pigs.map(p => <option key={p.id} value={p.id}>ðŸŽ® {p.gender === 'sow' ? 'â™€ï¸' : 'â™‚ï¸'} {p.name} ({p.breed})</option>)}
+              </select>
+            </div>
+            <div className="field">
+              <label>Guinea Pig 2</label>
+              <select className="select input--ro" value={gp2} disabled>
+                {pigs.map(p => <option key={p.id} value={p.id}>ðŸŽ® {p.gender === 'sow' ? 'â™€ï¸' : 'â™‚ï¸'} {p.name} ({p.breed})</option>)}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div className="panel">
+          <div className="panel__header"><h3>Session Status</h3><span className="anchor">read-only</span></div>
+          <div className="panel__content">
+            <div className="stats">
+              <StatRow label="Active Session" value="Yes" />
+              <StatRow label="Active Guinea Pigs" value={pigs.length} />
+              <StatRow label="Session Started" value={new Date(sessionStartedAt).toLocaleTimeString()} />
+              <StatRow label="Currency" value={`ðŸª™ ${coins}`} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="panel-row">
+        <div className="panel">
+          <div className="panel__header"><h3>Game State & Controls</h3></div>
+          <div className="panel__content">
+            <div className="btn-row" style={{ marginBottom: 12 }}>
+              <button className="btn btn--secondary" disabled={isPaused} onClick={() => !isPaused && onTogglePause()}>â¸ Pause Game</button>
+              <button className="btn btn--secondary" disabled={!isPaused} onClick={() => isPaused && onTogglePause()}>â–¶ Resume Game</button>
+            </div>
+            <div className="stats">
+              <StatRow label="Game State" value={isPaused ? 'paused' : 'playing'} />
+              <StatRow label="Pause Reason" value={isPaused ? 'manual' : 'None'} muted={!isPaused} />
+              <StatRow label="Orientation Paused" value="false" muted />
+            </div>
+          </div>
+        </div>
+
+        <div className="panel">
+          <div className="panel__header">
+            <h3>System Settings <InfoButton message="Performance mode controls 3D LOD and animation quality." /></h3>
+          </div>
+          <div className="panel__content" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div className="field">
+              <label>Performance Mode</label>
+              <Select value={perfMode} onChange={setPerfMode} options={[
+                { value: 'standard', label: 'Standard' }, { value: 'reduced', label: 'Reduced (low-end)' },
+              ]} />
+            </div>
+            <button className="btn" onClick={() => setErrorReporting(!errorReporting)}>
+              {errorReporting ? 'ðŸš« Disable' : 'âœ… Enable'} Error Reporting
+            </button>
+          </div>
+        </div>
+
+        <div className="panel">
+          <div className="panel__header"><h3>Tutorial</h3></div>
+          <div className="panel__content" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div className="field">
+              <label>Tutorial Mode</label>
+              <Select value={tutorialMode} onChange={setTutorialMode} options={[
+                { value: 'auto', label: 'Auto' },
+                { value: 'always_show', label: 'Always Show' },
+                { value: 'never_show', label: 'Never Show' },
+              ]} />
+            </div>
+            <div className="stats">
+              <StatRow label="First Time User" value={String(isFirstTimeUser)} muted={!isFirstTimeUser} />
+            </div>
+            <button className="btn btn--warning" onClick={() => setIsFirstTimeUser(true)}>ðŸ”„ Reset First-Time User</button>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+function NeedsPanel({ pigs, selectedId, setSelectedId, updateNeed, replenishAll }) {
+  const pig = pigs.find(p => p.id === selectedId);
+  const renderGroup = (title, keys) => (
+    <div className="section">
+      <h4 className="section-title">{title}</h4>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        {keys.map(k => (
+          <Slider key={k}
+            label={NEED_META[k].label}
+            value={Math.round(pig.needs[k])}
+            accent={NEED_META[k].color}
+            onChange={(v) => updateNeed(pig.id, k, v)}
+            hint={null}
+          />
+        ))}
+      </div>
+    </div>
+  );
+  return (
+    <div className="panel panel--accent" style={{ '--accent': '#22c55e' }}>
+      <div className="panel__header">
+        <h3>ðŸŽ Needs Â· {pig.name}</h3>
+        <PigTabs pigs={pigs} value={selectedId} onChange={setSelectedId} />
+      </div>
+      <div className="panel__content">
+        {renderGroup('Critical Needs', NEED_KEYS_BY_CAT.critical)}
+        {renderGroup('Environmental Needs', NEED_KEYS_BY_CAT.environmental)}
+        {renderGroup('Wellness Needs', NEED_KEYS_BY_CAT.wellness)}
+        <div style={{ marginTop: 16, display: 'flex', justifyContent: 'center' }}>
+          <button className="btn btn--primary" onClick={() => replenishAll(pig.id)}>âœ¨ Replenish All Needs</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AutonomyPanel({ pigs, selectedId, setSelectedId, thresholds, setThreshold, tickMs, setTickMs, triggerBehavior, cancelBehavior }) {
+  const pig = pigs.find(p => p.id === selectedId);
+  const t = thresholds[pig.id];
+  return (
+    <>
+      <div className="panel panel--accent" style={{ '--accent': '#a78bfa' }}>
+        <div className="panel__header">
+          <h3>ðŸŽ® Autonomy Controls Â· {pig.name} <InfoButton message="Manual triggers force-execute a behavior. After execution the matching need is set to 100% for testing." /></h3>
+          <PigTabs pigs={pigs} value={selectedId} onChange={setSelectedId} />
+        </div>
+        <div className="panel__content">
+          <h4 className="section-title">Manual Triggers</h4>
+          <div className="btn-row" style={{ marginBottom: 12 }}>
+            {BEHAVIOR_TRIGGERS.map(b => (
+              <button key={b.id} className="btn btn--secondary" onClick={() => triggerBehavior(pig.id, b.id)}>
+                {b.icon} {b.label}
+              </button>
+            ))}
+            <button className="btn btn--warning" disabled={pig.goal === 'none'} onClick={() => cancelBehavior(pig.id)}>âŒ Cancel</button>
+          </div>
+
+          <div className="section">
+            <h4 className="section-title">Current Status</h4>
+            <div className="stats">
+              <StatRow label="Activity" value={pig.activity} />
+              <StatRow label="Goal" value={pig.goal} muted={pig.goal === 'none'} />
+              <StatRow label="Position" value={`(${pig.x.toFixed(1)}, ${pig.y.toFixed(1)})`} />
+            </div>
+          </div>
+
+          <div className="section">
+            <h4 className="section-title">Behavior Thresholds</h4>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
+              {Object.keys(DEFAULT_THRESHOLDS).map(k => (
+                <Slider key={k}
+                  label={NEED_META[k].label + ' threshold'}
+                  value={t[k]}
+                  min={10} max={80} step={5}
+                  accent={NEED_META[k].color}
+                  hint={THRESHOLD_HINTS[k]}
+                  onChange={(v) => setThreshold(pig.id, k, v)}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="panel">
+        <div className="panel__header">
+          <h3>Global Autonomy Settings <InfoButton message="Game Loop Speed controls how often the AI processes decisions. Lower = faster simulation." /></h3>
+        </div>
+        <div className="panel__content">
+          <div className="stat" style={{ marginBottom: 14 }}>
+            <span className="stat__label" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: 4, background: '#22c55e' }} />
+              Autonomous AI System
+            </span>
+            <span className="badge badge--ok">always on</span>
+          </div>
+          <Slider
+            label="Game Loop Speed"
+            value={tickMs}
+            min={100} max={5000} step={100}
+            suffix="ms"
+            accent="#22c55e"
+            hint={`Currently ${(tickMs / 1000).toFixed(1)}s between ticks Â· lower = snappier Â· higher = easier to observe`}
+            onChange={setTickMs}
+          />
+        </div>
+      </div>
+    </>
+  );
+}
+
+function FriendshipPanel({ pigs, selectedId, setSelectedId, setPigs, addLog }) {
+  const pig = pigs.find(p => p.id === selectedId);
+  const setFriendship = (v) => setPigs(ps => ps.map(p => p.id === pig.id ? { ...p, friendship: v } : p));
+  const interact = (type, gain) => {
+    setPigs(ps => ps.map(p => p.id === pig.id
+      ? { ...p, friendship: clamp(p.friendship + gain, 0, 100), totalInteractions: p.totalInteractions + 1, lastInteractionAt: Date.now() }
+      : p));
+    addLog(`${pig.name}: +${gain} friendship (${type})`);
+  };
+
+  const tier = pig.friendship >= 80 ? { label: 'Devoted', badge: 'ok' } :
+               pig.friendship >= 60 ? { label: 'Friends', badge: 'info' } :
+               pig.friendship >= 30 ? { label: 'Acquainted', badge: 'warn' } :
+                                       { label: 'Wary', badge: 'err' };
+
+  return (
+    <div className="panel panel--accent" style={{ '--accent': '#ec4899' }}>
+      <div className="panel__header">
+        <h3>ðŸ’– Friendship Â· {pig.name}</h3>
+        <PigTabs pigs={pigs} value={selectedId} onChange={setSelectedId} />
+      </div>
+      <div className="panel__content">
+        <Slider
+          label="Friendship Level"
+          value={Math.round(pig.friendship)}
+          accent="#ec4899"
+          onChange={setFriendship}
+          hint={`${tier.label} â€” affects how readily ${pig.name} responds to interactions`}
+        />
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '14px 0' }}>
+          <span style={{ fontSize: 13, fontWeight: 600 }}>Relationship tier</span>
+          <span className={'badge badge--' + tier.badge}>{tier.label}</span>
+        </div>
+
+        <div className="section">
+          <h4 className="section-title">Interaction Effects</h4>
+          <div className="btn-row">
+            <button className="btn btn--secondary" onClick={() => interact('pet', 4)}>ðŸ¤— Pet (+4)</button>
+            <button className="btn btn--secondary" onClick={() => interact('hold', 3)}>ðŸ™Œ Hold (+3)</button>
+            <button className="btn btn--secondary" onClick={() => interact('feed', 2)}>ðŸŽ Feed (+2)</button>
+            <button className="btn btn--secondary" onClick={() => interact('groom', 5)}>ðŸ§¼ Groom (+5)</button>
+            <button className="btn btn--danger" onClick={() => interact('startle', -8)}>ðŸ˜° Startle (-8)</button>
+          </div>
+        </div>
+
+        <div className="section">
+          <h4 className="section-title">Telemetry</h4>
+          <div className="stats">
+            <StatRow label="Total Interactions" value={pig.totalInteractions} />
+            <StatRow label="Last Interaction" value={relTime(pig.lastInteractionAt)} />
+            <StatRow label="Decay/hr" value="-0.5 (idle)" muted />
+            <StatRow label="Trust Threshold" value="60%" muted />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function BondingPanel({ pigs, bondLevel, setBondLevel }) {
+  const [a, b] = pigs;
+  if (!b) return <div className="panel"><div className="panel__content">Need 2 guinea pigs for bonding.</div></div>;
+  const tier = bondLevel >= 80 ? { label: 'Cage-mates', badge: 'ok' } :
+               bondLevel >= 50 ? { label: 'Buddies', badge: 'info' } :
+               bondLevel >= 20 ? { label: 'Tolerant', badge: 'warn' } :
+                                  { label: 'Hostile', badge: 'err' };
+  return (
+    <div className="panel panel--accent" style={{ '--accent': '#06b6d4' }}>
+      <div className="panel__header">
+        <h3>ðŸ¤ Social Bonding Â· pig-to-pig</h3>
+        <span className="anchor">{a.name} â†” {b.name}</span>
+      </div>
+      <div className="panel__content">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, padding: '10px 14px', background: '#fdf2f8', borderRadius: 8, border: '1px solid #fbcfe8' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontSize: 28, filter: `hue-rotate(${a.hue}deg)` }}>{a.emoji}</span>
+            <strong>{a.name}</strong>
+          </div>
+          <div style={{ fontSize: 22 }}>â†”</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontSize: 28, filter: `hue-rotate(${b.hue}deg)` }}>{b.emoji}</span>
+            <strong>{b.name}</strong>
+          </div>
+        </div>
+
+        <Slider
+          label="Bond Level"
+          value={bondLevel}
+          accent="#06b6d4"
+          onChange={setBondLevel}
+          hint={`${tier.label} â€” gates pig-to-pig snuggle / groom / play behaviors`}
+        />
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '14px 0' }}>
+          <span style={{ fontSize: 13, fontWeight: 600 }}>Bond tier</span>
+          <span className={'badge badge--' + tier.badge}>{tier.label}</span>
+        </div>
+
+        <div className="section">
+          <h4 className="section-title">Pair Interactions</h4>
+          <div className="btn-row">
+            <button className="btn btn--secondary" onClick={() => setBondLevel(clamp(bondLevel + 6, 0, 100))}>ðŸ¥° Snuggle (+6)</button>
+            <button className="btn btn--secondary" onClick={() => setBondLevel(clamp(bondLevel + 5, 0, 100))}>âœ¨ Groom (+5)</button>
+            <button className="btn btn--secondary" onClick={() => setBondLevel(clamp(bondLevel + 5, 0, 100))}>ðŸŽ‰ Play together (+5)</button>
+            <button className="btn btn--secondary" onClick={() => setBondLevel(clamp(bondLevel + 3, 0, 100))}>ðŸ‘‹ Greet (+3)</button>
+            <button className="btn btn--danger" onClick={() => setBondLevel(clamp(bondLevel - 10, 0, 100))}>âš¡ Squabble (-10)</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function HabitatPanel({ habitat, setHabitat, addLog }) {
+  const set = (k, v) => setHabitat(h => ({ ...h, [k]: v }));
+  const rows = [
+    { k: 'waterLevel',   label: 'Water Level',          color: '#06b6d4', emoji: 'ðŸ’§' },
+    { k: 'hayFreshness', label: 'Hay Freshness',        color: '#d97706', emoji: 'ðŸŒ¾' },
+    { k: 'poopLevel',    label: 'Poop (lower = clean)', color: '#65a30d', emoji: 'ðŸ’©', inverse: true },
+    { k: 'beddingClean', label: 'Bedding Cleanliness',  color: '#818cf8', emoji: 'ðŸ›ï¸' },
+    { k: 'chewItemDurability', label: 'Chew Durability', color: '#fb923c', emoji: 'ðŸªµ' },
+  ];
+  return (
+    <div className="panel panel--accent" style={{ '--accent': '#84cc16' }}>
+      <div className="panel__header"><h3>ðŸ  Habitat Conditions</h3><span className="anchor">decay while unpaused</span></div>
+      <div className="panel__content">
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
+          {rows.map(r => (
+            <Slider key={r.k}
+              label={<><span>{r.emoji}</span> {r.label}</>}
+              value={Math.round(habitat[r.k])}
+              accent={r.color}
+              onChange={(v) => set(r.k, v)}
+            />
+          ))}
+        </div>
+        <div className="section">
+          <h4 className="section-title">Quick Actions</h4>
+          <div className="btn-row">
+            <button className="btn btn--secondary" onClick={() => { setHabitat(h => ({ ...h, waterLevel: 100 })); addLog('ðŸ’§ Water refilled to 100%'); }}>ðŸ’§ Refill Water</button>
+            <button className="btn btn--secondary" onClick={() => { setHabitat(h => ({ ...h, hayFreshness: 100 })); addLog('ðŸŒ¾ Hay rack restocked'); }}>ðŸŒ¾ Restock Hay</button>
+            <button className="btn btn--secondary" onClick={() => { setHabitat(h => ({ ...h, poopLevel: 0, beddingClean: 100 })); addLog('ðŸ§¹ Habitat cleaned'); }}>ðŸ§¹ Clean Cage</button>
+            <button className="btn btn--warning" onClick={() => { setHabitat(h => ({ ...h, waterLevel: 0, hayFreshness: 0, poopLevel: 95, beddingClean: 10, chewItemDurability: 5 })); addLog('ðŸ’€ Worst-case habitat applied'); }}>ðŸ’€ Worst case</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SuppliesPanel({ coins, setCoins, stock, setStock, addLog }) {
+  const totalStock = (cat) => Object.values(stock[cat]).reduce((s, n) => s + n, 0);
+  const restockAll = (cat) => {
+    setStock(s => ({ ...s, [cat]: Object.fromEntries(Object.keys(s[cat]).map(k => [k, 10])) }));
+    addLog(`ðŸ“¦ Restocked ${cat} (all items â†’ 10)`);
+  };
+  const setQty = (cat, name, v) => setStock(s => ({ ...s, [cat]: { ...s[cat], [name]: v } }));
+  return (
+    <>
+      <div className="panel panel--accent" style={{ '--accent': '#facc15' }}>
+        <div className="panel__header"><h3>ðŸ›’ Supplies Store Â· Currency</h3></div>
+        <div className="panel__content">
+          <Slider
+            label="Player Currency"
+            value={coins} min={0} max={2000} step={10}
+            suffix=" ðŸª™" accent="#facc15"
+            onChange={setCoins}
+            hint="Sets the player's wallet directly. Useful for testing high-end purchases."
+          />
+          <div className="btn-row" style={{ marginTop: 14 }}>
+            <button className="btn btn--secondary" onClick={() => setCoins(c => c + 100)}>+100 ðŸª™</button>
+            <button className="btn btn--secondary" onClick={() => setCoins(c => c + 500)}>+500 ðŸª™</button>
+            <button className="btn btn--secondary" onClick={() => setCoins(c => c + 1000)}>+1000 ðŸª™</button>
+            <button className="btn btn--danger" onClick={() => setCoins(0)}>Reset to 0</button>
+          </div>
+        </div>
+      </div>
+
+      <div className="panel">
+        <div className="panel__header"><h3>ðŸ“¦ Inventory Stock</h3><span className="anchor">live counts</span></div>
+        <div className="panel__content">
+          {STORE_CATEGORIES.map(cat => (
+            <div key={cat.id} className="section" style={{ marginTop: 0 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <h4 className="section-title" style={{ margin: 0 }}>{cat.emoji} {cat.label} ({totalStock(cat.id)} total)</h4>
+                <button className="btn btn--sm btn--secondary" onClick={() => restockAll(cat.id)}>â†» Restock all</button>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 10 }}>
+                {cat.items.map(name => (
+                  <div key={name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, padding: '6px 10px', background: '#f8fafc', borderRadius: 6, border: '1px solid #e2e8f0' }}>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>{name}</span>
+                    <input type="number" className="input" style={{ width: 64, height: 26, fontSize: 12, padding: '0 6px' }}
+                      value={stock[cat.id][name] ?? 0}
+                      onChange={(e) => setQty(cat.id, name, Math.max(0, Number(e.target.value) || 0))} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ============ LIVE MINI-PREVIEW ============
+
+function LivePreview({ pigs, selectedId, setSelectedId, isPaused, habitat, bondLevel, viewMode, coins, log }) {
+  const selected = pigs.find(p => p.id === selectedId) || pigs[0];
+  const cellW = 36, cellH = 30; // mini cage uses smaller cells
+
+  const criticalCount = Object.entries(selected.needs).filter(([, v]) => v <= 25).length;
+  const statusBadge = criticalCount >= 2
+    ? <span className="badge badge--err">{criticalCount} critical</span>
+    : criticalCount === 1
+      ? <span className="badge badge--warn">1 critical</span>
+      : <span className="badge badge--ok">healthy</span>;
+
+  return (
+    <>
+      <div className="preview-card">
+        <div className="preview-card__head">
+          <span>ðŸªž Live Preview Â· {viewMode.toUpperCase()}</span>
+          <span style={{ fontSize: 10, color: '#94a3b8', fontFamily: 'Roboto, sans-serif' }}>{isPaused ? 'â¸ PAUSED' : 'TICKING'}</span>
+        </div>
+        <div className="preview-stage">
+          {/* corner clouds */}
+          <svg style={{ position: 'absolute', top: 8, left: 10, width: 60, height: 30 }} viewBox="0 0 200 100">
+            <g fill="#fff" stroke="#e2e8f0" strokeWidth="2">
+              <ellipse cx="60" cy="60" rx="44" ry="30" /><ellipse cx="110" cy="50" rx="38" ry="34" />
+              <ellipse cx="150" cy="62" rx="32" ry="26" />
+            </g>
+          </svg>
+          <svg style={{ position: 'absolute', top: 14, right: 10, width: 50, height: 24 }} viewBox="0 0 200 100">
+            <g fill="#fff" stroke="#e2e8f0" strokeWidth="2"><ellipse cx="100" cy="50" rx="60" ry="36" /></g>
+          </svg>
+
+          <div className="preview-cage">
+            {pigs.map(p => (
+              <div key={p.id}
+                className={'preview-pig' + (p.id === selectedId ? ' selected' : '')}
+                style={{
+                  left: p.x * cellW, top: p.y * cellH,
+                  filter: `hue-rotate(${p.hue}deg) drop-shadow(0 3px 2px rgba(0,0,0,.25))${p.id === selectedId ? ' drop-shadow(0 0 4px #fbbf24)' : ''}`,
+                  cursor: 'pointer',
+                }}
+                onClick={() => setSelectedId(p.id)}
+                title={p.name}>
+                {p.emoji}
+              </div>
+            ))}
+            {/* habitat items */}
+            <div className="preview-pig" style={{ left: 20, top: 8, fontSize: 18, opacity: habitat.waterLevel / 100 * .8 + .2 }}>ðŸ§´</div>
+            <div className="preview-pig" style={{ left: 180, top: 50, fontSize: 18, opacity: habitat.hayFreshness / 100 * .7 + .3 }}>ðŸŒ¾</div>
+            {habitat.poopLevel > 30 && <div className="preview-pig" style={{ left: 230, top: 130, fontSize: 14 }}>ðŸ’©</div>}
+            {habitat.poopLevel > 60 && <div className="preview-pig" style={{ left: 90, top: 140, fontSize: 14 }}>ðŸ’©</div>}
+          </div>
+        </div>
+
+        <div style={{ padding: 12, display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 20, filter: `hue-rotate(${selected.hue}deg)` }}>{selected.emoji}</span>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 13, color: '#1e293b' }}>{selected.name}</div>
+                <div style={{ fontSize: 11, color: '#94a3b8' }}>{selected.breed} Â· {selected.gender === 'sow' ? 'â™€ï¸' : 'â™‚ï¸'} Â· activity: <strong style={{ color: '#1e293b' }}>{selected.activity}</strong></div>
+              </div>
+            </div>
+            {statusBadge}
+          </div>
+
+          <PigTabs pigs={pigs} value={selectedId} onChange={setSelectedId} />
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginTop: 4 }}>
+            {Object.entries(selected.needs).map(([k, v]) => (
+              <div key={k} className="preview-need-row">
+                <span className="label">{NEED_META[k].label}</span>
+                <div className="bar"><div className="fill" style={{ width: `${Math.round(v)}%`, background: NEED_META[k].color }} /></div>
+                <span className="v">{Math.round(v)}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="section" style={{ marginTop: 4, paddingTop: 10 }}>
+            <div className="preview-need-row" style={{ marginBottom: 4 }}>
+              <span className="label">Bond</span>
+              <div className="bar"><div className="fill" style={{ width: `${bondLevel}%`, background: '#06b6d4' }} /></div>
+              <span className="v">{bondLevel}</span>
+            </div>
+            <div style={{ fontSize: 10, color: '#94a3b8', display: 'flex', justifyContent: 'space-between' }}>
+              <span>ðŸª™ {coins}</span>
+              <span>water {Math.round(habitat.waterLevel)}% Â· hay {Math.round(habitat.hayFreshness)}%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="activity">
+        {log.slice().reverse().map((l, i) => (
+          <div key={i}><span className="ts">[{l.t}]</span> <span className="ev">{l.e}</span></div>
+        ))}
+      </div>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
+

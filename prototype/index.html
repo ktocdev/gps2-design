@@ -1,0 +1,1638 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GPS2 â€” Web App UI Kit</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  html, body, #root { height: 100%; margin: 0; }
+  body { font-family: var(--font-family-body); color: var(--color-text-primary); background: #eef2f6; }
+  *, *::before, *::after { box-sizing: border-box; }
+  button { font-family: inherit; }
+  /* Full-bleed flat sky â€” matches the real THREE.js scene backdrop */
+  .stage-bg {
+    position: absolute; inset: 0; overflow: hidden;
+    background: #87ceeb;
+  }
+
+  /* Flat cartoon clouds anchored to the corners, NOT drifting */
+  .cloud { position: absolute; pointer-events: none; }
+  .cloud svg { display: block; width: 100%; height: 100%; }
+  .cloud--tl { top: 3%;  left: 2%;  width: 180px; height: 90px; }
+  .cloud--tr { top: 5%;  right: 4%; width: 160px; height: 80px; }
+  .cloud--bl { bottom: 4%; left: 3%; width: 200px; height: 100px; }
+  .cloud--br { bottom: 8%; right: 5%; width: 150px; height: 75px; opacity: .9; }
+
+  /* Tilted isometric cage tub */
+  .cage-3d {
+    position: relative;
+    width: 640px; height: 440px;
+    transform: perspective(900px) rotateX(55deg) rotateZ(-2deg);
+    transform-style: preserve-3d;
+  }
+  .cage-3d__floor {
+    position: absolute; inset: 0;
+    background: #d0d0d0;
+    background-image:
+      radial-gradient(circle at 20% 30%, #c4c4c4 0 1px, transparent 2px),
+      radial-gradient(circle at 65% 70%, #bcbcbc 0 1px, transparent 2px),
+      radial-gradient(circle at 80% 20%, #c4c4c4 0 1px, transparent 2px),
+      radial-gradient(circle at 40% 85%, #bcbcbc 0 1px, transparent 2px);
+    background-size: 120px 120px;
+    box-shadow: inset 0 0 0 18px #e8e8e8, inset 0 0 0 22px #9a9a9a;
+    border-radius: 4px;
+  }
+  .cage-3d__wall {
+    position: absolute; background: #b8b8b8;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,.15);
+  }
+  .cage-3d__wall--n { left: -4px; right: -4px; top: -18px; height: 18px; transform: rotateX(-90deg); transform-origin: bottom; background: #c8c8c8; }
+  .cage-3d__wall--s { left: -4px; right: -4px; bottom: -18px; height: 18px; transform: rotateX(90deg); transform-origin: top; background: #a8a8a8; }
+  .cage-3d__wall--w { top: -4px; bottom: -4px; left: -18px; width: 18px; transform: rotateY(90deg); transform-origin: right; background: #b8b8b8; }
+  .cage-3d__wall--e { top: -4px; bottom: -4px; right: -18px; width: 18px; transform: rotateY(-90deg); transform-origin: left; background: #a8a8a8; }
+
+  /* Items sitting on the isometric floor â€” we let them stand up with rotateX(-55deg) */
+  .cage-3d__item {
+    position: absolute;
+    transform-origin: 50% 100%;
+    transform: translateZ(1px) rotateX(-55deg) rotateZ(2deg);
+    font-size: 54px;
+    line-height: 1;
+    filter: drop-shadow(0 6px 4px rgba(0,0,0,.25));
+    transition: left 800ms ease, top 800ms ease;
+  }
+
+  /* Pulse for the play/pause status dot in the header */
+  @keyframes gpsPulse {
+    0%, 100% { transform: scale(1);   opacity: 1;   }
+    50%      { transform: scale(.7);  opacity: .55; }
+  }
+
+</style>
+<link id="gfont-Nunito" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&amp;display=swap">
+<link id="gfont-headerOptions" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&amp;family=Bungee&amp;family=Caveat:wght@400;700&amp;family=Fredoka:wght@500;600;700&amp;family=Lobster&amp;family=Pacifico&amp;family=Patrick+Hand&amp;family=Press+Start+2P&amp;family=Rubik+Bubbles&amp;family=Rubik+Mono+One&amp;family=Sniglet:wght@400;800&amp;display=swap">
+<link id="gfont-buttonOptions" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;700&amp;family=Inter:wght@500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700&amp;family=Poppins:wght@500;600;700&amp;family=Quicksand:wght@500;600;700&amp;family=Space+Grotesk:wght@500;600;700&amp;family=Work+Sans:wght@500;600;700&amp;display=swap">
+<style>
+    .gp-btn--tactile {
+      position: relative;
+      transition: transform 100ms ease, filter 120ms ease, box-shadow 150ms ease, background 150ms ease;
+      text-shadow: 0 1px 0 rgba(0,0,0,.18);
+    }
+    .gp-btn--tactile.tertiary { text-shadow: none; }
+    .gp-btn--tactile::before {
+      content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+      background: linear-gradient(180deg, rgba(255,255,255,.28) 0%, rgba(255,255,255,0) 50%);
+    }
+    .gp-btn--tactile:not([disabled]):hover {
+      transform: translateY(-1px);
+      filter: brightness(1.04);
+    }
+    .gp-btn--tactile:not([disabled]):active {
+      transform: translateY(2px);
+      box-shadow: var(--gp-btn-shadow-pressed) !important;
+    }
+    .gp-btn--tactile[disabled] { opacity: .5; cursor: not-allowed; filter: grayscale(.3); }
+  </style>
+<style>
+    .gp-btn--tactile {
+      position: relative;
+      transition: transform 100ms ease, filter 120ms ease, box-shadow 150ms ease, background 150ms ease;
+      text-shadow: 0 1px 0 rgba(0,0,0,.18);
+    }
+    .gp-btn--tactile.tertiary { text-shadow: none; }
+    .gp-btn--tactile::before {
+      content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+      background: linear-gradient(180deg, rgba(255,255,255,.28) 0%, rgba(255,255,255,0) 50%);
+    }
+    .gp-btn--tactile:not([disabled]):hover {
+      transform: translateY(-1px);
+      filter: brightness(1.04);
+    }
+    .gp-btn--tactile:not([disabled]):active {
+      transform: translateY(2px);
+      box-shadow: var(--gp-btn-shadow-pressed) !important;
+    }
+    .gp-btn--tactile[disabled] { opacity: .5; cursor: not-allowed; filter: grayscale(.3); }
+  </style></head>
+<body data-cc-id="cc-1" style="font-family: Nunito; background-color: rgb(254, 241, 212); cursor: crosshair;">
+<div id="root"></div>
+<script type="text/babel" src="Button.jsx" data-plugins="transform-react-jsx-source" data-filename="Button.jsx"></script>
+<script type="text/babel" src="Header.jsx" data-plugins="transform-react-jsx-source" data-filename="Header.jsx"></script>
+<script type="text/babel" src="PanelShell.jsx" data-plugins="transform-react-jsx-source" data-filename="PanelShell.jsx"></script>
+<script type="text/babel" src="NeedsPanel.jsx" data-plugins="transform-react-jsx-source" data-filename="NeedsPanel.jsx"></script>
+<script type="text/babel" src="PigInfoPanel.jsx" data-plugins="transform-react-jsx-source" data-filename="PigInfoPanel.jsx"></script>
+<script type="text/babel" src="HabitatGrid.jsx" data-plugins="transform-react-jsx-source" data-filename="HabitatGrid.jsx"></script>
+<script type="text/babel" src="ActivityFeed.jsx" data-plugins="transform-react-jsx-source" data-filename="ActivityFeed.jsx"></script>
+<script type="text/babel" src="FabMenu.jsx" data-plugins="transform-react-jsx-source" data-filename="FabMenu.jsx"></script>
+<script type="text/babel" src="SidePanel.jsx" data-plugins="transform-react-jsx-source" data-filename="SidePanel.jsx"></script>
+<script type="text/babel" src="SimTopBar.jsx" data-plugins="transform-react-jsx-source" data-filename="SimTopBar.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx" data-plugins="transform-react-jsx-source" data-filename="tweaks-panel.jsx"></script>
+<script type="text/babel" src="PigSvg.jsx" data-plugins="transform-react-jsx-source" data-filename="PigSvg.jsx"></script>
+<script type="text/babel" src="PetStore.jsx" data-plugins="transform-react-jsx-source" data-filename="PetStore.jsx"></script>
+<script type="text/babel" src="SuppliesStore.jsx" data-plugins="transform-react-jsx-source" data-filename="SuppliesStore.jsx"></script>
+<script type="text/babel" src="Inventory.jsx" data-plugins="transform-react-jsx-source" data-filename="Inventory.jsx"></script>
+<script type="text/babel" src="LoadingScreen.jsx" data-plugins="transform-react-jsx-source" data-filename="LoadingScreen.jsx"></script>
+<script type="text/babel" src="PetStoreBackdrop.jsx" data-plugins="transform-react-jsx-source" data-filename="PetStoreBackdrop.jsx"></script>
+<script type="text/babel" src="Tutorial.jsx" data-plugins="transform-react-jsx-source" data-filename="Tutorial.jsx"></script>
+<script type="text/babel" src="HelpOverlay.jsx" data-plugins="transform-react-jsx-source" data-filename="HelpOverlay.jsx"></script>
+<script type="text/babel" src="AdoptionCertificate.jsx" data-plugins="transform-react-jsx-source" data-filename="AdoptionCertificate.jsx"></script>
+
+<script type="text/babel" data-plugins="transform-react-jsx-source" data-filename="inline-11">
+const { useState, useEffect, useRef } = React;
+
+const REACTIONS = {
+  feed:  ['âœ¨ Wheek! I love this!', 'ðŸ˜‹ Yum!', 'â¤ï¸ My favorite!'],
+  play:  ['ðŸŽ‰ Popcorning!', 'ðŸƒ Zoomies!', 'ðŸ˜Š This is fun!'],
+  clean: ['âœ¨ So fresh!', 'ðŸ˜Œ Much better.', 'ðŸ§¼ Thank you!'],
+  water: ['ðŸ’§ Hydration!', 'ðŸ˜Š Refreshing.'],
+  vet:   ['ðŸ˜° Please be gentle...', 'ðŸ¤— I feel better.'],
+  pet:   ['ðŸ¥° Purrrr', 'ðŸ˜Š That tickles', 'âœ¨ I love you'],
+  idle:  ['ðŸ˜Œ ...', 'ðŸ«¥ ...', 'ðŸ’­ ...', 'ðŸŒ¿ *munch*'],
+};
+
+const FABS = [
+  {
+    theme: 'pink', icon: 'ðŸŽ', label: 'Give Food',
+    actions: [
+      { id: 'carrot',  icon: 'ðŸ¥•', label: 'Carrot' },
+      { id: 'lettuce', icon: 'ðŸ¥¬', label: 'Lettuce' },
+      { id: 'pepper',  icon: 'ðŸ«‘', label: 'Pepper' },
+      { id: 'apple',   icon: 'ðŸŽ', label: 'Apple' },
+      { id: 'parsley', icon: 'ðŸŒ¿', label: 'Parsley' },
+      { id: 'berry',   icon: 'ðŸ“', label: 'Berry' },
+    ],
+  },
+  {
+    theme: 'green', icon: 'ðŸŽ¾', label: 'Help Play',
+    actions: [
+      { id: 'ball',    icon: 'ðŸŽ¾', label: 'Ball' },
+      { id: 'tunnel',  icon: 'ðŸŸ ', label: 'Tunnel' },
+      { id: 'chew',    icon: 'ðŸªµ', label: 'Chew' },
+      { id: 'mirror',  icon: 'ðŸªž', label: 'Mirror' },
+    ],
+  },
+  {
+    theme: 'violet', icon: 'ðŸ§¼', label: 'Give Care',
+    actions: [
+      { id: 'clean', icon: 'ðŸ§¹', label: 'Clean' },
+      { id: 'water', icon: 'ðŸ’§', label: 'Water' },
+      { id: 'hay',   icon: 'ðŸŒ¾', label: 'Hay' },
+      { id: 'bath',  icon: 'ðŸ›', label: 'Bath' },
+      { id: 'nails', icon: 'ðŸ’…', label: 'Nails' },
+      { id: 'brush', icon: 'ðŸ–Œï¸', label: 'Brush' },
+    ],
+  },
+  {
+    theme: 'orange', icon: 'ðŸ¤—', label: 'Socialize',
+    actions: [
+      { id: 'pet',   icon: 'ðŸ¤—', label: 'Pet' },
+      { id: 'hold',  icon: 'ðŸ™Œ', label: 'Hold' },
+      { id: 'talk',  icon: 'ðŸ’¬', label: 'Talk' },
+      { id: 'vet',   icon: 'ðŸ¥', label: 'Vet' },
+    ],
+  },
+  {
+    theme: 'cyan', icon: 'ðŸ’ž', label: 'Encourage',
+    // Pig-to-pig interactions â€” require 2 pigs (initiator â†’ recipient)
+    pigToPig: true,
+    actions: [
+      { id: 'greet',   icon: 'ðŸ‘‹', label: 'Greet' },
+      { id: 'snuggle', icon: 'ðŸ¥°', label: 'Snuggle' },
+      { id: 'groom',   icon: 'âœ¨', label: 'Groom' },
+      { id: 'play',    icon: 'ðŸŽ‰', label: 'Play together' },
+    ],
+  },
+];
+
+function randomOf(a) { return a[Math.floor(Math.random() * a.length)]; }
+function now() { return new Date().toTimeString().slice(0, 8); }
+
+// Per-pig avatar: one of four rodent emojis + a hue shift to tint the glyph
+const PIG_AVATARS = [
+  { emoji: 'ðŸ¹', hue: 0,    label: 'Hamster' },
+  { emoji: 'ðŸ­', hue: 30,   label: 'Mouse' },
+  { emoji: 'ðŸ°', hue: -25,  label: 'Rabbit' },
+  { emoji: 'ðŸ¿ï¸', hue: 60,  label: 'Chipmunk' },
+];
+
+const FRESH_NEEDS = () => ({
+  hunger: 60 + Math.random() * 25, thirst: 42 + Math.random() * 20,
+  energy: 78 + Math.random() * 10, shelter: 88, play: 30 + Math.random() * 35,
+  social: 68 + Math.random() * 15, stimulation: 52, comfort: 66,
+  hygiene: 48 + Math.random() * 20, nails: 72, chew: 58,
+});
+
+// Flat cartoon corner cloud (matches the real 3D scene aesthetic)
+function CornerCloud({ className }) {
+  return (
+    <div className={className}>
+      <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+        <g fill="#fff" stroke="#e2e8f0" strokeWidth="2">
+          <ellipse cx="60"  cy="60" rx="44" ry="30" />
+          <ellipse cx="110" cy="50" rx="38" ry="34" />
+          <ellipse cx="150" cy="62" rx="32" ry="26" />
+          <ellipse cx="90"  cy="72" rx="30" ry="20" />
+        </g>
+      </svg>
+    </div>
+  );
+}
+
+// Isometric cage tub â€” flat-shaded, tilted like the THREE.js scene
+function Cage3D({ pigs, bubble, targetingPigs = false, initiatorName = null, onPigClick, waterLevel, hayFreshness, chewLevel, poopLevel, onItemAction, placedItems = [], placement = null, onPlace, onReturnToInv, onCancelPlacement }) {
+  const cellW = 80, cellH = 73;
+  const COLS = 8, ROWS = 6;
+  const [openItem, setOpenItem] = React.useState(null);
+  const [openPlaced, setOpenPlaced] = React.useState(null); // pid of placed item with open popover
+  const [hoverCell, setHoverCell] = React.useState(null); // {x,y} during placement
+  const [inspected, setInspected] = React.useState(null); // pig name being inspected
+  const popoverRef = React.useRef(null);
+  const placedPopoverRef = React.useRef(null);
+  const inspectRef = React.useRef(null);
+
+  // Close any open popover when the user clicks outside it.
+  // Pig and item triggers stopPropagation, so document-level clicks only fire
+  // for "outside" hits (background, walls, other UI panels).
+  React.useEffect(() => {
+    if (!openItem && !inspected && !openPlaced) return;
+    const onDown = (e) => {
+      if (popoverRef.current && popoverRef.current.contains(e.target)) return;
+      if (placedPopoverRef.current && placedPopoverRef.current.contains(e.target)) return;
+      if (inspectRef.current && inspectRef.current.contains(e.target)) return;
+      setOpenItem(null);
+      setInspected(null);
+      setOpenPlaced(null);
+    };
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
+  }, [openItem, inspected, openPlaced]);
+  const items = [
+    { id: 'water',  x: 0.5, y: 0.2, emoji: 'ðŸ§´', title: 'Basic Water Bottle' },
+    { id: 'hay',    x: 4.5, y: 1.6, emoji: 'ðŸŒ¾', title: 'Basic Hay Rack' },
+    { id: 'basket', x: 5.6, y: 1.9, emoji: 'ðŸ§º', title: 'Basic Bowl' },
+    { id: 'igloo',  x: 1.2, y: 3.4, emoji: 'ðŸ ', title: 'Cozy Igloo', size: 78 },
+    { id: 'chew',   x: 4.9, y: 3.4, emoji: 'ðŸªµ', title: 'Willow Chew' },
+    { id: 'poop',   x: 6.8, y: 4.5, emoji: 'ðŸ’©', title: 'Droppings', size: 32 },
+  ];
+  // Bowl contents â€” multi-food bowls with per-item freshness
+  const [bowlItems, setBowlItems] = React.useState([
+    { id: 'hay-th',  emoji: 'ðŸŒ¾', name: 'Timothy Hay',       fresh: 97 },
+    { id: 'lettuce', emoji: 'ðŸ¥¬', name: 'Green Leaf Lettuce', fresh: 97 },
+  ]);
+  const bowlMax = 2;
+  const haySvg = Math.max(0, Math.round(((hayFreshness ?? 0) / 100) * 4)); // 0..4 servings
+  const popoverFor = (id) => {
+    switch (id) {
+      case 'water':  return {
+        meta: { left: '', right: `${Math.round(waterLevel ?? 0)}% full`, rightColor: (waterLevel ?? 0) > 50 ? '#4ade80' : (waterLevel ?? 0) > 20 ? '#fbbf24' : '#f87171' },
+        rows: [{ label: 'Water Level', value: Math.round(waterLevel ?? 0), color: '#38bdf8' }],
+        actions: [{ id: 'refill', label: 'Refill Water', icon: 'ðŸ’§', primary: true }, { id: 'inv', label: 'Move to Inventory', icon: 'ðŸ“¦' }] };
+      case 'hay':    return {
+        meta: { left: `${haySvg}/4`, right: `${Math.round(hayFreshness ?? 0)}% fresh`, rightColor: '#4ade80' },
+        listItems: [{ emoji: 'ðŸŒ¾', name: `${haySvg} servings of hay` }],
+        actions: [{ id: 'refresh', label: 'Empty Rack', icon: 'ðŸ§º', primary: true }, { id: 'inv', label: 'Move to Inventory', icon: 'ðŸ“¦' }] };
+      case 'chew':   return {
+        meta: { left: '', right: `${Math.round(chewLevel ?? 0)}% durability`, rightColor: '#fdba74' },
+        rows: [{ label: 'Durability', value: Math.round(chewLevel ?? 0), color: '#fb923c' }],
+        actions: [{ id: 'inv', label: 'Move to Inventory', icon: 'ðŸ“¦' }] };
+      case 'basket': {
+        const avgFresh = bowlItems.length ? Math.round(bowlItems.reduce((s, b) => s + b.fresh, 0) / bowlItems.length) : 0;
+        return {
+          meta: { left: `${bowlItems.length}/${bowlMax}`, right: bowlItems.length ? `${avgFresh}% fresh` : 'empty', rightColor: '#4ade80' },
+          listItems: bowlItems.map(b => ({ emoji: b.emoji, name: b.name, fresh: b.fresh, removable: true, _id: b.id })),
+          actions: [{ id: 'empty', label: 'Empty Bowl', icon: 'ðŸ§º', primary: true }, { id: 'inv', label: 'Move to Inventory', icon: 'ðŸ“¦' }] };
+      }
+      case 'igloo':  return { actions: [{ id: 'inv', label: 'Move to Inventory', icon: 'ðŸ“¦' }] };
+      case 'cookie': return { actions: [{ id: 'feed', label: 'Feed to Pig', icon: 'ðŸª', primary: true }, { id: 'inv', label: 'Move to Inventory', icon: 'ðŸ“¦' }] };
+      case 'carrot': return { actions: [{ id: 'feed', label: 'Feed to Pig', icon: 'ðŸ¥•', primary: true }, { id: 'inv', label: 'Move to Inventory', icon: 'ðŸ“¦' }] };
+      case 'poop':   return { __direct: true, action: 'clean' };
+      default:       return { actions: [{ id: 'inv', label: 'Move to Inventory', icon: 'ðŸ“¦' }] };
+    }
+  };
+  return (
+    <div style={{ position: 'relative' }}>
+      <div className="cage-3d" data-tutorial="cage" onClick={() => { setOpenItem(null); setInspected(null); setOpenPlaced(null); }}>
+        <div className="cage-3d__floor" />
+        <div className="cage-3d__wall cage-3d__wall--n" />
+        <div className="cage-3d__wall cage-3d__wall--s" />
+        <div className="cage-3d__wall cage-3d__wall--w" />
+        <div className="cage-3d__wall cage-3d__wall--e" />
+
+        {/* Placement grid overlay â€” only while placing an inventory item */}
+        {placement && (
+          <div style={{
+            position: 'absolute', inset: 0, zIndex: 5,
+            display: 'grid',
+            gridTemplateColumns: `repeat(${COLS}, ${cellW}px)`,
+            gridTemplateRows: `repeat(${ROWS}, ${cellH}px)`,
+            pointerEvents: 'auto',
+          }}>
+            {Array.from({ length: COLS * ROWS }).map((_, i) => {
+              const gx = i % COLS, gy = Math.floor(i / COLS);
+              const isHover = hoverCell && hoverCell.x === gx && hoverCell.y === gy;
+              return (
+                <div key={i}
+                  onMouseEnter={() => setHoverCell({ x: gx, y: gy })}
+                  onMouseLeave={() => setHoverCell(h => (h && h.x === gx && h.y === gy ? null : h))}
+                  onClick={(e) => { e.stopPropagation(); onPlace?.(gx, gy); }}
+                  style={{
+                    border: '1px dashed rgba(251,191,36,.45)',
+                    background: isHover ? 'rgba(251,191,36,.28)' : 'rgba(251,191,36,.06)',
+                    cursor: 'pointer',
+                    transition: 'background 100ms ease',
+                  }}
+                />
+              );
+            })}
+            {/* Ghost preview at hovered cell */}
+            {hoverCell && (
+              <div style={{
+                position: 'absolute',
+                left: hoverCell.x * cellW, top: hoverCell.y * cellH,
+                width: cellW, height: cellH,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 56,
+                pointerEvents: 'none',
+                opacity: .8,
+                transform: 'rotateX(-55deg) rotateZ(2deg)',
+                transformOrigin: '50% 100%',
+                filter: 'drop-shadow(0 4px 6px rgba(0,0,0,.3))',
+              }}>{placement.emoji}</div>
+            )}
+          </div>
+        )}
+        {items.map((it, i) => {
+          if (it.id === 'poop' && (poopLevel ?? 0) <= 0) return null;
+          return (
+          <div key={i} className="cage-3d__item" style={{
+            left: it.x * cellW, top: it.y * cellH,
+            fontSize: it.size,
+            cursor: 'pointer',
+            filter: openItem?.id === it.id ? 'drop-shadow(0 0 8px #fbbf24)' : undefined,
+          }}
+            onClick={(e) => {
+              e.stopPropagation();
+              const pop = popoverFor(it.id);
+              if (pop.__direct) {
+                onItemAction?.(it.id, pop.action);
+                return;
+              }
+              setOpenItem(openItem?.id === it.id ? null : { id: it.id, x: it.x, y: it.y, title: it.title, emoji: it.emoji });
+            }}
+          >{it.emoji}</div>
+          );
+        })}
+
+        {/* User-placed inventory items (over the floor) */}
+        {placedItems.map((p) => (
+          <div key={p.pid} className="cage-3d__item" style={{
+            left: p.x * cellW + cellW/2 - 28, top: p.y * cellH + cellH/2 - 28,
+            fontSize: 42,
+            cursor: 'pointer',
+            zIndex: openPlaced === p.pid ? 12 : 4,
+            filter: openPlaced === p.pid ? 'drop-shadow(0 0 8px #fbbf24)' : undefined,
+          }}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (placement) return; // ignore placed-item clicks while placing
+              setOpenPlaced(prev => prev === p.pid ? null : p.pid);
+              setOpenItem(null);
+              setInspected(null);
+            }}
+          >{p.emoji}</div>
+        ))}
+
+        {/* Popover for a placed item â€” Return to inventory. Parchment notice-board to match SimTopBar dropdowns. */}
+        {openPlaced && (() => {
+          const p = placedItems.find(it => it.pid === openPlaced);
+          if (!p) return null;
+          return (
+            <div ref={placedPopoverRef} onClick={(e) => e.stopPropagation()} style={{
+              position: 'absolute',
+              left: p.x * cellW + cellW/2,
+              top: p.y * cellH,
+              transform: 'translate(-50%, -100%) rotateX(-55deg) rotateZ(2deg) translateY(-60px)',
+              transformOrigin: '50% 100%',
+              background: 'linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%)',
+              border: '4px solid #92400e',
+              borderRadius: 14,
+              padding: 0, overflow: 'hidden',
+              minWidth: 240,
+              boxShadow: '0 22px 30px -8px rgba(69,26,3,.55), 0 10px 14px -4px rgba(69,26,3,.4), inset 0 2px 0 rgba(255,255,255,.55), inset 0 -2px 0 rgba(0,0,0,.18)',
+              zIndex: 10,
+              fontFamily: 'Nunito, sans-serif',
+              color: '#451a03',
+            }}>
+              {/* awning stripe */}
+              <div style={{ height: 12, background: 'repeating-linear-gradient(90deg, #a78bfa 0 14px, #fffbeb 14px 28px)', borderBottom: '2px solid #92400e', boxShadow: 'inset 0 1px 0 rgba(255,255,255,.4), inset 0 -1px 0 rgba(0,0,0,.18)' }} />
+              {/* brass studs */}
+              {[['top','left'],['top','right'],['bottom','left'],['bottom','right']].map(([v,h], j) => (
+                <span key={j} aria-hidden="true" style={{ position: 'absolute', [v]: 4, [h]: 4, width: 7, height: 7, borderRadius: '50%', background: 'radial-gradient(circle at 30% 30%, #fde68a, #451a03)', boxShadow: 'inset 0 -1px 1px rgba(0,0,0,.4)', pointerEvents: 'none', zIndex: 3 }} />
+              ))}
+              <div style={{ padding: '12px 14px 14px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 18, fontWeight: 700, fontFamily: "'Gaegu', cursive", color: '#7c2d12' }}>
+                    <span style={{ fontSize: 22 }}>{p.emoji}</span>
+                    <span>{p.name}</span>
+                  </div>
+                  <button onClick={() => setOpenPlaced(null)} style={{
+                    background: 'transparent', border: 'none', color: '#92400e',
+                    fontSize: 16, cursor: 'pointer', padding: 0, lineHeight: 1, fontWeight: 700,
+                  }}>âœ•</button>
+                </div>
+                <button onClick={() => { onReturnToInv?.(p.pid); setOpenPlaced(null); }} style={{
+                  width: '100%', padding: '10px 12px',
+                  background: 'linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%)',
+                  color: '#7c2d12', fontWeight: 800, fontSize: 14,
+                  border: '2.5px solid #92400e', borderRadius: 10, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                  boxShadow: '0 4px 6px -2px rgba(69,26,3,.35), inset 0 1px 0 rgba(255,255,255,.6), inset 0 -1px 0 rgba(146,64,14,.22)',
+                  fontFamily: 'inherit',
+                }}>ðŸ“¦ Return to Inventory</button>
+              </div>
+            </div>
+          );
+        })()}
+        {openItem && (() => {
+          const pop = popoverFor(openItem.id);
+          // Each item type gets its own awning accent so the popover reads like a labelled sign.
+          const ACCENTS = { water: '#38bdf8', hay: '#d97706', chew: '#fb923c', basket: '#84cc16', igloo: '#a78bfa', cookie: '#f59e0b', carrot: '#ea580c' };
+          const accent = ACCENTS[openItem.id] || '#fbbf24';
+          return (
+            <div ref={popoverRef} onClick={(e) => e.stopPropagation()} style={{
+              position: 'absolute',
+              left: openItem.x * cellW + cellW/2,
+              top: openItem.y * cellH,
+              transform: 'translate(-50%, -100%) rotateX(-55deg) rotateZ(2deg) translateY(-60px)',
+              transformOrigin: '50% 100%',
+              background: 'linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%)',
+              border: '4px solid #92400e',
+              borderRadius: 14,
+              padding: 0, overflow: 'hidden',
+              minWidth: 260,
+              boxShadow: '0 22px 30px -8px rgba(69,26,3,.55), 0 10px 14px -4px rgba(69,26,3,.4), inset 0 2px 0 rgba(255,255,255,.55), inset 0 -2px 0 rgba(0,0,0,.18)',
+              zIndex: 10,
+              fontFamily: 'Nunito, sans-serif',
+              color: '#451a03',
+            }}>
+              {/* awning stripe header in the item's accent */}
+              <div style={{ height: 12, background: `repeating-linear-gradient(90deg, ${accent} 0 14px, #fffbeb 14px 28px)`, borderBottom: '2px solid #92400e', boxShadow: 'inset 0 1px 0 rgba(255,255,255,.4), inset 0 -1px 0 rgba(0,0,0,.18)' }} />
+              {/* brass studs */}
+              {[['top','left'],['top','right'],['bottom','left'],['bottom','right']].map(([v,h], j) => (
+                <span key={j} aria-hidden="true" style={{ position: 'absolute', [v]: 4, [h]: 4, width: 7, height: 7, borderRadius: '50%', background: 'radial-gradient(circle at 30% 30%, #fde68a, #451a03)', boxShadow: 'inset 0 -1px 1px rgba(0,0,0,.4)', pointerEvents: 'none', zIndex: 3 }} />
+              ))}
+              <div style={{ padding: '10px 14px 14px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 18, fontWeight: 700, fontFamily: "'Gaegu', cursive", color: '#7c2d12' }}>
+                    <span>{openItem.title}</span>
+                  </div>
+                  <button onClick={() => setOpenItem(null)} style={{
+                    background: 'transparent', border: 'none', color: '#92400e',
+                    fontSize: 16, cursor: 'pointer', padding: 0, lineHeight: 1, fontWeight: 700,
+                  }}>âœ•</button>
+                </div>
+                {pop.meta && (pop.meta.left || pop.meta.right) && (
+                  <div style={{
+                    marginTop: 10, paddingTop: 10, borderTop: '1.5px dashed rgba(146,64,14,.4)',
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                    fontSize: 13,
+                  }}>
+                    <span style={{ color: '#92400e', fontWeight: 600 }}>{pop.meta.left}</span>
+                    <span style={{ color: pop.meta.rightColor ? '#7c2d12' : '#7c2d12', fontWeight: 800 }}>{pop.meta.right}</span>
+                  </div>
+                )}
+                {pop.rows && pop.rows.map((r, i) => (
+                  <div key={i} style={{ marginTop: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+                    <span style={{ fontSize: 12, color: '#7c2d12', fontWeight: 700 }}>{r.label}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: '0 0 auto' }}>
+                      <div style={{ width: 60, height: 8, background: 'linear-gradient(180deg, #78350f 0%, #92400e 100%)', borderRadius: 999, overflow: 'hidden', border: '1.5px solid #451a03', boxShadow: 'inset 0 1px 2px rgba(0,0,0,.4)' }}>
+                        <div style={{ width: r.value + '%', height: '100%', background: r.color, borderRadius: 999, boxShadow: 'inset 0 1px 0 rgba(255,255,255,.3)' }} />
+                      </div>
+                      <strong style={{ fontSize: 12, color: '#451a03', minWidth: 32, textAlign: 'right' }}>{r.value}%</strong>
+                    </div>
+                  </div>
+                ))}
+                {pop.listItems && pop.listItems.length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 10 }}>
+                    {pop.listItems.map((li, i) => (
+                      <div key={i} style={{
+                        display: 'flex', alignItems: 'center', gap: 10,
+                        padding: '8px 12px',
+                        background: '#fff7e6',
+                        border: '1.5px solid #fcd5a5',
+                        borderInlineStart: '4px solid #92400e',
+                        borderRadius: 8,
+                      }}>
+                        <span style={{ fontSize: 18, lineHeight: 1 }}>{li.emoji}</span>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: '#451a03', flex: 1 }}>{li.name}</span>
+                        {li.fresh != null && (
+                          <span style={{ fontSize: 12, color: '#178740', fontWeight: 800 }}>{li.fresh}%</span>
+                        )}
+                        {li.removable && (
+                          <button onClick={(e) => { e.stopPropagation(); setBowlItems(items => items.filter(b => b.id !== li._id)); }}
+                            style={{
+                              width: 22, height: 22, borderRadius: 4,
+                              background: 'linear-gradient(180deg, #fffbeb 0%, #fde68a 100%)',
+                              border: '1.5px solid #92400e', color: '#7c2d12',
+                              cursor: 'pointer', fontSize: 11, lineHeight: 1, fontWeight: 700,
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            }}>âœ•</button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 10 }}>
+                  {pop.actions.map((a, i) => (
+                    <button key={i} onClick={() => {
+                        if (openItem.id === 'basket' && a.id === 'empty') setBowlItems([]);
+                        onItemAction?.(openItem.id, a.id);
+                        if (a.id === 'inv') setOpenItem(null);
+                      }}
+                      style={{
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                        padding: '10px 12px',
+                        background: a.primary
+                          ? 'linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%)'
+                          : 'transparent',
+                        color: '#7c2d12',
+                        border: a.primary ? '2.5px solid #92400e' : '2px dashed rgba(146,64,14,.45)',
+                        borderRadius: 10, fontSize: 13, fontWeight: 800,
+                        cursor: 'pointer', fontFamily: 'inherit',
+                        boxShadow: a.primary
+                          ? '0 4px 6px -2px rgba(69,26,3,.35), inset 0 1px 0 rgba(255,255,255,.6), inset 0 -1px 0 rgba(146,64,14,.22)'
+                          : 'none',
+                      }}>
+                      <span style={{ fontSize: 14 }}>{a.icon}</span>{a.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+        {pigs.map((p, i) => {
+          const isInitiator = initiatorName && p.name === initiatorName;
+          const glowColor = isInitiator ? '#06b6d4' : '#fbbf24';
+          return (
+          <div key={i} className="cage-3d__item"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (targetingPigs && onPigClick) { onPigClick(p); return; }
+              setOpenItem(null);
+              setInspected(prev => prev === p.name ? null : p.name);
+            }}
+            style={{
+              left: p.x * cellW + cellW/2 - 27, top: p.y * cellH + cellH/2 - 27,
+              fontSize: 48, zIndex: targetingPigs ? 4 : 2,
+              filter: `hue-rotate(${p.avatar?.hue ?? 0}deg) drop-shadow(0 6px 4px rgba(0,0,0,.25))${
+                targetingPigs ? ` drop-shadow(0 0 12px ${glowColor}) drop-shadow(0 0 6px ${glowColor})` : ''
+              }${inspected === p.name ? ' drop-shadow(0 0 8px #fbbf24)' : ''}`,
+              cursor: 'pointer',
+              animation: targetingPigs && !isInitiator ? 'pigTargetBob 1s ease-in-out infinite' : undefined,
+            }} title={p.name}>
+            {targetingPigs && (
+              <span style={{
+                position: 'absolute', inset: 4,
+                border: `3px solid ${glowColor}`, borderRadius: '50%',
+                animation: isInitiator ? 'none' : 'pigTargetRing 1.1s ease-in-out infinite',
+                pointerEvents: 'none',
+              }} />
+            )}
+            {p.avatar?.emoji ?? 'ðŸ¹'}
+          </div>
+          );
+        })}
+      </div>
+      <style>{`
+        @keyframes pigTargetRing { 0%,100% { transform: scale(1); opacity: .95; } 50% { transform: scale(1.35); opacity: .35; } }
+        @keyframes pigTargetBob  { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+      `}</style>
+      {inspected && (() => {
+        const pig = pigs.find(p => p.name === inspected);
+        if (!pig) return null;
+        // Convert tilted-cage pig coords to upright overlay coords.
+        // The cage is 640x440 with rotateX(55deg) â€” items are at (x*cellW, y*cellH) before tilt.
+        // We anchor the popover to a screen-space approximation of the pig's center.
+        const pigLeft = pig.x * cellW + cellW/2;
+        const pigTop  = pig.y * cellH + cellH/2;
+        return (
+          <div ref={inspectRef} onClick={(e) => e.stopPropagation()} style={{
+            position: 'absolute',
+            left: Math.min(440, Math.max(20, pigLeft - 110)),
+            top: Math.min(160, Math.max(0, pigTop - 240)),
+            width: 280,
+            background: 'linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%)',
+            border: '4px solid #92400e',
+            borderRadius: 14,
+            padding: 0, overflow: 'hidden',
+            boxShadow: '0 22px 30px -8px rgba(69,26,3,.55), 0 10px 14px -4px rgba(69,26,3,.4), inset 0 2px 0 rgba(255,255,255,.55), inset 0 -2px 0 rgba(0,0,0,.18)',
+            zIndex: 12,
+            fontFamily: 'Nunito, sans-serif',
+            color: '#451a03',
+          }}>
+            {/* awning stripe (pink â€” matches the per-pig drawer accent in SimTopBar) */}
+            <div style={{ height: 12, background: 'repeating-linear-gradient(90deg, #ec4899 0 14px, #fffbeb 14px 28px)', borderBottom: '2px solid #92400e', boxShadow: 'inset 0 1px 0 rgba(255,255,255,.4), inset 0 -1px 0 rgba(0,0,0,.18)' }} />
+            {/* brass studs */}
+            {[['top','left'],['top','right'],['bottom','left'],['bottom','right']].map(([v,h], j) => (
+              <span key={j} aria-hidden="true" style={{ position: 'absolute', [v]: 4, [h]: 4, width: 7, height: 7, borderRadius: '50%', background: 'radial-gradient(circle at 30% 30%, #fde68a, #451a03)', boxShadow: 'inset 0 -1px 1px rgba(0,0,0,.4)', pointerEvents: 'none', zIndex: 3 }} />
+            ))}
+            <div style={{ padding: '10px 14px 14px' }}>
+              {/* Header */}
+              <div style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                paddingBottom: 10, marginBottom: 10,
+                borderBottom: '1.5px dashed rgba(146,64,14,.4)',
+              }}>
+                <span style={{ fontFamily: "'Gaegu', cursive", fontSize: 22, fontWeight: 700, color: '#7c2d12' }}>
+                  {pig.name}
+                </span>
+                <button onClick={() => setInspected(null)} style={{
+                  background: 'transparent', border: 'none', color: '#92400e',
+                  fontSize: 18, cursor: 'pointer', padding: 0, lineHeight: 1, fontWeight: 700,
+                }}>âœ•</button>
+              </div>
+              {/* Needs grid */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 280, overflowY: 'auto', paddingRight: 4 }}>
+                {Object.entries(pig.needs || {}).map(([key, val]) => {
+                  const meta = (window.NEED_META || {})[key] || { label: key, color: '#64748b' };
+                  const v = Math.round(val);
+                  return (
+                    <div key={key} style={{
+                      display: 'grid', gridTemplateColumns: '78px 1fr 28px',
+                      alignItems: 'center', gap: 10,
+                    }}>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: '#7c2d12' }}>{meta.label}</span>
+                      <div style={{ height: 8, background: 'linear-gradient(180deg, #78350f 0%, #92400e 100%)', borderRadius: 999, overflow: 'hidden',
+                                    border: '1.5px solid #451a03', boxShadow: 'inset 0 1px 2px rgba(0,0,0,.4)' }}>
+                        <div style={{ height: '100%', width: `${v}%`, background: meta.color, borderRadius: 999,
+                                      boxShadow: 'inset 0 1px 0 rgba(255,255,255,.3)' }} />
+                      </div>
+                      <span style={{ fontSize: 12, color: '#92400e', textAlign: 'right', fontWeight: 800 }}>{v}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+      {bubble && (() => {
+        const pig = pigs.find(p => p.name === bubble.who);
+        if (!pig) return null;
+        return (
+          <div style={{
+            position: 'absolute',
+            left: `calc(50% + ${(pig.x - 3.5) * 40}px)`,
+            top:  `calc(50% + ${(pig.y - 3) * 22 - 80}px)`,
+            transform: 'translateX(-50%)',
+            background: 'linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%)',
+            border: '2.5px solid #92400e',
+            padding: '5px 14px', borderRadius: 14,
+            fontFamily: "'Gaegu', cursive", fontSize: 17, fontWeight: 700,
+            color: '#451a03', whiteSpace: 'nowrap', letterSpacing: .2,
+            boxShadow: '0 6px 10px -2px rgba(69,26,3,.4), 0 2px 4px -1px rgba(69,26,3,.25), inset 0 1px 0 rgba(255,255,255,.6), inset 0 -1px 0 rgba(146,64,14,.2)',
+            zIndex: 5, animation: 'bubblePop 200ms ease',
+          }}>
+            {bubble.text}
+            {/* Caret outline (brown border) */}
+            <div style={{
+              position: 'absolute', bottom: -10, left: '50%', transform: 'translateX(-50%)',
+              width: 0, height: 0,
+              borderLeft: '9px solid transparent',
+              borderRight: '9px solid transparent',
+              borderTop: '10px solid #92400e',
+            }} />
+            {/* Caret fill (parchment cream, sits 2px above the outline) */}
+            <div style={{
+              position: 'absolute', bottom: -7, left: '50%', transform: 'translateX(-50%)',
+              width: 0, height: 0,
+              borderLeft: '7px solid transparent',
+              borderRight: '7px solid transparent',
+              borderTop: '8px solid #fef3c7',
+            }} />
+          </div>
+        );
+      })()}
+    </div>
+  );
+}
+
+// Tweakable defaults â€” the host rewrites this block on disk when the user changes a value.
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "headerGradient": "custom",
+  "headerColor1": "#ff47a9",
+  "headerColor2": "#7cfe7e",
+  "headerFont": "gaegu",
+  "buttonFont": "gaegu"
+}/*EDITMODE-END*/;
+
+// Header font catalog â€” playful options. css is the value used in fontFamily.
+const HEADER_FONTS = {
+  gaegu:       { label: 'Gaegu (default)',    css: "'Gaegu', cursive" },
+  fredoka:     { label: 'Fredoka',            css: "'Fredoka', sans-serif" },
+  patrickHand: { label: 'Patrick Hand',       css: "'Patrick Hand', cursive" },
+  caveat:      { label: 'Caveat',             css: "'Caveat', cursive" },
+  sniglet:     { label: 'Sniglet',            css: "'Sniglet', cursive" },
+  pacifico:    { label: 'Pacifico',           css: "'Pacifico', cursive" },
+  lobster:     { label: 'Lobster',            css: "'Lobster', cursive" },
+  bagelFatOne: { label: 'Bagel Fat One',      css: "'Bagel Fat One', cursive" },
+  rubikBubbles:{ label: 'Rubik Bubbles',      css: "'Rubik Bubbles', cursive" },
+  bungee:      { label: 'Bungee',             css: "'Bungee', cursive" },
+  rubikMono:   { label: 'Rubik Mono One',     css: "'Rubik Mono One', monospace" },
+  pressStart:  { label: 'Press Start 2P',     css: "'Press Start 2P', monospace" },
+};
+
+// Button font catalog â€” UI-friendly faces, plus Gaegu for the playful look.
+const BUTTON_FONTS = {
+  nunito:      { label: 'Nunito (default)',   css: "'Nunito', sans-serif" },
+  inter:       { label: 'Inter',              css: "'Inter', sans-serif" },
+  poppins:     { label: 'Poppins',            css: "'Poppins', sans-serif" },
+  quicksand:   { label: 'Quicksand',          css: "'Quicksand', sans-serif" },
+  fredoka:     { label: 'Fredoka',            css: "'Fredoka', sans-serif" },
+  workSans:    { label: 'Work Sans',          css: "'Work Sans', sans-serif" },
+  dmSans:      { label: 'DM Sans',            css: "'DM Sans', sans-serif" },
+  spaceGrotesk:{ label: 'Space Grotesk',      css: "'Space Grotesk', sans-serif" },
+  jakarta:     { label: 'Plus Jakarta Sans',  css: "'Plus Jakarta Sans', sans-serif" },
+  gaegu:       { label: 'Gaegu (playful)',    css: "'Gaegu', cursive" },
+};
+
+// Preset header gradients
+const HEADER_PRESETS = {
+  warm:  { color1: '#fed7aa', color2: '#fef3c7', name: 'Warm peach' },
+  pink:  { color1: '#fbcfe8', color2: '#f9a8d4', name: 'Pink' },
+  green: { color1: '#bbf7d0', color2: '#86efac', name: 'Green' },
+  pinkGreen: { color1: '#fbcfe8', color2: '#bbf7d0', name: 'Pink â†’ Green' },
+  custom: { name: 'Custom' },
+};
+
+function App() {
+  const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  // Loading splash â€” shows on first mount, dismissed automatically by LoadingScreen.
+  const [loading, setLoading] = React.useState(true);
+  // Resolve preset â†’ actual colors. "custom" uses headerColor1/2 directly.
+  const preset = HEADER_PRESETS[t.headerGradient] || HEADER_PRESETS.warm;
+  const headerColor1 = t.headerGradient === 'custom' ? t.headerColor1 : preset.color1;
+  const headerColor2 = t.headerGradient === 'custom' ? t.headerColor2 : preset.color2;
+  // Resolve header font key â†’ fontFamily string.
+  const headerFontCss = (HEADER_FONTS[t.headerFont] || HEADER_FONTS.gaegu).css;
+  // Resolve button font key â†’ fontFamily string.
+  const buttonFontCss = (BUTTON_FONTS[t.buttonFont] || BUTTON_FONTS.nunito).css;
+
+  const [adopted, setAdopted] = useState([]);
+  // Entries waiting on the Adoption Certificate overlay. When non-null,
+  // the user has clicked "Adopt" in the Pet Store but hasn't yet clicked
+  // "Start Game" on the certificate. We hold off committing the adoption
+  // (and therefore starting the sim) until they do.
+  const [pendingAdoption, setPendingAdoption] = useState(null);
+  const [tab, setTab] = useState('habitat');
+  const [paused, setPaused] = useState(false);
+  // Help overlay â€” opened by the "?" button in the header next to Pause.
+  const [helpOpen, setHelpOpen] = useState(false);
+
+  // Tutorial â€” auto-starts the first time a user enters Live Mode with adopted
+  // pigs. Persists completion in localStorage so it doesn't re-fire on reload.
+  // The Tweaks panel exposes a "Replay tutorial" button that clears the flag
+  // and re-triggers it.
+  const TUTORIAL_KEY = 'gps2-tutorial-completed-v1';
+  const [tutorialActive, setTutorialActive] = useState(false);
+  useEffect(() => {
+    if (adopted.length > 0 && tab === 'habitat' &&
+        !localStorage.getItem(TUTORIAL_KEY) && !tutorialActive) {
+      // Defer slightly so the cage/SimTopBar/FABs have time to mount and
+      // measure correctly under the spotlight.
+      const id = setTimeout(() => setTutorialActive(true), 450);
+      return () => clearTimeout(id);
+    }
+  }, [adopted.length, tab]);
+  const closeTutorial = () => {
+    localStorage.setItem(TUTORIAL_KEY, '1');
+    setTutorialActive(false);
+    // The supplies-store step navigates away from Live Mode. When the user
+    // finishes (or skips) the tour from there, bring them back so they land
+    // in the playspace.
+    setTab('habitat');
+  };
+  const replayTutorial = () => {
+    localStorage.removeItem(TUTORIAL_KEY);
+    setTutorialActive(true);
+  };
+
+  const [coins, setCoins] = useState(120);
+  const [inventoryOpen, setInventoryOpen] = useState(false);
+  const [activityOpen, setActivityOpen] = useState(true);
+  const [habitatOpen, setHabitatOpen] = useState(false);
+  const [expandedPig, setExpandedPig] = useState(null); // name of pig whose needs panel is open
+  const [pigDrawerTab, setPigDrawerTab] = useState('info'); // 'info' | 'needs' â€” lifted so the tutorial can flip it
+
+  // Inventory + placement state â€” flat catalog (matches SuppliesStore departments).
+  const [inv, setInv] = useState({
+    hay: [
+      { name: 'Timothy Hay', emoji: 'ðŸŒ¾', qty: 50 },
+      { name: 'Orchard Hay', emoji: 'ðŸŒ¾', qty: 20 },
+      { name: 'Alfalfa Hay', emoji: 'ðŸŒ¾', qty: 10 },
+    ],
+    food: [
+      { name: 'Carrot', emoji: 'ðŸ¥•', qty: 12 },
+      { name: 'Romaine', emoji: 'ðŸ¥¬', qty: 8 },
+      { name: 'Bell Pepper', emoji: 'ðŸ«‘', qty: 4 },
+      { name: 'Apple', emoji: 'ðŸŽ', qty: 3 },
+      { name: 'Strawberry', emoji: 'ðŸ“', qty: 2 },
+    ],
+    bedding: [
+      { name: 'Fleece Liner', emoji: 'ðŸŸª', qty: 4 },
+      { name: 'Paper Bedding', emoji: 'ðŸŸ¦', qty: 8 },
+      { name: 'Aspen Shavings', emoji: 'ðŸŸ«', qty: 6 },
+    ],
+    habitat: [
+      { name: 'Tunnel', emoji: 'ðŸŸ ', qty: 1 },
+      { name: 'Cozy House', emoji: 'ðŸ ', qty: 2 },
+      { name: 'Chew Stick', emoji: 'ðŸªµ', qty: 6 },
+    ],
+  });
+  const [placedItems, setPlacedItems] = useState([]); // [{ pid, cat, name, emoji, x, y }]
+  const [placement, setPlacement] = useState(null); // { cat, name, emoji } | null
+
+  // Click an inventory tile â†’ enter placement mode (and close other panels)
+  const startPlacement = (cat, idx) => {
+    const it = inv[cat]?.[idx];
+    if (!it || it.qty <= 0) return;
+    setPlacement({ cat, name: it.name, emoji: it.emoji });
+    setInventoryOpen(false);
+    setHabitatOpen(false);
+    setExpandedPig(null);
+  };
+  const cancelPlacement = () => setPlacement(null);
+  // Esc cancels placement
+  useEffect(() => {
+    if (!placement) return;
+    const onKey = (e) => { if (e.key === 'Escape') setPlacement(null); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [placement]);
+
+  const placeAt = (gx, gy) => {
+    if (!placement) return;
+    setPlacedItems(arr => [...arr, {
+      pid: `p${Date.now()}-${Math.random().toString(36).slice(2,7)}`,
+      cat: placement.cat, name: placement.name, emoji: placement.emoji,
+      x: gx, y: gy,
+    }]);
+    // decrement inventory
+    setInv(prev => {
+      const next = { ...prev, [placement.cat]: prev[placement.cat].map(it =>
+        it.name === placement.name ? { ...it, qty: Math.max(0, it.qty - 1) } : it
+      ) };
+      // exit placement if no more left
+      const remaining = next[placement.cat].find(i => i.name === placement.name)?.qty ?? 0;
+      if (remaining <= 0) setPlacement(null);
+      return next;
+    });
+    addLog({ cat: 'player', emoji: placement.emoji, text: `Placed ${placement.name} in habitat` });
+  };
+
+  const returnToInventory = (pid) => {
+    setPlacedItems(arr => {
+      const item = arr.find(p => p.pid === pid);
+      if (!item) return arr;
+      setInv(prev => ({
+        ...prev,
+        [item.cat]: prev[item.cat].map(it =>
+          it.name === item.name ? { ...it, qty: it.qty + 1 } : it
+        ),
+      }));
+      addLog({ cat: 'player', emoji: 'ðŸ“¦', text: `Returned ${item.name} to inventory` });
+      return arr.filter(p => p.pid !== pid);
+    });
+  };
+
+  const [dirty, setDirty] = useState(28);
+  // Habitat status â€” water level, hay freshness, poop level (inverse: 100 = clean), bedding
+  const [waterLevel, setWaterLevel] = useState(72);
+  const [hayFreshness, setHayFreshness] = useState(58);
+  const [poopLevel, setPoopLevel] = useState(35); // raw: how much poop. cleanliness = 100 - poopLevel
+  const [beddingClean, setBeddingClean] = useState(64);
+  const [chewLevel, setChewLevel] = useState(82);
+  const [pigs, setPigs] = useState([]); // [{ name, x, y, avatar, needs }]
+  const [feed, setFeed] = useState([]);
+  const [bubble, setBubble] = useState(null);
+  const [pendingAction, setPendingAction] = useState(null); // { fabTheme, actionId, icon, label, pigToPig?, initiator? }
+
+  const addLog = (entry) => setFeed(f => [...f.slice(-40), { ...entry, time: now() }]);
+
+  const adopt = (entries) => {
+    // Backwards compat: accept array of strings OR array of {originalName, name}
+    const norm = entries.map(e => typeof e === 'string'
+      ? { originalName: e, name: e }
+      : { originalName: e.originalName, name: e.name || e.originalName });
+    const displayNames = norm.map(e => e.name);
+    setAdopted(displayNames);
+    // Look up each adopted pig's profile from the pet-store CAGES roster
+    const allCagePigs = (window.CAGES || []).flatMap(c => c.pigs);
+    const profileFor = (n) => allCagePigs.find(p => p.name === n) || {};
+    setPigs(norm.map((entry, i) => {
+      const prof = profileFor(entry.originalName);
+      const others = displayNames.filter(o => o !== entry.name);
+      const seedBonds = {};
+      for (const o of others) seedBonds[o] = 9; // start neutral
+      return {
+        name: entry.name, x: (i % 2) * 4 + 1, y: Math.floor(i / 2) * 3 + 1,
+        avatar: PIG_AVATARS[i % PIG_AVATARS.length],
+        needs: FRESH_NEEDS(),
+        // Profile (for the Info section of the per-pig drawer)
+        breed: prof.breed || 'American',
+        gender: prof.gender || 'sow',
+        age: prof.age,
+        personality: prof.personality,
+        colors: prof.colors || [],
+        // User Friendship
+        friendship: 41,
+        friendshipTarget: 85,
+        lastInteractionAt: Date.now() - 2 * 60 * 60 * 1000, // seed: "2h ago"
+        totalInteractions: 1,
+        // Pig-to-pig bonds: { [otherPigName]: percent 0..100 }
+        bonds: seedBonds,
+      };
+    }));
+    setTab('habitat');
+    addLog({ cat: 'system', emoji: 'ðŸ ', text: `Welcomed ${displayNames.join(' & ')} home!` });
+  };
+
+  // Map a store dept to an inventory category. 'featured' items resolve by lookup
+  // through the catalog so prebuilt picks land in the right bucket.
+  const invCatFor = (item, dept) => {
+    if (dept && dept !== 'featured') return dept;
+    const cat = window.SUPPLIES_CATALOG || {};
+    for (const k of Object.keys(cat)) {
+      if ((cat[k].items || []).some(it => it.name === item.name)) return k;
+    }
+    return 'habitat';
+  };
+
+  const buySupply = (item, dept) => {
+    if (coins < item.price) return;
+    const cat = invCatFor(item, dept);
+    setCoins(c => c - item.price);
+    setInv(prev => {
+      const list = prev[cat] || [];
+      const exists = list.some(it => it.name === item.name);
+      const nextList = exists
+        ? list.map(it => it.name === item.name ? { ...it, qty: it.qty + 1 } : it)
+        : [...list, { name: item.name, emoji: item.emoji, qty: 1 }];
+      return { ...prev, [cat]: nextList };
+    });
+    addLog({ cat: 'system', emoji: 'ðŸ›’', text: `Bought ${item.name} for ðŸª™ ${item.price}` });
+  };
+
+  const sellSupply = (item, dept) => {
+    const cat = invCatFor(item, dept);
+    const list = inv[cat] || [];
+    const owned = list.find(it => it.name === item.name)?.qty ?? 0;
+    if (owned <= 0) return;
+    const sellPrice = Math.floor(item.price / 2);
+    setCoins(c => c + sellPrice);
+    setInv(prev => ({
+      ...prev,
+      [cat]: prev[cat]
+        .map(it => it.name === item.name ? { ...it, qty: it.qty - 1 } : it)
+        .filter(it => it.qty > 0),
+    }));
+    addLog({ cat: 'system', emoji: 'ðŸ’°', text: `Sold ${item.name} for ðŸª™ ${sellPrice}` });
+  };
+
+  // pigs wander
+  useEffect(() => {
+    if (paused || tab !== 'habitat') return;
+    const id = setInterval(() => {
+      setPigs(ps => ps.map(p => ({
+        ...p,
+        x: Math.max(0, Math.min(7, p.x + (Math.floor(Math.random() * 3) - 1))),
+        y: Math.max(0, Math.min(5, p.y + (Math.floor(Math.random() * 3) - 1))),
+      })));
+    }, 1400);
+    return () => clearInterval(id);
+  }, [paused, tab]);
+
+  // needs decay (per pig). Slowed to ~10% during the tutorial so newcomers
+  // aren't punished while reading the popovers.
+  useEffect(() => {
+    if (paused || adopted.length === 0) return;
+    const scale = tutorialActive ? 0.1 : 1;
+    const id = setInterval(() => {
+      setPigs(ps => ps.map(p => {
+        const out = { ...p.needs };
+        for (const k of Object.keys(out)) out[k] = Math.max(0, out[k] - Math.random() * 0.7 * scale);
+        return { ...p, needs: out };
+      }));
+      setDirty(d => Math.min(100, d + 0.4 * scale));
+      setWaterLevel(w => Math.max(0, w - 0.3 * scale));
+      setHayFreshness(h => Math.max(0, h - 0.25 * scale));
+      setPoopLevel(p => Math.min(100, p + 0.5 * scale));
+      setBeddingClean(b => Math.max(0, b - 0.2 * scale));
+    }, 1000);
+    return () => clearInterval(id);
+  }, [paused, adopted.length, tutorialActive]);
+
+  // idle bubbles
+  useEffect(() => {
+    if (paused || tab !== 'habitat' || pigs.length === 0) return;
+    const id = setInterval(() => {
+      const p = pigs[Math.floor(Math.random() * pigs.length)];
+      setBubble({ text: randomOf(REACTIONS.idle), who: p.name });
+      setTimeout(() => setBubble(null), 2600);
+    }, 7000);
+    return () => clearInterval(id);
+  }, [paused, tab, pigs]);
+
+  const commitAction = (fabTheme, actionId, pig, partner = null) => {
+    const deltas = {
+      pink:   { hunger: +35 },
+      green:  { play: +40, social: +10, stimulation: +20 },
+      violet: actionId === 'clean' ? { hygiene: +10 } :
+              actionId === 'water' ? { thirst: +40 } :
+              actionId === 'hay'   ? { hunger: +25 } :
+              actionId === 'nails' ? { nails: +40 } :
+              actionId === 'bath'  ? { hygiene: +50 } : { comfort: +20 },
+      orange: actionId === 'vet' ? { hygiene: +10, nails: +40 } :
+              actionId === 'pet' ? { social: +30, comfort: +20 } :
+              actionId === 'hold'? { social: +20, comfort: +25 } :
+                                   { social: +15 },
+      // Pig-to-pig: applied to BOTH pigs, with the recipient getting a small bonus
+      cyan:   actionId === 'snuggle' ? { social: +35, comfort: +25 } :
+              actionId === 'groom'   ? { social: +20, hygiene: +25, comfort: +15 } :
+              actionId === 'play'    ? { social: +30, play: +25, stimulation: +20 } :
+                                       { social: +25 }, // greet
+    }[fabTheme] || {};
+
+    const partnerNames = new Set([pig.name, partner?.name].filter(Boolean));
+    const isPigToPig = !!partner;
+    setPigs(ps => ps.map(p => {
+      if (!partnerNames.has(p.name)) return p;
+      const out = { ...p.needs };
+      // Recipient gets a +5 bump on the primary social stat
+      const bonus = (partner && p.name === pig.name) ? 5 : 0;
+      for (const [k, v] of Object.entries(deltas)) {
+        const amt = v + (k === 'social' ? bonus : 0);
+        out[k] = Math.min(100, Math.max(0, out[k] + amt));
+      }
+      // Update friendship + bond meters for participating pigs
+      const next = { ...p, needs: out };
+      if (isPigToPig) {
+        // Increment the bond between the two participating pigs
+        const otherName = p.name === pig.name ? partner.name : pig.name;
+        const bondGain = fabTheme === 'cyan'
+          ? (actionId === 'snuggle' ? 6 : actionId === 'groom' ? 5 : actionId === 'play' ? 5 : 3)
+          : 1;
+        const nextBonds = { ...(p.bonds || {}) };
+        nextBonds[otherName] = Math.min(100, (nextBonds[otherName] ?? 0) + bondGain);
+        next.bonds = nextBonds;
+      } else {
+        // Player interacted directly â€” increment user friendship + count
+        const friendGain = fabTheme === 'orange' ? 4 : fabTheme === 'pink' ? 2 : fabTheme === 'green' ? 3 : 1;
+        next.friendship = Math.min(100, (p.friendship ?? 0) + friendGain);
+        next.totalInteractions = (p.totalInteractions ?? 0) + 1;
+        next.lastInteractionAt = Date.now();
+      }
+      return next;
+    }));
+    if (fabTheme === 'violet' && actionId === 'clean') {
+      setDirty(d => Math.max(0, d - 40));
+      setPoopLevel(p => Math.max(0, p - 60));
+      setBeddingClean(b => Math.min(100, b + 30));
+    }
+    if (fabTheme === 'violet' && actionId === 'water') setWaterLevel(w => Math.min(100, w + 80));
+    if (fabTheme === 'violet' && actionId === 'hay')   setHayFreshness(h => Math.min(100, h + 70));
+
+    const action = FABS.find(f => f.theme === fabTheme).actions.find(a => a.id === actionId);
+    if (partner) {
+      addLog({ cat: 'player', emoji: action.icon, text: `${pig.name} â†’ ${partner.name}: ${action.label}` });
+    } else {
+      addLog({ cat: 'player', emoji: action.icon, text: `Gave ${pig.name}: ${action.label}` });
+    }
+
+    setTimeout(() => {
+      const key = fabTheme === 'pink' ? 'feed' : fabTheme === 'green' ? 'play'
+                : fabTheme === 'violet' ? (actionId === 'water' ? 'water' : 'clean')
+                : fabTheme === 'cyan' ? 'idle'
+                : actionId === 'vet' ? 'vet' : actionId === 'pet' || actionId === 'hold' ? 'pet' : 'idle';
+      const txt = randomOf(REACTIONS[key] || REACTIONS.idle);
+      setBubble({ text: txt, who: pig.name });
+      addLog({ cat: 'reaction', emoji: 'âœ¨', text: `${pig.name}: ${txt}` });
+      setTimeout(() => setBubble(null), 2600);
+    }, 500);
+  };
+
+  const startAction = (fabTheme, actionId) => {
+    if (pigs.length === 0) return;
+    const fab = FABS.find(f => f.theme === fabTheme);
+    const action = fab.actions.find(a => a.id === actionId);
+    // Pig-to-pig actions need at least 2 pigs
+    if (fab.pigToPig) {
+      if (pigs.length < 2) {
+        addLog({ cat: 'reaction', emoji: 'ðŸš«', text: 'Need 2 guinea pigs for that.' });
+        return;
+      }
+      setPendingAction({ fabTheme, actionId, icon: action.icon, label: action.label, pigToPig: true, initiator: null });
+      return;
+    }
+    // auto-commit when only one pig â€” no selection needed
+    if (pigs.length === 1) {
+      commitAction(fabTheme, actionId, pigs[0]);
+      return;
+    }
+    setPendingAction({ fabTheme, actionId, icon: action.icon, label: action.label });
+  };
+
+  const doAction = startAction; // alias for back-compat with existing FAB wiring
+
+  // ESC cancels pending action
+  useEffect(() => {
+    if (!pendingAction) return;
+    const onKey = (e) => { if (e.key === 'Escape') setPendingAction(null); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [pendingAction]);
+
+  // Per-pig health classification
+  function pigHealth(p) {
+    const entries = Object.entries(p.needs);
+    const critical = entries.filter(([_, v]) => v <= 20);
+    const warning = entries.filter(([_, v]) => v > 20 && v <= 40);
+    const worst = [...critical, ...warning].sort((a, b) => a[1] - b[1])[0];
+    return {
+      status: critical.length ? 'critical' : warning.length ? 'warning' : 'ok',
+      count: critical.length + warning.length,
+      worstNeed: worst ? worst[0] : null,
+    };
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      {loading && window.LoadingScreen && (
+        <window.LoadingScreen onDone={() => setLoading(false)} />
+      )}
+      <Header
+        activeTab={tab}
+        onTab={setTab}
+        paused={paused}
+        onTogglePause={() => setPaused(p => !p)}
+        onOpenHelp={() => setHelpOpen(true)}
+        pigsAdopted={adopted.length}
+        coins={coins}
+        gradientColor1={headerColor1}
+        gradientColor2={headerColor2}
+        headerFont={headerFontCss}
+        buttonFont={buttonFontCss}
+      />
+
+      <main style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+        {adopted.length === 0 && (
+          <div style={{ overflowY: 'auto', height: '100%' }}>
+            <PetStore onAdopt={(entries) => setPendingAdoption(entries)} />
+          </div>
+        )}
+
+        {tab === 'supplies' && adopted.length > 0 && (
+          <div style={{ overflowY: 'auto', height: '100%' }}>
+            <SuppliesStore coins={coins} inv={inv} onBuy={buySupply} onSell={sellSupply} />
+          </div>
+        )}
+
+        {tab === 'habitat' && adopted.length > 0 && (
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column' }}>
+            {/* full-bleed flat sky â€” THREE.js scene backdrop */}
+            <div className="stage-bg">
+              <CornerCloud className="cloud cloud--tl" />
+              <CornerCloud className="cloud cloud--tr" />
+              <CornerCloud className="cloud cloud--bl" />
+              <CornerCloud className="cloud cloud--br" />
+            </div>
+
+            {/* TOP BAR: activity Â· pig needs (center) Â· inventory */}
+            <SimTopBar
+              feed={feed}
+              activityOpen={activityOpen}
+              onToggleActivity={() => { setActivityOpen(o => !o); }}
+              pigs={pigs}
+              expandedPig={expandedPig}
+              onTogglePig={(name) => { setExpandedPig(name); setInventoryOpen(false); setHabitatOpen(false); }}
+              pigDrawerTab={pigDrawerTab}
+              onPigDrawerTabChange={setPigDrawerTab}
+              pigHealth={pigHealth}
+              NEED_META={NEED_META}
+              inventoryOpen={inventoryOpen}
+              onToggleInventory={() => { setInventoryOpen(o => !o); setHabitatOpen(false); setExpandedPig(null); }}
+              inventoryContent={<InventoryGrid inv={inv} placement={placement} onPick={startPlacement} />}
+              dirty={dirty}
+              habitatOpen={habitatOpen}
+              onToggleHabitat={() => { setHabitatOpen(o => !o); setInventoryOpen(false); setExpandedPig(null); }}
+              habitatStatus={[
+                { key: 'water',    label: 'Water Level',        emoji: 'ðŸ’§', color: '#06b6d4', value: waterLevel },
+                { key: 'hay',      label: 'Hay Freshness',      emoji: 'ðŸŒ¾', color: '#d97706', value: hayFreshness },
+                { key: 'poop',     label: 'Poop Cleanliness',   emoji: 'ðŸ’©', color: '#65a30d', value: 100 - poopLevel },
+                { key: 'bedding',  label: 'Bedding Cleanliness',emoji: 'ðŸ›ï¸', color: '#818cf8', value: beddingClean },
+                { key: 'overall',  label: 'Overall Cleanliness',emoji: 'âœ¨', color: '#178740', value: 100 - dirty },
+              ]}
+            />
+
+            {/* Scene area â€” fills remaining space below the bar */}
+            <div style={{ position: 'relative', flex: 1, minHeight: 0 }}>
+
+            {/* Targeting banner â€” appears when user picked a FAB action and needs to select a pig.
+                Parchment notice-board to match SimTopBar dropdowns + click popovers. */}
+            {pendingAction && (
+              <div style={{
+                position: 'absolute',
+                top: 14, left: '50%', transform: 'translateX(-50%)',
+                zIndex: 35,
+                background: 'linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%)',
+                border: '4px solid #92400e',
+                borderRadius: 14, overflow: 'hidden',
+                boxShadow: '0 22px 30px -8px rgba(69,26,3,.55), 0 10px 14px -4px rgba(69,26,3,.4), inset 0 2px 0 rgba(255,255,255,.55), inset 0 -2px 0 rgba(0,0,0,.18)',
+                color: '#451a03',
+                animation: 'bannerSlideIn 220ms cubic-bezier(.2,.9,.3,1.2)',
+              }}>
+                {/* awning stripe â€” pink, matches the per-pig accent */}
+                <div style={{ height: 10, background: 'repeating-linear-gradient(90deg, #ec4899 0 14px, #fffbeb 14px 28px)', borderBottom: '2px solid #92400e', boxShadow: 'inset 0 1px 0 rgba(255,255,255,.4), inset 0 -1px 0 rgba(0,0,0,.18)' }} />
+                {/* brass studs */}
+                {[['top','left'],['top','right'],['bottom','left'],['bottom','right']].map(([v,h], j) => (
+                  <span key={j} aria-hidden="true" style={{ position: 'absolute', [v]: 3, [h]: 4, width: 7, height: 7, borderRadius: '50%', background: 'radial-gradient(circle at 30% 30%, #fde68a, #451a03)', boxShadow: 'inset 0 -1px 1px rgba(0,0,0,.4)', pointerEvents: 'none', zIndex: 3 }} />
+                ))}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px 10px 18px', fontWeight: 700, fontSize: 14, color: '#451a03' }}>
+                  <span style={{ fontSize: 22, animation: 'pointBounce 900ms ease-in-out infinite' }}>ðŸ‘‡</span>
+                  <span>
+                    {pendingAction.pigToPig && !pendingAction.initiator ? (
+                      <>Pick the guinea pig to <span style={{ fontWeight: 800, color: '#7c2d12' }}>start
+                        &nbsp;{pendingAction.icon} {pendingAction.label}</span></>
+                    ) : pendingAction.pigToPig ? (
+                      <><span style={{ fontWeight: 800, color: '#7c2d12' }}>{pendingAction.initiator.name}</span>
+                        &nbsp;will <span style={{ fontWeight: 800, color: '#7c2d12' }}>{pendingAction.icon} {pendingAction.label}</span> withâ€¦
+                        &nbsp;pick a partner</>
+                    ) : (
+                      <>Select a guinea pig to <span style={{ fontWeight: 800, color: '#7c2d12' }}>
+                        {pendingAction.icon} {pendingAction.label}</span></>
+                    )}
+                  </span>
+                  <button onClick={() => setPendingAction(null)} style={{
+                    border: '2px solid #92400e',
+                    background: 'linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%)',
+                    color: '#7c2d12', fontWeight: 800, fontSize: 13,
+                    padding: '4px 12px', borderRadius: 999, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'inherit',
+                    boxShadow: '0 2px 3px rgba(69,26,3,.3), inset 0 1px 0 rgba(255,255,255,.6)',
+                  }}>
+                    âœ• Cancel
+                  </button>
+                </div>
+                <style>{`@keyframes bannerSlideIn { from { opacity: 0; transform: translateX(-50%) translateY(-8px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } } @keyframes pointBounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(3px); } }`}</style>
+              </div>
+            )}
+
+            {/* Placement banner â€” appears when user picked an item from inventory */}
+            {placement && !pendingAction && (
+              <div style={{
+                position: 'absolute',
+                top: 14, left: '50%', transform: 'translateX(-50%)',
+                zIndex: 35,
+                background: 'linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%)',
+                border: '4px solid #92400e',
+                borderRadius: 14, overflow: 'hidden',
+                boxShadow: '0 22px 30px -8px rgba(69,26,3,.55), 0 10px 14px -4px rgba(69,26,3,.4), inset 0 2px 0 rgba(255,255,255,.55), inset 0 -2px 0 rgba(0,0,0,.18)',
+                color: '#451a03',
+                animation: 'bannerSlideIn 220ms cubic-bezier(.2,.9,.3,1.2)',
+              }}>
+                {/* awning stripe â€” amber, matches placement/inventory accent */}
+                <div style={{ height: 10, background: 'repeating-linear-gradient(90deg, #fbbf24 0 14px, #fffbeb 14px 28px)', borderBottom: '2px solid #92400e', boxShadow: 'inset 0 1px 0 rgba(255,255,255,.4), inset 0 -1px 0 rgba(0,0,0,.18)' }} />
+                {/* brass studs */}
+                {[['top','left'],['top','right'],['bottom','left'],['bottom','right']].map(([v,h], j) => (
+                  <span key={j} aria-hidden="true" style={{ position: 'absolute', [v]: 3, [h]: 4, width: 7, height: 7, borderRadius: '50%', background: 'radial-gradient(circle at 30% 30%, #fde68a, #451a03)', boxShadow: 'inset 0 -1px 1px rgba(0,0,0,.4)', pointerEvents: 'none', zIndex: 3 }} />
+                ))}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px 10px 18px', fontWeight: 700, fontSize: 14, color: '#451a03' }}>
+                  <span style={{ fontSize: 22 }}>{placement.emoji}</span>
+                  <span>Click in the cage to place <span style={{ fontWeight: 800, color: '#7c2d12' }}>{placement.name}</span></span>
+                  <button onClick={cancelPlacement} style={{
+                    border: '2px solid #92400e',
+                    background: 'linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%)',
+                    color: '#7c2d12', fontWeight: 800, fontSize: 13,
+                    padding: '4px 12px', borderRadius: 999, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'inherit',
+                    boxShadow: '0 2px 3px rgba(69,26,3,.3), inset 0 1px 0 rgba(255,255,255,.6)',
+                  }}>
+                    âœ• Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* habitat centerpiece (the grid floats in the world) */}
+            <div style={{
+              position: 'absolute', inset: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              pointerEvents: 'none',
+            }}>
+              <div style={{ pointerEvents: 'auto', position: 'relative' }}>
+                <Cage3D pigs={pigs} bubble={bubble}
+                        initiatorName={pendingAction?.initiator?.name || null}
+                        waterLevel={waterLevel} hayFreshness={hayFreshness} chewLevel={chewLevel} poopLevel={poopLevel}
+                        placedItems={placedItems}
+                        placement={placement}
+                        onPlace={placeAt}
+                        onReturnToInv={returnToInventory}
+                        onCancelPlacement={cancelPlacement}
+                        onItemAction={(itemId, actionId) => {
+                          if (actionId === 'refill') setWaterLevel(100);
+                          else if (actionId === 'refresh') setHayFreshness(100);
+                          else if (actionId === 'empty') {/* basket emptied */}
+                          else if (actionId === 'clean') setPoopLevel(p => Math.max(0, p - 30));
+                        }}
+                        targetingPigs={!!pendingAction}
+                        onPigClick={(p) => {
+                          if (!pendingAction) return;
+                          // Pig-to-pig two-step: first click sets initiator, second triggers commit
+                          if (pendingAction.pigToPig) {
+                            if (!pendingAction.initiator) {
+                              setPendingAction({ ...pendingAction, initiator: p });
+                              return;
+                            }
+                            // Same pig clicked twice â€” ignore
+                            if (p.name === pendingAction.initiator.name) return;
+                            commitAction(pendingAction.fabTheme, pendingAction.actionId, pendingAction.initiator, p);
+                            setPendingAction(null);
+                            return;
+                          }
+                          commitAction(pendingAction.fabTheme, pendingAction.actionId, p);
+                          setPendingAction(null);
+                        }} />
+                <style>{`@keyframes bubblePop { from { opacity: 0; transform: translateY(6px) scale(.9); } to { opacity: 1; transform: translateY(0) scale(1); } }`}</style>
+              </div>
+            </div>
+
+            {/* TOP-CENTER per-pig pills, SidePanel docks, and cleanliness badge are now in <SimTopBar> above */}
+
+            {/* BOTTOM-RIGHT: FAB cluster */}
+            <FabCluster fabs={FABS} onAction={doAction} />
+            </div> {/* /scene area */}
+          </div>
+        )}
+
+        {tab === 'debug' && adopted.length > 0 && (
+          <div style={{ height: '100%', background: '#f1f5f9' }}>
+            {/* The real Debug Dashboard is a standalone HTML file â€” embed it
+                via iframe so it keeps its own React tree, styles, and state
+                without polluting the parent app. */}
+            <iframe
+              src="Debug Dashboard.html"
+              title="GPS2 Debug Dashboard"
+              style={{ width: '100%', height: '100%', border: 0, display: 'block' }}
+            />
+          </div>
+        )}
+      </main>
+
+      {/* Tweaks panel â€” toggled by toolbar */}
+      <TweaksPanel title="Tweaks">
+        <TweakSection label="Tutorial" />
+        <TweakButton
+          label="Replay tutorial"
+          onClick={replayTutorial}
+        />
+
+        <TweakSection label="Header gradient" />
+        <TweakRadio
+          label="Preset"
+          value={t.headerGradient}
+          options={[
+            { value: 'warm',      label: 'Warm peach' },
+            { value: 'pink',      label: 'Warm peach' },
+            { value: 'green',     label: 'Green' },
+            { value: 'pinkGreen', label: 'Warm peach' },
+            { value: 'custom',    label: 'Custom' },
+          ]}
+          onChange={(v) => setTweak('headerGradient', v)}
+        />
+        {t.headerGradient === 'custom' && (
+          <React.Fragment>
+            <TweakColor label="Color 1 (left)"  value={t.headerColor1} onChange={(v) => setTweak('headerColor1', v)} />
+            <TweakColor label="Color 2 (right)" value={t.headerColor2} onChange={(v) => setTweak('headerColor2', v)} />
+          </React.Fragment>
+        )}
+
+        <TweakSection label="Header font" />
+        <TweakSelect
+          label="Title font"
+          value={t.headerFont}
+          options={Object.entries(HEADER_FONTS).map(([value, f]) => ({ value, label: f.label }))}
+          onChange={(v) => setTweak('headerFont', v)}
+        />
+        {/* Live preview rendered in the chosen font */}
+        <div style={{
+          margin: '4px 0 6px', padding: '14px 12px',
+          background: 'rgba(255,255,255,.06)',
+          border: '1px solid rgba(255,255,255,.12)',
+          borderRadius: 8,
+          textAlign: 'center',
+        }}>
+          <div style={{
+            fontFamily: headerFontCss,
+            fontSize: 22, fontWeight: 700, lineHeight: 1.1,
+            color: '#fef3c7',
+            textShadow: '0 1px 0 rgba(0,0,0,.45), 0 2px 4px rgba(0,0,0,.3)',
+          }}>ðŸ¹ Guinea Pig Simulator</div>
+        </div>
+
+        <TweakSection label="Button font" />
+        <TweakSelect
+          label="Tab + Pause font"
+          value={t.buttonFont}
+          options={Object.entries(BUTTON_FONTS).map(([value, f]) => ({ value, label: f.label }))}
+          onChange={(v) => setTweak('buttonFont', v)}
+        />
+        {/* Live preview â€” mimics the actual header buttons */}
+        <div style={{
+          margin: '4px 0 6px', padding: '12px 10px',
+          background: 'rgba(255,255,255,.06)',
+          border: '1px solid rgba(255,255,255,.12)',
+          borderRadius: 8,
+          display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center',
+        }}>
+          <span style={{
+            padding: '0 14px', height: 32, display: 'inline-flex', alignItems: 'center',
+            fontSize: 13, fontWeight: 700, fontFamily: buttonFontCss,
+            borderRadius: 999,
+            background: 'linear-gradient(180deg,#ec4899 0%,#db2777 100%)',
+            color: '#fff',
+            boxShadow: '0 4px 8px -2px rgba(219,39,119,.4), inset 0 1px 0 rgba(255,255,255,.35)',
+            textShadow: '0 1px 0 rgba(0,0,0,.18)',
+          }}>Live Mode</span>
+          <span style={{
+            padding: '0 14px', height: 32, display: 'inline-flex', alignItems: 'center',
+            fontSize: 13, fontWeight: 700, fontFamily: buttonFontCss,
+            borderRadius: 999,
+            background: 'rgba(255,255,255,.85)',
+            color: '#0f172a',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,.7), 0 1px 2px rgba(0,0,0,.06)',
+          }}>Supplies</span>
+          <span style={{
+            padding: '0 12px', height: 28, display: 'inline-flex', alignItems: 'center', gap: 4,
+            fontSize: 12, fontWeight: 600, fontFamily: buttonFontCss,
+            borderRadius: 8, color: '#fff',
+            border: '1px solid rgba(255,255,255,.4)',
+            background: 'rgba(255,255,255,.08)',
+          }}>â¸ Pause</span>
+        </div>
+
+      </TweaksPanel>
+
+      {/* First-run guided tour for Live Mode. Renders as a portal on document.body.
+          panelHandlers let the tutorial auto-open/close top-bar dropdowns as part
+          of each step â€” so the user actually SEES the panel being described,
+          and it gets cleaned up on step leave (no overlapping leftovers). */}
+      {tutorialActive && adopted.length > 0 && window.Tutorial && (
+        <window.Tutorial
+          onClose={closeTutorial}
+          panelHandlers={{
+            'activity':       (open) => setActivityOpen(open),
+            'habitat-status': (open) => { setHabitatOpen(open); if (open) { setInventoryOpen(false); setExpandedPig(null); } },
+            'inventory':      (open) => { setInventoryOpen(open); if (open) { setHabitatOpen(false); setExpandedPig(null); } },
+            'pig-pill':       (open) => {
+              if (open) {
+                setExpandedPig(pigs[0]?.name || null);
+                setInventoryOpen(false);
+                setHabitatOpen(false);
+              } else {
+                setExpandedPig(null);
+              }
+            },
+            'pig-drawer-tab': (tab) => setPigDrawerTab(tab),
+          }}
+        />
+      )}
+
+      {/* Help overlay â€” vertical topic tabs on the left, doc panel on the right. */}
+      {window.HelpOverlay && (
+        <window.HelpOverlay open={helpOpen} onClose={() => setHelpOpen(false)} />
+      )}
+
+      {/* Adoption Certificate â€” the intermediate step between picking pigs at
+          the Pet Store and entering Live Mode. Commits the adoption (which
+          actually starts the game) only when the user clicks "Start Game". */}
+      {pendingAdoption && window.AdoptionCertificate && (
+        <window.AdoptionCertificate
+          entries={pendingAdoption}
+          onStart={() => { const e = pendingAdoption; setPendingAdoption(null); adopt(e); }}
+          onCancel={() => setPendingAdoption(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+// inline inventory grid (panel content version)
+// Categories mirror the Supplies Store departments: Hay, Food, Bedding, Habitat.
+function InventoryGrid({ inv, onPick, placement }) {
+  const cats = [
+    { key: 'hay',     label: 'Hay',     emoji: 'ðŸŒ¾' },
+    { key: 'food',    label: 'Food',    emoji: 'ðŸ¥—' },
+    { key: 'bedding', label: 'Bedding', emoji: 'ðŸ›ï¸' },
+    { key: 'habitat', label: 'Habitat', emoji: 'ðŸ ' },
+  ];
+  const [cat, setCat] = React.useState('hay');
+
+  const its = (inv[cat] || []).map((it, i) => ({ it, realCat: cat, realIdx: i }));
+  const slots = [...its];
+  while (slots.length < 12) slots.push(null);
+
+  const placingHere = placement && placement.cat === cat;
+
+  return (
+    <div>
+      {placement && (
+        <div style={{
+          marginBottom: 10, padding: '6px 10px',
+          background: '#fef3c7', color: '#78350f',
+          border: '1px solid #fbbf24', borderRadius: 8,
+          fontSize: 12, fontWeight: 700,
+          display: 'flex', alignItems: 'center', gap: 6,
+        }}>
+          <span style={{ fontSize: 14 }}>{placement.emoji}</span>
+          <span>Placing {placement.name} â€” click in cage</span>
+        </div>
+      )}
+      <div style={{ display: 'flex', gap: 2, marginBottom: 12, borderBottom: '1.5px solid rgba(146,64,14,.28)' }}>
+        {cats.map(c => (
+          <button key={c.key} onClick={() => setCat(c.key)} style={{
+            padding: '6px 10px', fontSize: 13, fontWeight: 800,
+            border: 'none', background: 'transparent',
+            borderBottom: cat === c.key ? '3px solid #b45309' : '3px solid transparent',
+            color: cat === c.key ? '#451a03' : '#92400e',
+            fontFamily: "'Gaegu', 'Comic Sans MS', cursive",
+            cursor: 'pointer',
+            display: 'flex', alignItems: 'center', gap: 4,
+          }}>
+            <span style={{ fontSize: 14 }}>{c.emoji}</span>{c.label}
+          </button>
+        ))}
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
+        {slots.map((slot, i) => {
+          const it = slot?.it;
+          const realCat = slot?.realCat;
+          const realIdx = slot?.realIdx ?? -1;
+          const isActive = it && placingHere && placement.name === it.name && placement.cat === realCat;
+          const disabled = it && it.qty <= 0;
+          return (
+            <button key={i}
+              disabled={!it || disabled}
+              onClick={() => it && !disabled && onPick?.(realCat, realIdx)}
+              style={{
+                aspectRatio: '1',
+                background: isActive
+                  ? 'linear-gradient(180deg,#fbbf24 0%,#d97706 100%)'
+                  : it
+                    ? 'linear-gradient(180deg,#fffbeb 0%,#fde68a 100%)'
+                    : 'linear-gradient(180deg,#fef3c7 0%,#fde68a 100%)',
+                border: isActive ? '2px solid #b45309' : it ? '2px solid #92400e' : '2px dashed rgba(146,64,14,.35)',
+                borderRadius: 10, position: 'relative',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 22, cursor: it && !disabled ? 'pointer' : 'default',
+                opacity: disabled ? 0.4 : 1,
+                color: 'inherit', padding: 0,
+                boxShadow: isActive
+                  ? '0 4px 10px -2px rgba(217,119,6,.55), inset 0 1px 0 rgba(255,255,255,.5)'
+                  : it
+                    ? 'inset 0 1px 0 rgba(255,255,255,.7), 0 2px 4px rgba(69,26,3,.18)'
+                    : 'inset 0 2px 4px rgba(146,64,14,.18)',
+                transition: 'transform 100ms ease, box-shadow 150ms ease',
+              }}
+              onMouseEnter={(e) => { if (it && !disabled && !isActive) e.currentTarget.style.transform = 'translateY(-1px)'; }}
+              onMouseLeave={(e) => { if (it && !disabled && !isActive) e.currentTarget.style.transform = 'translateY(0)'; }}
+              title={it?.name}>
+              {it?.emoji}
+              {it && (
+                <span style={{
+                  position: 'absolute', bottom: -5, right: -4,
+                  padding: '0 5px',
+                  fontSize: 10, fontWeight: 800,
+                  color: '#fffbeb',
+                  background: 'linear-gradient(180deg,#b45309 0%,#7c2d12 100%)',
+                  border: '1.5px solid #451a03',
+                  borderRadius: 999,
+                  fontFamily: "'Gaegu', 'Comic Sans MS', cursive",
+                  boxShadow: '0 1px 2px rgba(69,26,3,.4)',
+                }}>Ã—{it.qty}</span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+
+
+</body></html>

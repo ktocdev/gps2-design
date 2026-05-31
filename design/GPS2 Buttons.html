@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GPS2 — Button Components</title>
+  <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    /* ── Shadow tokens ───────────────────────────────────────── */
+    :root {
+      /* Micro hardware */
+      --shadow-rivet:       inset 0 -1px 1px rgba(0,0,0,.42);
+      --shadow-ball:        0 2px 3px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.4);
+      /* Badge / small disc */
+      --shadow-badge:       0 2px 3px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.3);
+      --shadow-disc:        0 2px 3px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.4);
+      /* Neutral lift — category label states */
+      --shadow-lift-sm:     0 3px 6px rgba(0,0,0,.2);
+      --shadow-lift-md:     0 5px 8px rgba(0,0,0,.25);
+      --shadow-lift-lg:     0 6px 10px -2px rgba(0,0,0,.3);
+      /* Primary CTA */
+      --shadow-cta:         0 10px 15px -3px rgba(0,0,0,.25), 0 4px 6px -2px rgba(0,0,0,.15), inset 0 1px 0 rgba(255,255,255,.35);
+      --shadow-cta-pressed: 0 4px 6px -2px rgba(0,0,0,.25), 0 2px 4px -1px rgba(0,0,0,.15), inset 0 1px 0 rgba(255,255,255,.25);
+      --shadow-cta-header:  0 6px 10px -2px rgba(219,39,119,.45), 0 2px 4px -1px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.4), inset 0 -2px 0 rgba(0,0,0,.18);
+      /* Sign Pill — warm brown */
+      --shadow-pill:        0 6px 8px -2px rgba(69,26,3,.4), 0 2px 4px -1px rgba(69,26,3,.25), inset 0 2px 0 rgba(255,255,255,.55), inset 0 -1px 0 rgba(146,64,14,.22);
+      --shadow-pill-active: 0 10px 14px -4px rgba(69,26,3,.55), 0 4px 6px -2px rgba(69,26,3,.35), inset 0 2px 0 rgba(255,255,255,.6), inset 0 -1px 0 rgba(146,64,14,.25);
+      /* Action Board frame — warm brown */
+      --shadow-frame:       0 8px 14px -4px rgba(69,26,3,.45), 0 3px 6px -2px rgba(69,26,3,.3), inset 0 2px 0 rgba(255,255,255,.55), inset 0 -2px 0 rgba(0,0,0,.18);
+      --shadow-frame-hover: 0 14px 20px -4px rgba(69,26,3,.5), 0 6px 10px -2px rgba(69,26,3,.35), inset 0 2px 0 rgba(255,255,255,.55), inset 0 -2px 0 rgba(0,0,0,.18);
+      /* Amber pill — currency display + icon button (shared) */
+      --shadow-amber-pill:  0 6px 10px -2px rgba(120,53,15,.4), 0 2px 4px -1px rgba(120,53,15,.25), inset 0 1px 0 rgba(255,255,255,.6), inset 0 -1px 0 rgba(146,64,14,.25);
+      /* Resume / Pause */
+      --shadow-resume-pause: 0 6px 10px -2px rgba(0,0,0,.28), 0 2px 4px -1px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.4);
+    }
+    html { font-size: 16px; }
+    body { font-family: 'Nunito', sans-serif; font-size: 14px; line-height: 1.5; color: #1e293b; background: #fff; display: flex; min-height: 100vh; }
+
+    /* ── Sidebar ─────────────────────────────────── */
+    .sidebar { width: 192px; flex-shrink: 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; background: #f8fafc; border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; }
+    .sidebar-brand { padding: 20px 16px 16px; border-bottom: 1px solid #e2e8f0; }
+    .sidebar-brand h1 { font-family: 'Gaegu', cursive; font-size: 26px; font-weight: 700; color: #db2777; line-height: 1; }
+    .sidebar-brand span { display: block; font-size: 11px; color: #94a3b8; margin-top: 2px; }
+    .nav-label { padding: 14px 16px 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: #94a3b8; display: block; }
+    .nav-item { display: block; padding: 5px 16px; font-size: 13px; color: #475569; text-decoration: none; border-left: 2px solid transparent; transition: all 100ms; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .nav-item:hover { color: #db2777; border-left-color: #db2777; background: rgba(219,39,119,.05); }
+    .nav-sub { padding-left: 26px; font-size: 12px; }
+
+    /* ── Layout ──────────────────────────────────── */
+    .main { flex: 1; padding: 44px 56px 96px; max-width: 1060px; overflow-x: hidden; }
+    .page-header { margin-bottom: 52px; padding-bottom: 24px; border-bottom: 2px solid #e2e8f0; }
+    .page-title { font-family: 'Gaegu', cursive; font-size: 44px; font-weight: 700; color: #1e293b; line-height: 1; }
+    .page-title span { color: #db2777; }
+    .page-meta { margin-top: 10px; font-size: 13px; color: #64748b; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .badge { background: #fce7f3; color: #db2777; padding: 2px 9px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+    .badge-amber { background: #fef3c7; color: #92400e; }
+    .badge-slate { background: #f1f5f9; color: #475569; }
+
+    /* ── Sections ────────────────────────────────── */
+    .section { margin-bottom: 72px; scroll-margin-top: 20px; }
+    .section-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 28px; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0; }
+    .section-title { font-family: 'Gaegu', cursive; font-size: 28px; font-weight: 700; color: #1e293b; line-height: 1; }
+    .section-count { font-size: 12px; color: #94a3b8; }
+    .subsection { margin-bottom: 32px; }
+    .sub-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #64748b; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    .sub-title::after { content: ''; flex: 1; height: 1px; background: #f1f5f9; }
+
+    /* ── Frame cards ─────────────────────────────── */
+    .frame-card { border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0; }
+    .frame-demo { background: #fff7e6; padding: 28px 32px; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 24px; min-height: 100px; }
+    .frame-demo--wood { background: linear-gradient(180deg, #c2700d 0%, #a05a0c 50%, #87470b 100%); }
+    .frame-demo--sky  { background: #87ceeb; }
+    .frame-demo--parchment { background: linear-gradient(180deg, #fef9ec 0%, #fef3c7 100%); }
+
+    /* ── Spec grid ───────────────────────────────── */
+    .el-spec { background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 10px 14px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .el-spec-2 { grid-template-columns: 1fr 1fr; }
+    .el-spec-full { grid-column: 1 / -1; }
+    .el-label { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #64748b; margin-bottom: 2px; }
+    .el-value { font-size: 12px; color: #334155; }
+    .el-code  { font-family: Consolas, monospace; font-size: 10.5px; color: #92400e; line-height: 1.6; }
+    .el-token { font-family: Consolas, monospace; font-size: 10px; color: #0369a1; line-height: 1.5; margin-bottom: 2px; display: block; }
+
+    /* ── State cells ─────────────────────────────── */
+    .states-row { display: flex; gap: 28px; align-items: flex-end; flex-wrap: wrap; }
+    .state-cell { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .state-name { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .05em; text-align: center; }
+    .state-name em { color: #94a3b8; font-style: normal; font-weight: 400; display: block; margin-top: 2px; font-size: 10px; }
+    .state-name-lt { color: #fde68a; }
+    .state-name-lt em { color: #fbbf24; }
+
+    /* ── Annotation dots ─────────────────────────── */
+    .ann-dot { position: absolute; width: 17px; height: 17px; border-radius: 50%; background: #0f172a; color: #fff; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; font-family: Consolas, monospace; pointer-events: none; z-index: 10; border: 1.5px solid #fff; }
+    .ann-legend { margin-top: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 5px 20px; max-width: 540px; }
+    .ann-row { display: flex; gap: 8px; align-items: flex-start; }
+    .ann-num { width: 16px; height: 16px; border-radius: 50%; background: #0f172a; color: #fff; font-size: 9px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: Consolas, monospace; margin-top: 1px; }
+    .ann-text { font-size: 12px; color: #334155; line-height: 1.4; }
+    .ann-code { font-family: Consolas, monospace; font-size: 10.5px; color: #92400e; }
+    .ann-token { font-family: Consolas, monospace; font-size: 10px; color: #0369a1; display: block; margin-bottom: 1px; }
+
+    /* Annotation text on dark wood background */
+    .frame-demo--wood .ann-text { color: #fef9ec; }
+    .frame-demo--wood .ann-token { color: #93c5fd; }
+    .frame-demo--wood .ann-code { color: #fde68a; }
+
+    /* ── Notes ───────────────────────────────────── */
+    .notes { background: #fffbeb; border: 1px solid #fde68a; border-left: 3px solid #f59e0b; border-radius: 6px; padding: 14px 16px; margin-top: 20px; }
+    .notes h4 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #92400e; margin-bottom: 8px; }
+    .notes ul { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+    .notes li { font-size: 12px; color: #78350f; padding-left: 14px; position: relative; }
+    .notes li::before { content: '→'; position: absolute; left: 0; color: #f59e0b; }
+    .notes code { background: rgba(245,158,11,.15); padding: 1px 5px; border-radius: 3px; font-family: Consolas, monospace; font-size: 11px; }
+
+    /* ── Token table ─────────────────────────────── */
+    .token-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .token-table th { text-align: left; padding: 6px 10px; font-size: 10.5px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; font-family: 'Nunito', sans-serif; border-bottom: 2px solid #e2e8f0; }
+    .token-table td { padding: 7px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+    .token-table td:first-child { font-family: 'Nunito', sans-serif; color: #334155; font-weight: 600; }
+    .token-table td:not(:first-child) { font-family: Consolas, monospace; font-size: 11px; color: #92400e; }
+    .swatch-pair { display: flex; gap: 4px; }
+    .swatch { display: inline-block; width: 18px; height: 18px; border-radius: 3px; border: 1px solid rgba(0,0,0,.12); vertical-align: middle; }
+
+    /* ════════════════════════════════════════════
+       BUTTON COMPONENTS
+       ════════════════════════════════════════════ */
+
+    /* ── Primary CTA ─────────────────────────────── */
+    .gp-btn-primary {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      position: relative; height: 44px; padding: 0 18px; border-radius: 9999px;
+      background: linear-gradient(180deg, #ec4899 0%, #db2777 100%);
+      color: #fff; border: 2px solid #7c2d12; cursor: pointer;
+      font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 700;
+      text-shadow: 0 1px 0 rgba(0,0,0,.18);
+      box-shadow: var(--shadow-cta);
+      transition: transform 100ms ease, filter 120ms ease, box-shadow 150ms ease, background 150ms ease;
+      user-select: none;
+    }
+    .gp-btn-primary::before {
+      content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+      background: linear-gradient(180deg, rgba(255,255,255,.28) 0%, rgba(255,255,255,0) 50%);
+    }
+    .gp-btn-primary:hover, .gp-btn-primary.is-hover { transform: translateY(-1px); filter: brightness(1.04); background: linear-gradient(180deg, #f472b6 0%, #db2777 100%); }
+    .gp-btn-primary:active, .gp-btn-primary.is-active { transform: translateY(2px); box-shadow: var(--shadow-cta-pressed); }
+    .gp-btn-primary:disabled, .gp-btn-primary.is-disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(.3); pointer-events: none; }
+    .gp-btn-primary--sm { height: 40px; padding: 0 14px; font-size: 16px; font-family: 'Gaegu', cursive; border: none; }
+    .gp-btn-primary--lg { height: 52px; padding: 0 22px; font-size: 15px; }
+    .gp-btn-primary--header {
+      font-family: 'Gaegu', cursive; font-size: 19px; height: 44px; padding: 0 20px;
+      border: 2px solid #7c2d12;
+      box-shadow: var(--shadow-cta-header);
+    }
+
+    /* ── Neutral (Cream) header tab ──────────────── */
+    .gp-btn-neutral {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      position: relative; height: 44px; padding: 0 20px; border-radius: 9999px;
+      background: linear-gradient(180deg, #fffbeb 0%, #fde68a 100%);
+      color: #7c2d12; border: 2px solid rgba(124,45,18,.55); cursor: pointer;
+      font-family: 'Gaegu', cursive; font-size: 19px; font-weight: 700;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.65), 0 2px 3px rgba(69,26,3,.22);
+      transition: transform 100ms ease, filter 120ms ease, background 150ms ease;
+      user-select: none;
+    }
+    .gp-btn-neutral:hover, .gp-btn-neutral.is-hover { transform: translateY(-1px); filter: brightness(1.04); background: linear-gradient(180deg, #fffbeb 0%, #fcd34d 100%); }
+    .gp-btn-neutral:active, .gp-btn-neutral.is-active { transform: translateY(1px); filter: brightness(.97); }
+    .gp-btn-neutral:disabled, .gp-btn-neutral.is-disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+
+    /* ── Sign Pill ────────────────────────────────── */
+    .gp-sign-pill {
+      display: inline-flex; align-items: center; gap: 8px; position: relative;
+      height: 42px; padding: 0 14px; border-radius: 10px;
+      background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%);
+      color: #7c2d12; border: 3px solid #92400e; cursor: pointer;
+      font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 700;
+      box-shadow: var(--shadow-pill);
+      transition: transform 140ms cubic-bezier(.34,1.56,.64,1), box-shadow 160ms ease, border-color 140ms ease;
+      user-select: none;
+    }
+    .gp-sign-pill:hover { transform: translateY(-1px); filter: brightness(1.03); }
+    .gp-sign-pill.is-active { transform: translateY(-2px); border-color: #7c2d12;
+      box-shadow: var(--shadow-pill-active); }
+    .sp-rivet { position: absolute; width: 4px; height: 4px; border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #fde68a, #451a03);
+      box-shadow: var(--shadow-rivet); pointer-events: none; }
+    .sp-icon { display: inline-flex; align-items: center; justify-content: center;
+      width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; font-size: 15px; line-height: 1;
+      box-shadow: var(--shadow-disc); }
+    .sp-badge { min-width: 20px; height: 20px; padding: 0 5px; border-radius: 6px;
+      color: #fff; font-size: 11px; font-weight: 700; border: 1.5px solid #451a03;
+      display: inline-flex; align-items: center; justify-content: center;
+      transform: rotate(-3deg); box-shadow: var(--shadow-badge);
+      text-shadow: 0 1px 0 rgba(0,0,0,.2); }
+    .sp-suffix { min-width: 38px; padding: 2px 7px; border-radius: 5px;
+      color: #fff; font-size: 11px; font-weight: 700; text-align: center;
+      border: 1.5px solid #451a03; transform: rotate(-2deg);
+      box-shadow: var(--shadow-badge);
+      text-shadow: 0 1px 0 rgba(0,0,0,.25); }
+    .sp-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .sp-chev { font-size: 9px; color: #92400e; opacity: .7; margin-left: -2px; }
+
+    /* ── Sign Badge ──────────────────────────────── */
+    .sign-badge {
+      min-width: 20px; height: 20px; padding: 0 5px;
+      border-radius: 5px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 3px;
+      font-family: 'Nunito', sans-serif; font-size: 11px; font-weight: 700;
+      color: #fff; flex-shrink: 0;
+      text-shadow: 0 1px 0 rgba(0,0,0,.22);
+      border: 1.5px solid rgba(0,0,0,.2);
+      box-shadow: 0 2px 3px rgba(0,0,0,.38);
+      transform: rotate(-3deg);
+    }
+    .sign-badge--count   { background: #7c3aed; border-color: #5b21b6; }
+    .sign-badge--warning { background: #dc2626; border-color: #991b1b; }
+    .sign-badge--suffix  { background: #dc2626; border-color: #991b1b; min-width: 34px; padding: 2px 6px; height: auto; font-size: 12px; }
+    .sign-badge--suffix-warn { background: #ea580c; border-color: #9a3412; min-width: 34px; padding: 2px 6px; height: auto; font-size: 12px; }
+    .sign-badge--suffix-ok   { background: #178740; border-color: #14532d; min-width: 34px; padding: 2px 6px; height: auto; font-size: 12px; }
+    .sign-badge--count-max   { background: #7c3aed; border-color: #5b21b6; font-size: 10px; min-width: 28px; padding: 0 4px; }
+    .sign-badge__emoji { font-size: 12px; line-height: 1; }
+
+    /* ── Sign Status ─────────────────────────────── */
+    .sign-status { width: 9px; height: 9px; border-radius: 999px; flex-shrink: 0; display: inline-block; }
+    .sign-status--ok       { background: #178740; box-shadow: 0 0 0 3px rgba(23,135,64,.25); }
+    .sign-status--warning  { background: #ea580c; box-shadow: 0 0 0 3px rgba(234,88,12,.25); }
+    .sign-status--critical { background: #dc2626; box-shadow: 0 0 0 3px rgba(220,38,38,.25); animation: status-pulse 1.5s ease-in-out infinite; }
+    @keyframes status-pulse {
+      0%,100% { box-shadow: 0 0 0 3px rgba(220,38,38,.25); }
+      50%      { box-shadow: 0 0 0 5px rgba(220,38,38,.5); }
+    }
+
+    /* ── Component card grid ─────────────────────── */
+    .comp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+    .comp-card { border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
+    .comp-demo { padding: 24px 16px; display: flex; align-items: center; justify-content: center; min-height: 90px; background: #b45309; }
+    .comp-demo--light { background: #f8fafc; }
+    .comp-info { padding: 8px 10px; background: #f8fafc; border-top: 1px solid #e2e8f0; }
+    .comp-name   { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #334155; }
+    .comp-tokens { font-family: Consolas, monospace; font-size: 9.5px; color: #64748b; margin-top: 3px; line-height: 1.55; }
+
+    /* ── Ghost / Outline ─────────────────────────── */
+    .gp-btn-ghost {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      height: 44px; padding: 0 20px; border-radius: 9999px;
+      background: transparent; color: #7c2d12;
+      border: 1.5px dashed #92400e; cursor: pointer;
+      font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 700;
+      transition: background 140ms ease, transform 100ms ease;
+      user-select: none;
+    }
+    .gp-btn-ghost:hover, .gp-btn-ghost.is-hover { background: rgba(254,243,199,.5); transform: translateY(-1px); }
+    .gp-btn-ghost:active, .gp-btn-ghost.is-active { background: rgba(254,243,199,.85); transform: translateY(1px); }
+    .gp-btn-ghost:disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+
+    /* ── Resume / Pause ─────────────────────────── */
+    .gp-btn-confirm {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      height: 38px; padding: 0 18px; border-radius: 9999px;
+      background: linear-gradient(180deg, #86efac 0%, #22c55e 100%);
+      color: #0b3a1d; border: 1px solid rgba(20,83,45,.45); cursor: pointer;
+      font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 800;
+      box-shadow: var(--shadow-resume-pause);
+      transition: transform 100ms ease, filter 140ms ease;
+      user-select: none;
+    }
+    .gp-btn-confirm:hover, .gp-btn-confirm.is-hover { transform: translateY(-1px); filter: brightness(1.06); }
+    .gp-btn-confirm:active, .gp-btn-confirm.is-active { transform: translateY(1px); filter: brightness(.94); }
+    .gp-btn-confirm--paused { background: linear-gradient(180deg, #fbbf24 0%, #d97706 100%); color: #451a03; border: 2px solid #78350f; }
+
+    /* ── Currency Display ────────────────────────── */
+    .gp-btn-currency {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      height: 38px; padding: 0 14px; border-radius: 9999px;
+      background: linear-gradient(180deg, #fffbeb 0%, #fcd34d 100%);
+      color: #7c2d12; border: 2px solid #78350f; cursor: default;
+      font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 800;
+      box-shadow: var(--shadow-amber-pill);
+      text-shadow: 0 1px 0 rgba(255,255,255,.45);
+      user-select: none;
+    }
+
+    /* ── Icon Button (?) ─────────────────────────── */
+    .gp-btn-icon {
+      width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+      display: inline-flex; align-items: center; justify-content: center;
+      background: linear-gradient(180deg, #fffbeb 0%, #fcd34d 100%);
+      color: #7c2d12; border: 2px solid #78350f; cursor: pointer;
+      font-family: 'Nunito', sans-serif; font-size: 18px; font-weight: 900;
+      box-shadow: var(--shadow-amber-pill);
+      transition: transform 100ms ease, filter 140ms ease;
+      user-select: none;
+    }
+    .gp-btn-icon:hover, .gp-btn-icon.is-hover { transform: translateY(-1px); filter: brightness(1.06); }
+    .gp-btn-icon:active, .gp-btn-icon.is-active { transform: translateY(1px); filter: brightness(.94); }
+
+  </style>
+</head>
+<body>
+
+<!-- ══ SIDEBAR ══════════════════════════════════════════ -->
+<nav class="sidebar">
+  <div class="sidebar-brand">
+    <h1>GPS2</h1>
+    <span>Button Components</span>
+  </div>
+  <span class="nav-label">Families</span>
+  <a class="nav-item" href="#primary">Primary CTA</a>
+  <a class="nav-item nav-sub" href="#primary-states">↳ States</a>
+  <a class="nav-item nav-sub" href="#primary-sizes">↳ Sizes</a>
+  <a class="nav-item" href="#neutral">Neutral Button</a>
+  <a class="nav-item" href="#sign-pill">Sign Button</a>
+  <a class="nav-item nav-sub" href="#sign-badge">↳ Badge</a>
+  <a class="nav-item nav-sub" href="#sign-status">↳ Status</a>
+  <a class="nav-item" href="#ghost">Dashed Button</a>
+  <a class="nav-item" href="#confirm">Pause Button</a>
+  <a class="nav-item" href="#currency">Currency Display</a>
+  <a class="nav-item" href="#icon-btn">Help Button</a>
+  <span class="nav-label">Reference</span>
+  <a class="nav-item" href="#notes">Behavior Notes</a>
+</nav>
+
+<!-- ══ MAIN ═════════════════════════════════════════════ -->
+<main class="main">
+
+  <header class="page-header">
+    <div class="page-title">Button <span>Components</span></div>
+    <div class="page-meta">
+      <span class="badge">Game UI · v1.0</span>
+      <span class="badge badge-amber">No debug variants</span>
+      <span class="badge badge-slate">10 families · exact token values</span>
+    </div>
+  </header>
+
+  <!-- ════════════════════════════════════════════
+       §1 — PRIMARY CTA
+  ═════════════════════════════════════════════ -->
+  <section class="section" id="primary">
+    <div class="section-header">
+      <h2 class="section-title">Primary CTA</h2>
+      <span class="section-count">Pink pill · Add · Adopt · Live Mode (active)</span>
+    </div>
+
+    <!-- Anatomy -->
+    <div class="subsection">
+      <div class="sub-title">Anatomy</div>
+      <div class="frame-card">
+        <div class="frame-demo" style="flex-direction:column; gap:20px; align-items:center;">
+          <div style="position:relative; display:inline-flex; align-items:center;">
+            <button class="gp-btn-primary gp-btn-primary--lg" style="pointer-events:none; padding:0 28px;">
+              <span style="font-size:18px; line-height:1;">🐾</span>
+              Adopt pair
+            </button>
+            <span class="ann-dot" style="top:-9px; left:-9px;">1</span>
+            <span class="ann-dot" style="top:-9px; right:14px;">2</span>
+            <span class="ann-dot" style="top:50%; left:14px; transform:translateY(-50%);">3</span>
+            <span class="ann-dot" style="bottom:-9px; left:50%; transform:translateX(-50%);">4</span>
+            <span class="ann-dot" style="top:50%; right:-9px; transform:translateY(-50%);">5</span>
+          </div>
+          <div class="ann-legend">
+            <div class="ann-row"><span class="ann-num">1</span><span class="ann-text">Pill shell — <span class="ann-token">--radius-full</span><span class="ann-code">border-radius:9999px · 2px solid #7c2d12 (md/lg) · no border (sm/Add)</span></span></div>
+            <div class="ann-row"><span class="ann-num">2</span><span class="ann-text">Inset highlight — <span class="ann-token">(custom — no token)</span><span class="ann-code">::before rgba(255,255,255,.28→0)</span></span></div>
+            <div class="ann-row"><span class="ann-num">3</span><span class="ann-text">Lead icon slot — <span class="ann-token">--font-size-lg · --space-2</span><span class="ann-code">font-size:18px · gap:8px</span> (optional)</span></div>
+            <div class="ann-row"><span class="ann-num">4</span><span class="ann-text">Drop shadow — <span class="ann-token">--shadow-cta</span><span class="ann-code">0 10px 15px -3px rgba(0,0,0,.25)</span></span></div>
+            <div class="ann-row"><span class="ann-num">5</span><span class="ann-text">Label — <span class="ann-token">--font-family-body · --font-weight-bold · --color-text-inverse</span><span class="ann-code">Nunito 700 · 15px · #fff</span></span></div>
+          </div>
+        </div>
+        <div class="el-spec">
+          <div><div class="el-label">Background</div><div class="el-token">--color-accent-pink-500 → --color-primary</div><div class="el-code">linear-gradient(180deg,<br>#ec4899 0%, #db2777 100%)</div></div>
+          <div><div class="el-label">Hover background</div><div class="el-token">--color-accent-pink-400 → --color-primary</div><div class="el-code">#f472b6 → #db2777</div></div>
+          <div><div class="el-label">Border</div><div class="el-token">--color-warning-800</div><div class="el-value el-code">2px solid #7c2d12 (md / lg / header)<br><span style="color:#94a3b8;font-size:9.5px;">none on sm (Add button)</span></div></div>
+          <div><div class="el-label">Border-radius</div><div class="el-token">--radius-full</div><div class="el-code">9999px</div></div>
+          <div><div class="el-label">Text color</div><div class="el-token">--color-text-inverse</div><div class="el-code">#ffffff</div></div>
+          <div><div class="el-label">Text-shadow</div><div class="el-token">(custom — no token)</div><div class="el-code">0 1px 0 rgba(0,0,0,.18)</div></div>
+          <div><div class="el-label">::before highlight</div><div class="el-token">(custom — no token)</div><div class="el-code">rgba(255,255,255,.28)→0 at 50%</div></div>
+          <div class="el-spec-full"><div class="el-label">Box-shadow (default)</div><div class="el-token">--shadow-cta</div><div class="el-code">0 10px 15px -3px rgba(0,0,0,.25), 0 4px 6px -2px rgba(0,0,0,.15), inset 0 1px 0 rgba(255,255,255,.35)</div></div>
+          <div class="el-spec-full"><div class="el-label">Box-shadow (pressed)</div><div class="el-token">--shadow-cta-pressed</div><div class="el-code">0 4px 6px -2px rgba(0,0,0,.25), 0 2px 4px -1px rgba(0,0,0,.15), inset 0 1px 0 rgba(255,255,255,.25)</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- States -->
+    <div class="subsection" id="primary-states">
+      <div class="sub-title">States</div>
+      <div class="frame-card">
+        <div class="frame-demo">
+          <div class="states-row">
+            <div class="state-cell">
+              <button class="gp-btn-primary">Adopt</button>
+              <div class="state-name">Default</div>
+            </div>
+            <div class="state-cell">
+              <button class="gp-btn-primary is-hover">Adopt</button>
+              <div class="state-name">Hover<em>translateY(−1px) · brightness(1.04)<br>top stop → #f472b6</em></div>
+            </div>
+            <div class="state-cell">
+              <button class="gp-btn-primary is-active">Adopt</button>
+              <div class="state-name">Active / Pressed<em>translateY(+2px) · shadow reduces</em></div>
+            </div>
+            <div class="state-cell">
+              <button class="gp-btn-primary is-disabled" disabled>Adopt</button>
+              <div class="state-name">Disabled<em>opacity:0.5 · grayscale(.3)<br>cursor:not-allowed</em></div>
+            </div>
+          </div>
+        </div>
+        <div class="el-spec el-spec-2">
+          <div><div class="el-label">Transition</div><div class="el-token">--transition-fast ≈ 150ms · others custom</div><div class="el-code">transform 100ms ease · filter 120ms ease · box-shadow 150ms ease</div></div>
+          <div><div class="el-label">Disabled state</div><div class="el-token">(no tokens — attribute-level)</div><div class="el-code">opacity:0.5 · filter:grayscale(.3) · cursor:not-allowed · pointer-events:none</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sizes + variants -->
+    <div class="subsection" id="primary-sizes">
+      <div class="sub-title">Sizes &amp; variants</div>
+      <div class="frame-card">
+        <div class="frame-demo" style="gap:28px; align-items:flex-end;">
+          <div class="state-cell">
+            <button class="gp-btn-primary gp-btn-primary--sm">Add</button>
+            <div class="state-name">sm<em>h:40px · px:14px · 16px · Gaegu · no border</em></div>
+          </div>
+          <div class="state-cell">
+            <button class="gp-btn-primary">Adopt</button>
+            <div class="state-name">md (default)<em>h:44px · px:18px · 14px</em></div>
+          </div>
+          <div class="state-cell">
+            <button class="gp-btn-primary gp-btn-primary--lg"><span style="font-size:18px;line-height:1;">🐾</span>Adopt pair</button>
+            <div class="state-name">lg + icon<em>h:52px · px:22px · 15px · gap:8px</em></div>
+          </div>
+          <div class="state-cell">
+            <button class="gp-btn-primary gp-btn-primary--header">Live Mode</button>
+            <div class="state-name">Header tab (active)<em>Gaegu 700 · 19px · h:44px<br>border:2px solid #7c2d12</em></div>
+          </div>
+        </div>
+        <div class="el-spec">
+          <div><div class="el-label">sm</div><div class="el-token">--font-family-display</div><div class="el-code">h:40px · pad:0 14px · 16px · Gaegu · no border</div></div>
+          <div><div class="el-label">md</div><div class="el-token">--font-size-sm</div><div class="el-code">h:44px · pad:0 18px · 14px</div></div>
+          <div><div class="el-label">lg</div><div class="el-token">(no token for 15px)</div><div class="el-code">h:52px · pad:0 22px · 15px</div></div>
+          <div class="el-spec-full"><div class="el-label">Font</div><div class="el-token">--font-family-heading (header tab) · --font-family-body (store/modal) · --font-weight-bold · gap: --space-2</div><div class="el-value">Nunito 700 (store/modal) · Gaegu 700 (header tab active) · icon gap:8px</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════
+       §2 — NEUTRAL PILL
+  ═════════════════════════════════════════════ -->
+  <section class="section" id="neutral">
+    <div class="section-header">
+      <h2 class="section-title">Neutral Button</h2>
+      <span class="section-count">Cream/ivory · header nav (inactive tab)</span>
+    </div>
+    <div class="frame-card">
+      <div class="frame-demo frame-demo--wood">
+        <div class="states-row">
+          <div class="state-cell">
+            <button class="gp-btn-neutral">Supplies Store</button>
+            <div class="state-name state-name-lt">Default</div>
+          </div>
+          <div class="state-cell">
+            <button class="gp-btn-neutral is-hover">Supplies Store</button>
+            <div class="state-name state-name-lt">Hover<em>translateY(−1px)<br>#fffbeb → #fcd34d</em></div>
+          </div>
+          <div class="state-cell">
+            <button class="gp-btn-neutral is-active">Supplies Store</button>
+            <div class="state-name state-name-lt">Pressed<em>translateY(+1px)</em></div>
+          </div>
+          <div class="state-cell">
+            <button class="gp-btn-neutral is-disabled" disabled>Supplies Store</button>
+            <div class="state-name state-name-lt">Disabled</div>
+          </div>
+        </div>
+      </div>
+      <div class="el-spec">
+        <div><div class="el-label">Background</div><div class="el-token">--color-warning-50 → --color-warning-200</div><div class="el-code">#fffbeb → #fde68a</div></div>
+        <div><div class="el-label">Hover bg</div><div class="el-token">--color-warning-50 → (no token for #fcd34d)</div><div class="el-code">#fffbeb → #fcd34d</div></div>
+        <div><div class="el-label">Border</div><div class="el-token">custom alpha of --color-warning-800</div><div class="el-code">2px solid rgba(124,45,18,.55)</div></div>
+        <div><div class="el-label">Text color</div><div class="el-token">--color-warning-800</div><div class="el-code">#7c2d12</div></div>
+        <div><div class="el-label">Font</div><div class="el-token">--font-family-heading · --font-weight-bold</div><div class="el-value">Gaegu 700 · 19px</div></div>
+        <div><div class="el-label">Height · padding</div><div class="el-token">--radius-full · --space-5</div><div class="el-code">44px · 0 20px · br:9999px</div></div>
+        <div class="el-spec-full"><div class="el-label">Box-shadow</div><div class="el-token">(custom — no direct token)</div><div class="el-code">inset 0 1px 0 rgba(255,255,255,.65), 0 2px 3px rgba(69,26,3,.22)</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════
+       §3 — SIGN PILL
+  ═════════════════════════════════════════════ -->
+  <section class="section" id="sign-pill">
+    <div class="section-header">
+      <h2 class="section-title">Sign Button</h2>
+      <span class="section-count">SimTopBar nav trigger · cream + corner rivets · dropdown</span>
+    </div>
+
+    <div class="subsection">
+      <div class="sub-title">Anatomy</div>
+      <div class="frame-card">
+        <div class="frame-demo frame-demo--wood" style="flex-direction:column; gap:22px; align-items:center;">
+          <div style="position:relative; display:inline-flex;">
+            <button class="gp-sign-pill" style="pointer-events:none;">
+              <span class="sp-rivet" style="top:3px;left:4px;"></span>
+              <span class="sp-rivet" style="top:3px;right:4px;"></span>
+              <span class="sp-rivet" style="bottom:3px;left:4px;"></span>
+              <span class="sp-rivet" style="bottom:3px;right:4px;"></span>
+              <span class="sp-icon" style="background:radial-gradient(circle at 35% 30%,#fef3c7,#fbbf24);border:2px solid #92400e;">📓</span>
+              <span>Activity</span>
+              <span class="sp-badge" style="background:#8b5cf6;">3</span>
+              <span class="sp-chev">▾</span>
+            </button>
+            <span class="ann-dot" style="top:-9px;left:-9px;">1</span>
+            <span class="ann-dot" style="top:-9px;right:14px;">2</span>
+            <span class="ann-dot" style="top:50%;left:-9px;transform:translateY(-50%);">3</span>
+            <span class="ann-dot" style="top:6px;right:30px;">4</span>
+            <span class="ann-dot" style="bottom:-9px;right:4px;">5</span>
+          </div>
+          <div class="ann-legend" style="max-width:520px;">
+            <div class="ann-row"><span class="ann-num">1</span><span class="ann-text">Brass rivet — <span class="ann-token">(custom — no token)</span><span class="ann-code">4×4px · radial-gradient(#fde68a,#451a03)</span> · 4 corners</span></div>
+            <div class="ann-row"><span class="ann-num">2</span><span class="ann-text">Border — <span class="ann-token">(no exact token) · --color-warning-800</span><span class="ann-code">3px solid #92400e</span> (default) / <span class="ann-code">#7c2d12</span> (active)</span></div>
+            <div class="ann-row"><span class="ann-num">3</span><span class="ann-text">Icon disc — <span class="ann-token">Icon Sticker (sm) · see Design Elements</span><span class="ann-code">26×26px · border-radius:50% · border:2px solid {shade} · font-size:15px</span> · radial gradient · inline (not absolute)</span></div>
+            <div class="ann-row"><span class="ann-num">4</span><span class="ann-text">Badge — <span class="ann-token">--radius-md</span><span class="ann-code">min-w:20 · h:20 · br:6px · rotate(−3deg)</span></span></div>
+            <div class="ann-row"><span class="ann-num">5</span><span class="ann-text">Dropdown chevron — <span class="ann-token">--font-size-xs · (no exact token for #92400e)</span><span class="ann-code">▾ · 9px · #92400e · opacity:.7</span></span></div>
+          </div>
+        </div>
+        <div class="el-spec">
+          <div><div class="el-label">Background</div><div class="el-token">--color-warning-50 → --color-warning-100</div><div class="el-code">#fffbeb → #fef3c7</div></div>
+          <div><div class="el-label">Border (default)</div><div class="el-token">(no exact token — game-specific brown)</div><div class="el-code">3px solid #92400e</div></div>
+          <div><div class="el-label">Border (active/open)</div><div class="el-token">--color-warning-800</div><div class="el-code">3px solid #7c2d12</div></div>
+          <div><div class="el-label">Border-radius</div><div class="el-token">≈ --radius-xl (12px)</div><div class="el-code">10px</div></div>
+          <div><div class="el-label">Height · padding</div><div class="el-token">gap: --space-2</div><div class="el-code">42px · 0 14px · gap:8px</div></div>
+          <div><div class="el-label">Font</div><div class="el-token">--font-family-body · --font-weight-bold · --font-size-sm · --color-warning-800</div><div class="el-value">Nunito 700 · 14px · #7c2d12</div></div>
+          <div class="el-spec-full"><div class="el-label">Box-shadow (default)</div><div class="el-token">--shadow-pill</div><div class="el-code">0 6px 8px -2px rgba(69,26,3,.4), 0 2px 4px -1px rgba(69,26,3,.25), inset 0 2px 0 rgba(255,255,255,.55), inset 0 -1px 0 rgba(146,64,14,.22)</div></div>
+          <div class="el-spec-full"><div class="el-label">Box-shadow (active/open)</div><div class="el-token">--shadow-pill-active</div><div class="el-code">0 10px 14px -4px rgba(69,26,3,.55), 0 4px 6px -2px rgba(69,26,3,.35), inset 0 2px 0 rgba(255,255,255,.6), inset 0 -1px 0 rgba(146,64,14,.25)</div></div>
+          <div><div class="el-label">Icon disc</div><div class="el-token">Icon Sticker (sm) — see Design Elements</div><div class="el-code">26×26px · border-radius:50% · font-size:15px<br>border:2px solid {shade} · radial gradient<br>box-shadow: var(--shadow-disc)</div></div>
+          <div><div class="el-label">Active transform</div><div class="el-token">(custom — no token)</div><div class="el-code">translateY(−2px) — lifts up</div></div>
+          <div><div class="el-label">Transition</div><div class="el-token">≈ --transition-fast (140ms vs 150ms)</div><div class="el-code">140ms cubic-bezier(.34,1.56,.64,1)</div></div>
+          <div><div class="el-label">Per-position tilt</div><div class="el-token">(custom — no token)</div><div class="el-code">rotate(±0.5–1deg)</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="sub-title">Variants — badge · suffix tag · status dot · active</div>
+      <div class="frame-card">
+        <div class="frame-demo frame-demo--wood" style="gap:12px; flex-wrap:wrap; justify-content:center;">
+          <div class="state-cell">
+            <button class="gp-sign-pill">
+              <span class="sp-rivet" style="top:3px;left:4px;"></span><span class="sp-rivet" style="top:3px;right:4px;"></span>
+              <span class="sp-rivet" style="bottom:3px;left:4px;"></span><span class="sp-rivet" style="bottom:3px;right:4px;"></span>
+              <span class="sp-icon" style="background:radial-gradient(circle at 35% 30%,#fef3c7,#fbbf24);border:2px solid #92400e;">🎒</span>
+              <span>Inventory</span><span class="sp-chev">▾</span>
+            </button>
+            <div class="state-name state-name-lt">Default<em>no badge</em></div>
+          </div>
+          <div class="state-cell">
+            <button class="gp-sign-pill">
+              <span class="sp-rivet" style="top:3px;left:4px;"></span><span class="sp-rivet" style="top:3px;right:4px;"></span>
+              <span class="sp-rivet" style="bottom:3px;left:4px;"></span><span class="sp-rivet" style="bottom:3px;right:4px;"></span>
+              <span class="sp-icon" style="background:radial-gradient(circle at 35% 30%,#fef3c7,#fbbf24);border:2px solid #92400e;">📓</span>
+              <span>Activity</span>
+              <span class="sp-badge" style="background:#8b5cf6;">1</span>
+              <span class="sp-chev">▾</span>
+            </button>
+            <div class="state-name state-name-lt">With badge<em>rotate(−3deg)</em></div>
+          </div>
+          <div class="state-cell">
+            <button class="gp-sign-pill">
+              <span class="sp-rivet" style="top:3px;left:4px;"></span><span class="sp-rivet" style="top:3px;right:4px;"></span>
+              <span class="sp-rivet" style="bottom:3px;left:4px;"></span><span class="sp-rivet" style="bottom:3px;right:4px;"></span>
+              <span class="sp-icon" style="background:radial-gradient(circle at 35% 30%,#bbf7d0,#22c55e);border:2px solid #166534;">🏠</span>
+              <span>Habitat</span>
+              <span class="sp-suffix" style="background:#dc2626;">66%</span>
+              <span class="sp-chev">▾</span>
+            </button>
+            <div class="state-name state-name-lt">Suffix tag<em>cleanliness %</em></div>
+          </div>
+          <div class="state-cell">
+            <button class="gp-sign-pill">
+              <span class="sp-rivet" style="top:3px;left:4px;"></span><span class="sp-rivet" style="top:3px;right:4px;"></span>
+              <span class="sp-rivet" style="bottom:3px;left:4px;"></span><span class="sp-rivet" style="bottom:3px;right:4px;"></span>
+              <span class="sp-icon" style="background:radial-gradient(circle at 35% 30%,#fef3c7,#fbbf24);border:2px solid #92400e;">🐹</span>
+              <span>Clementine</span>
+              <span class="sp-dot" style="background:#178740;border:1.5px solid #14532d;box-shadow:0 0 0 3px rgba(23,135,64,.3);"></span>
+              <span class="sp-chev">▾</span>
+            </button>
+            <div class="state-name state-name-lt">Status dot (ok)<em>9×9px · #178740</em></div>
+          </div>
+          <div class="state-cell">
+            <button class="gp-sign-pill">
+              <span class="sp-rivet" style="top:3px;left:4px;"></span><span class="sp-rivet" style="top:3px;right:4px;"></span>
+              <span class="sp-rivet" style="bottom:3px;left:4px;"></span><span class="sp-rivet" style="bottom:3px;right:4px;"></span>
+              <span class="sp-icon" style="background:radial-gradient(circle at 35% 30%,#fef3c7,#fbbf24);border:2px solid #92400e;">🐹</span>
+              <span>Nutmeg</span>
+              <span class="sp-suffix" style="background:#dc2626; transform:rotate(-3deg); min-width:auto; padding:2px 6px;">🍎 2</span>
+              <span class="sp-chev">▾</span>
+            </button>
+            <div class="state-name state-name-lt">Status (warning)<em>worst need + count</em></div>
+          </div>
+          <div class="state-cell">
+            <button class="gp-sign-pill is-active">
+              <span class="sp-rivet" style="top:3px;left:4px;"></span><span class="sp-rivet" style="top:3px;right:4px;"></span>
+              <span class="sp-rivet" style="bottom:3px;left:4px;"></span><span class="sp-rivet" style="bottom:3px;right:4px;"></span>
+              <span class="sp-icon" style="background:radial-gradient(circle at 35% 30%,#fef3c7,#fbbf24);border:2px solid #92400e;">🎒</span>
+              <span>Inventory</span><span class="sp-chev">▾</span>
+            </button>
+            <div class="state-name state-name-lt">Active / Open<em>translateY(−2px) · border:#7c2d12</em></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="sub-title">Per-position tilt — SimTopBar layout</div>
+      <div class="frame-card">
+        <div class="frame-demo frame-demo--wood" style="gap:16px; flex-wrap:wrap; justify-content:center; align-items:center; padding:32px 24px;">
+
+          <div class="state-cell">
+            <button class="gp-sign-pill" style="transform:rotate(-1deg); pointer-events:none;">
+              <span class="sp-rivet" style="top:3px;left:4px;"></span><span class="sp-rivet" style="top:3px;right:4px;"></span>
+              <span class="sp-rivet" style="bottom:3px;left:4px;"></span><span class="sp-rivet" style="bottom:3px;right:4px;"></span>
+              <span class="sp-icon" style="background:radial-gradient(circle at 35% 30%,#fef3c7,#fbbf24);border:2px solid #d97706;">📓</span>
+              <span>Activity</span>
+              <span class="sp-chev">▾</span>
+            </button>
+            <div class="state-name state-name-lt">Far left<em>rotate(−1deg)</em></div>
+          </div>
+
+          <div class="state-cell">
+            <button class="gp-sign-pill" style="transform:rotate(0.6deg); pointer-events:none;">
+              <span class="sp-rivet" style="top:3px;left:4px;"></span><span class="sp-rivet" style="top:3px;right:4px;"></span>
+              <span class="sp-rivet" style="bottom:3px;left:4px;"></span><span class="sp-rivet" style="bottom:3px;right:4px;"></span>
+              <span class="sp-icon" style="background:radial-gradient(circle at 35% 30%,#bbf7d0,#22c55e);border:2px solid #166534;">🏠</span>
+              <span>Habitat</span>
+              <span class="sp-suffix" style="background:#178740;">70%</span>
+              <span class="sp-chev">▾</span>
+            </button>
+            <div class="state-name state-name-lt">Habitat (center-left)<em>rotate(+0.6deg)</em></div>
+          </div>
+
+          <div class="state-cell">
+            <button class="gp-sign-pill" style="transform:rotate(-0.5deg); pointer-events:none;">
+              <span class="sp-rivet" style="top:3px;left:4px;"></span><span class="sp-rivet" style="top:3px;right:4px;"></span>
+              <span class="sp-rivet" style="bottom:3px;left:4px;"></span><span class="sp-rivet" style="bottom:3px;right:4px;"></span>
+              <span class="sp-icon" style="background:radial-gradient(circle at 35% 30%,#fef3c7,#fbbf24);border:2px solid #92400e;">🐹</span>
+              <span>Clementine</span>
+              <span class="sp-dot" style="background:#178740;border:1.5px solid #14532d;box-shadow:0 0 0 3px rgba(23,135,64,.3);"></span>
+              <span class="sp-chev">▾</span>
+            </button>
+            <div class="state-name state-name-lt">Pig — even index<em>rotate(−0.5deg)</em></div>
+          </div>
+
+          <div class="state-cell">
+            <button class="gp-sign-pill" style="transform:rotate(0.5deg); pointer-events:none;">
+              <span class="sp-rivet" style="top:3px;left:4px;"></span><span class="sp-rivet" style="top:3px;right:4px;"></span>
+              <span class="sp-rivet" style="bottom:3px;left:4px;"></span><span class="sp-rivet" style="bottom:3px;right:4px;"></span>
+              <span class="sp-icon" style="background:radial-gradient(circle at 35% 30%,#fef3c7,#fbbf24);border:2px solid #92400e;">🐹</span>
+              <span>Nutmeg</span>
+              <span class="sp-dot" style="background:#178740;border:1.5px solid #14532d;box-shadow:0 0 0 3px rgba(23,135,64,.3);"></span>
+              <span class="sp-chev">▾</span>
+            </button>
+            <div class="state-name state-name-lt">Pig — odd index<em>rotate(+0.5deg)</em></div>
+          </div>
+
+          <div class="state-cell">
+            <button class="gp-sign-pill" style="transform:rotate(1deg); pointer-events:none;">
+              <span class="sp-rivet" style="top:3px;left:4px;"></span><span class="sp-rivet" style="top:3px;right:4px;"></span>
+              <span class="sp-rivet" style="bottom:3px;left:4px;"></span><span class="sp-rivet" style="bottom:3px;right:4px;"></span>
+              <span class="sp-icon" style="background:radial-gradient(circle at 38% 32%,#c4b5fd 0%,#a78bfa 55%,#7c3aed 100%);border:2px solid #7c3aed;">🎒</span>
+              <span>Inventory</span>
+              <span class="sp-chev">▾</span>
+            </button>
+            <div class="state-name state-name-lt">Far right<em>rotate(+1deg)</em></div>
+          </div>
+
+        </div>
+        <div class="el-spec el-spec-2">
+          <div><div class="el-label">Activity (far left)</div><div class="el-token">(custom — no token)</div><div class="el-code">rotate(−1deg)</div></div>
+          <div><div class="el-label">Habitat (center-left)</div><div class="el-token">(custom — no token)</div><div class="el-code">rotate(+0.6deg)</div></div>
+          <div><div class="el-label">Pig pills (center, alternating)</div><div class="el-token">(custom — no token)</div><div class="el-code">i % 2 === 0 → rotate(−0.5deg) · i % 2 === 1 → rotate(+0.5deg)</div></div>
+          <div><div class="el-label">Inventory (far right)</div><div class="el-token">(custom — no token)</div><div class="el-code">rotate(+1deg)</div></div>
+          <div><div class="el-label">Rule</div><div class="el-token">—</div><div class="el-value">Outer pills tilt ±1deg · inner pills ±0.5–0.6deg · never exceed ±2deg</div></div>
+          <div><div class="el-label">Applied via</div><div class="el-token">—</div><div class="el-code">transform: rotate(Xdeg) translateY(${active ? −2 : 0}px)</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Sign Badge ───────────────────────────── -->
+    <div class="subsection" id="sign-badge">
+      <div class="sub-title">Badge <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#94a3b8;font-size:11px;">3 variants · count · warning · suffix tag</span></div>
+
+      <div class="subsection">
+        <div class="sub-title">Variants — in pill context</div>
+        <div class="comp-grid">
+
+          <div class="comp-card">
+            <div class="comp-demo">
+              <button class="gp-sign-pill" style="pointer-events:none;">
+                <span class="sp-rivet" style="top:3px;left:4px;"></span><span class="sp-rivet" style="top:3px;right:4px;"></span>
+                <span class="sp-rivet" style="bottom:3px;left:4px;"></span><span class="sp-rivet" style="bottom:3px;right:4px;"></span>
+                <span class="sp-icon" style="background:radial-gradient(circle at 35% 30%,#fef3c7,#fbbf24);border:2px solid #92400e;">📓</span>
+                <span>Activity</span>
+                <span class="sign-badge sign-badge--count">1</span>
+                <span class="sp-chev">▾</span>
+              </button>
+            </div>
+            <div class="comp-info">
+              <div class="comp-name">count</div>
+              <div class="comp-tokens">bg: #7c3aed (violet-600)<br>border: 1.5px solid #5b21b6<br>border-radius: 5px · shadow: 0 2px 3px rgba(0,0,0,.38)<br>transform: rotate(−3deg) · all badges tilt<br>h: 20px · min-w: 20px · pad: 0 5px<br>font: 11px/700 · hidden when count === 0</div>
+            </div>
+          </div>
+
+          <div class="comp-card">
+            <div class="comp-demo">
+              <button class="gp-sign-pill" style="pointer-events:none;">
+                <span class="sp-rivet" style="top:3px;left:4px;"></span><span class="sp-rivet" style="top:3px;right:4px;"></span>
+                <span class="sp-rivet" style="bottom:3px;left:4px;"></span><span class="sp-rivet" style="bottom:3px;right:4px;"></span>
+                <span class="sp-icon" style="background:radial-gradient(circle at 35% 30%,#fef3c7,#fbbf24);border:2px solid #92400e;">🐹</span>
+                <span>Nutmeg</span>
+                <span class="sign-badge sign-badge--warning"><span class="sign-badge__emoji">🍎</span><span>2</span></span>
+                <span class="sp-chev">▾</span>
+              </button>
+            </div>
+            <div class="comp-info">
+              <div class="comp-name">warning</div>
+              <div class="comp-tokens">bg: #dc2626 (red-500) · border: 1.5px solid #991b1b<br>border-radius: 5px · shadow: 0 2px 3px rgba(0,0,0,.38)<br>transform: rotate(−3deg) · gap: 3px (emoji ↔ count)<br>h: 20px · pad: 0 5px · emoji: 12px</div>
+            </div>
+          </div>
+
+          <div class="comp-card">
+            <div class="comp-demo">
+              <button class="gp-sign-pill" style="pointer-events:none;">
+                <span class="sp-rivet" style="top:3px;left:4px;"></span><span class="sp-rivet" style="top:3px;right:4px;"></span>
+                <span class="sp-rivet" style="bottom:3px;left:4px;"></span><span class="sp-rivet" style="bottom:3px;right:4px;"></span>
+                <span class="sp-icon" style="background:radial-gradient(circle at 35% 30%,#bbf7d0,#22c55e);border:2px solid #166534;">🏠</span>
+                <span>Habitat</span>
+                <span class="sign-badge sign-badge--suffix">66%</span>
+                <span class="sp-chev">▾</span>
+              </button>
+            </div>
+            <div class="comp-info">
+              <div class="comp-name">suffix tag</div>
+              <div class="comp-tokens">bg: threshold-driven (see below)<br>border: 1.5px solid (darker shade of bg)<br>border-radius: 5px · shadow: 0 2px 3px rgba(0,0,0,.38)<br>transform: rotate(−3deg)<br>min-w: 34px · pad: 2px 6px · font: 12px/700</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="subsection">
+        <div class="sub-title">Suffix tag — cleanliness color thresholds</div>
+        <div style="border:1px solid #e2e8f0;border-radius:8px 8px 0 0;background:#b45309;padding:20px 24px;display:flex;gap:20px;align-items:center;flex-wrap:wrap;">
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:center;">
+            <span class="sign-badge sign-badge--suffix-ok">91%</span>
+            <span style="font-family:Consolas,monospace;font-size:9px;color:#fef3c7;text-align:center;">dirty ≤ 30<br>#178740</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:center;">
+            <span class="sign-badge sign-badge--suffix-warn">52%</span>
+            <span style="font-family:Consolas,monospace;font-size:9px;color:#fef3c7;text-align:center;">dirty 31–60<br>#ea580c</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:center;">
+            <span class="sign-badge sign-badge--suffix">24%</span>
+            <span style="font-family:Consolas,monospace;font-size:9px;color:#fef3c7;text-align:center;">dirty &gt; 60<br>#dc2626</span>
+          </div>
+        </div>
+        <div class="el-spec">
+          <div><div class="el-label">Source</div><div class="el-code">dirty &gt; 60 → #dc2626 · dirty &gt; 30 → #ea580c · else → #178740</div></div>
+          <div><div class="el-label">inset shadow (all badges)</div><div class="el-code">inset 0 1px 0 rgba(255,255,255,.35) · text-shadow: 0 1px 0 rgba(0,0,0,.18)</div></div>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <div class="sub-title">Count badge states</div>
+        <div class="comp-grid" style="grid-template-columns:repeat(auto-fill,minmax(140px,1fr));">
+
+          <div class="comp-card">
+            <div class="comp-demo">
+              <span class="sign-badge sign-badge--count">1</span>
+            </div>
+            <div class="comp-info">
+              <div class="comp-name">Default</div>
+              <div class="comp-tokens">count: 1–99<br>rotate(−3deg) · border-radius: 5px<br>border: 1.5px solid #5b21b6</div>
+            </div>
+          </div>
+
+          <div class="comp-card">
+            <div class="comp-demo">
+              <span class="sign-badge sign-badge--count-max">99+</span>
+            </div>
+            <div class="comp-info">
+              <div class="comp-name">Max (99+)</div>
+              <div class="comp-tokens">count &gt; 99 → "99+"<br>font: 10px · min-w: 28px</div>
+            </div>
+          </div>
+
+          <div class="comp-card">
+            <div class="comp-demo">
+              <span style="font-family:Consolas,monospace;font-size:10px;color:rgba(255,255,255,.35);">not rendered</span>
+            </div>
+            <div class="comp-info">
+              <div class="comp-name">Hidden (0)</div>
+              <div class="comp-tokens">count === 0<br>v-if / conditional<br>zero DOM presence</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="notes">
+        <h4>Notes</h4>
+        <ul>
+          <li>Count badge and warning badge are mutually exclusive with the status dot — only one suffix shown at a time</li>
+          <li>Warning badge replaces the status dot whenever <code>status !== 'ok'</code> AND <code>count &gt; 0</code></li>
+          <li>Suffix tag label has no truncation protection — keep strings ≤ 6 chars (e.g. <code>"66%"</code>, <code>"100%"</code>)</li>
+          <li>Suffix tag color updates reactively as <code>dirty</code> crosses thresholds — no transition on color change</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ── Sign Status ───────────────────────────── -->
+    <div class="subsection" id="sign-status">
+      <div class="sub-title">Status <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#94a3b8;font-size:11px;">3 variants · 9×9px dot · ok · warning · critical</span></div>
+
+      <p style="font-size:13px;color:#475569;margin-bottom:24px;max-width:580px;line-height:1.7;">A fixed 9×9 px circle that sits inline on a guinea pig SignPill. Color communicates need health at a glance. Shown only when <code style="background:#f1f5f9;padding:1px 5px;border-radius:3px;font-size:11px;color:#b45309;">status === 'ok'</code> — otherwise the warning badge takes its place.</p>
+
+      <div class="subsection">
+        <div class="sub-title">Variants — in pill context</div>
+        <div class="comp-grid">
+
+          <div class="comp-card">
+            <div class="comp-demo">
+              <button class="gp-sign-pill" style="pointer-events:none;">
+                <span class="sp-rivet" style="top:3px;left:4px;"></span><span class="sp-rivet" style="top:3px;right:4px;"></span>
+                <span class="sp-rivet" style="bottom:3px;left:4px;"></span><span class="sp-rivet" style="bottom:3px;right:4px;"></span>
+                <span class="sp-icon" style="background:radial-gradient(circle at 35% 30%,#fef3c7,#fbbf24);border:2px solid #92400e;filter:hue-rotate(20deg);">🐹</span>
+                <span>Clementine</span>
+                <span class="sign-status sign-status--ok"></span>
+                <span class="sp-chev">▾</span>
+              </button>
+            </div>
+            <div class="comp-info">
+              <div class="comp-name">ok</div>
+              <div class="comp-tokens">bg: #178740 (--color-green-600)<br>glow: 0 0 0 3px rgba(23,135,64,.25)<br>9×9px · border-radius: 999px<br>all needs ≥ 60</div>
+            </div>
+          </div>
+
+          <div class="comp-card">
+            <div class="comp-demo">
+              <button class="gp-sign-pill" style="pointer-events:none;">
+                <span class="sp-rivet" style="top:3px;left:4px;"></span><span class="sp-rivet" style="top:3px;right:4px;"></span>
+                <span class="sp-rivet" style="bottom:3px;left:4px;"></span><span class="sp-rivet" style="bottom:3px;right:4px;"></span>
+                <span class="sp-icon" style="background:radial-gradient(circle at 35% 30%,#fef3c7,#fbbf24);border:2px solid #92400e;filter:hue-rotate(60deg);">🐹</span>
+                <span>Cheddar</span>
+                <span class="sign-status sign-status--warning"></span>
+                <span class="sp-chev">▾</span>
+              </button>
+            </div>
+            <div class="comp-info">
+              <div class="comp-name">warning</div>
+              <div class="comp-tokens">bg: #ea580c (--color-gold-500)<br>glow: 0 0 0 3px rgba(234,88,12,.25)<br>9×9px · any need 30–59<br>shown only when count === 0</div>
+            </div>
+          </div>
+
+          <div class="comp-card">
+            <div class="comp-demo">
+              <button class="gp-sign-pill" style="pointer-events:none;">
+                <span class="sp-rivet" style="top:3px;left:4px;"></span><span class="sp-rivet" style="top:3px;right:4px;"></span>
+                <span class="sp-rivet" style="bottom:3px;left:4px;"></span><span class="sp-rivet" style="bottom:3px;right:4px;"></span>
+                <span class="sp-icon" style="background:radial-gradient(circle at 35% 30%,#fef3c7,#fbbf24);border:2px solid #92400e;filter:hue-rotate(180deg);">🐹</span>
+                <span>Blueberry</span>
+                <span class="sign-status sign-status--critical"></span>
+                <span class="sp-chev">▾</span>
+              </button>
+            </div>
+            <div class="comp-info">
+              <div class="comp-name">critical</div>
+              <div class="comp-tokens">bg: #dc2626 (--color-red-500)<br>glow pulses: 3px → 5px<br>animation: 1.5s ease-in-out ∞<br>any need &lt; 30 · count === 0</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="subsection">
+        <div class="sub-title">Dot tokens</div>
+        <div style="border:1px solid #e2e8f0;border-radius:8px 8px 0 0;background:#f8fafc;padding:20px 24px;display:flex;gap:28px;align-items:center;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="sign-status sign-status--ok"></span>
+            <span style="font-size:12px;color:#334155;font-family:Consolas,monospace;">#178740 · ok</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="sign-status sign-status--warning"></span>
+            <span style="font-size:12px;color:#334155;font-family:Consolas,monospace;">#ea580c · warning</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="sign-status sign-status--critical"></span>
+            <span style="font-size:12px;color:#334155;font-family:Consolas,monospace;">#dc2626 · critical + pulse</span>
+          </div>
+        </div>
+        <div class="el-spec">
+          <div><div class="el-label">Size</div><div class="el-code">9×9px · border-radius: 999px · flex-shrink: 0</div></div>
+          <div><div class="el-label">Glow</div><div class="el-code">box-shadow: 0 0 0 3px {color}25 · critical expands to 5px at 50% cycle</div></div>
+          <div class="el-spec-full"><div class="el-label">Pulse animation</div><div class="el-code">@keyframes status-pulse — 0%,100%: shadow 3px · 50%: shadow 5px · duration: 1.5s ease-in-out infinite (critical only)</div></div>
+        </div>
+      </div>
+
+      <div class="notes">
+        <h4>Notes</h4>
+        <ul>
+          <li>Status dot is only shown when <code>status === 'ok'</code>, OR when warning/critical but <code>count === 0</code> — warning badge takes priority otherwise</li>
+          <li>Critical dot pulses indefinitely — no pause on blur or visibility change</li>
+          <li>Glow ring is <code>box-shadow</code> only — not a separate element; may be invisible on very light or matching-color backgrounds</li>
+          <li><code>flex-shrink: 0</code> ensures the dot never squishes inside a narrow pill</li>
+        </ul>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ════════════════════════════════════════════
+       §4 — GHOST / OUTLINE
+  ═════════════════════════════════════════════ -->
+  <section class="section" id="ghost">
+    <div class="section-header">
+      <h2 class="section-title">Dashed Button</h2>
+      <span class="section-count">Tertiary · low-emphasis · dashed border · "Choose different pigs"</span>
+    </div>
+    <div class="frame-card">
+      <div class="frame-demo frame-demo--parchment">
+        <div class="states-row">
+          <div class="state-cell">
+            <button class="gp-btn-ghost">Choose different pigs</button>
+            <div class="state-name">Default</div>
+          </div>
+          <div class="state-cell">
+            <button class="gp-btn-ghost is-hover">Choose different pigs</button>
+            <div class="state-name">Hover<em>bg rgba(254,243,199,.5)<br>translateY(−1px)</em></div>
+          </div>
+          <div class="state-cell">
+            <button class="gp-btn-ghost is-active">Choose different pigs</button>
+            <div class="state-name">Active</div>
+          </div>
+          <div class="state-cell">
+            <button class="gp-btn-ghost" disabled>Choose different pigs</button>
+            <div class="state-name">Disabled</div>
+          </div>
+        </div>
+      </div>
+      <div class="el-spec el-spec-2">
+        <div><div class="el-label">Border</div><div class="el-token">(no exact token — game-specific brown)</div><div class="el-code">1.5px dashed #92400e</div></div>
+        <div><div class="el-label">Background</div><div class="el-token">transparent · ≈ --color-warning-100 at 50% alpha</div><div class="el-code">transparent → rgba(254,243,199,.5) hover</div></div>
+        <div><div class="el-label">Border-radius · h · padding</div><div class="el-token">--radius-full · --space-5</div><div class="el-code">9999px · 44px · 0 20px</div></div>
+        <div><div class="el-label">Font · color</div><div class="el-token">--font-family-body · --font-weight-bold · --font-size-sm · --color-warning-800</div><div class="el-code">Nunito 700 · 14px · #7c2d12</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════
+       §5 — RESUME / PAUSE
+  ═════════════════════════════════════════════ -->
+  <section class="section" id="confirm">
+    <div class="section-header">
+      <h2 class="section-title">Pause Button</h2>
+      <span class="section-count">Dual-state · green (playing) ↔ amber (paused)</span>
+    </div>
+    <div class="frame-card">
+      <div class="frame-demo frame-demo--wood" style="gap:36px;">
+        <div class="state-cell">
+          <div style="display:flex; gap:10px; align-items:center;">
+            <button class="gp-btn-confirm">⏸ Pause</button>
+            <button class="gp-btn-confirm is-hover">⏸ Pause</button>
+            <button class="gp-btn-confirm is-active">⏸ Pause</button>
+          </div>
+          <div class="state-name state-name-lt">Playing state (green)<em>default · hover · pressed</em></div>
+        </div>
+        <div class="state-cell">
+          <div style="display:flex; gap:10px; align-items:center;">
+            <button class="gp-btn-confirm gp-btn-confirm--paused">▶ Resume</button>
+            <button class="gp-btn-confirm gp-btn-confirm--paused is-hover">▶ Resume</button>
+          </div>
+          <div class="state-name state-name-lt">Paused state (amber)<em>default · hover</em></div>
+        </div>
+      </div>
+      <div class="el-spec">
+        <div><div class="el-label">Playing bg</div><div class="el-token">--color-accent-green-300 → --color-accent-green-500</div><div class="el-code">#86efac → #22c55e</div></div>
+        <div><div class="el-label">Playing color</div><div class="el-token">(no token — game-specific dark green)</div><div class="el-code">#0b3a1d</div></div>
+        <div><div class="el-label">Playing border</div><div class="el-token">custom alpha of --color-accent-green-800</div><div class="el-code">1px solid rgba(20,83,45,.45)</div></div>
+        <div><div class="el-label">Paused bg</div><div class="el-token">--color-warning-300 → (no token for #d97706)</div><div class="el-code">#fbbf24 → #d97706</div></div>
+        <div><div class="el-label">Paused color</div><div class="el-token">(no token — game-specific dark brown)</div><div class="el-code">#451a03</div></div>
+        <div><div class="el-label">Paused border</div><div class="el-token">(no exact token — near --color-warning-800)</div><div class="el-code">2px solid #78350f</div></div>
+        <div><div class="el-label">Height · padding</div><div class="el-token">--radius-full</div><div class="el-code">38px · 0 18px · br:9999px</div></div>
+        <div><div class="el-label">Font</div><div class="el-token">--font-family-body · (no token for 800 weight or 15px)</div><div class="el-value">Nunito 800 · 15px</div></div>
+        <div><div class="el-label">Hover</div><div class="el-token">(custom — no token)</div><div class="el-code">translateY(−1px) · brightness(1.06)</div></div>
+        <div class="el-spec-full"><div class="el-label">Box-shadow (shared)</div><div class="el-token">--shadow-resume-pause</div><div class="el-code">0 6px 10px -2px rgba(0,0,0,.28), 0 2px 4px -1px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.4)</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════
+       §6 — CURRENCY DISPLAY
+  ═════════════════════════════════════════════ -->
+  <section class="section" id="currency">
+    <div class="section-header">
+      <h2 class="section-title">Currency Display</h2>
+      <span class="section-count">3 variants · SimTopBar · Supplies Store · item price tag</span>
+    </div>
+
+    <div class="subsection">
+      <div class="sub-title">SimTopBar — header right zone</div>
+      <div class="frame-card">
+        <div class="frame-demo frame-demo--wood" style="gap:20px;">
+          <div class="state-cell">
+            <button class="gp-btn-currency"><span style="font-size:17px;filter:drop-shadow(0 1px 0 rgba(120,53,15,.35));">🪙</span>120</button>
+            <div class="state-name state-name-lt">Default</div>
+          </div>
+        </div>
+        <div class="el-spec">
+          <div><div class="el-label">Background</div><div class="el-token">--color-warning-50 → (no token for #fcd34d)</div><div class="el-code">#fffbeb → #fcd34d</div></div>
+          <div><div class="el-label">Border</div><div class="el-token">(no exact token — near --color-warning-800)</div><div class="el-code">2px solid #78350f</div></div>
+          <div><div class="el-label">Height · padding · radius</div><div class="el-token">--radius-full</div><div class="el-code">38px · 0 14px · 9999px</div></div>
+          <div><div class="el-label">Font</div><div class="el-token">--font-family-body · (no token for 800/15px)</div><div class="el-value">Nunito 800 · 15px · #7c2d12</div></div>
+          <div><div class="el-label">Icon · gap</div><div class="el-token">(custom)</div><div class="el-code">17px · gap:6px · drop-shadow(0 1px 0 rgba(120,53,15,.35))</div></div>
+          <div class="el-spec-full"><div class="el-label">Box-shadow</div><div class="el-token">--shadow-amber-pill</div><div class="el-code">0 6px 10px -2px rgba(120,53,15,.4), 0 2px 4px -1px rgba(120,53,15,.25), inset 0 1px 0 rgba(255,255,255,.6), inset 0 -1px 0 rgba(146,64,14,.25)</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="sub-title">Supplies Store</div>
+      <div class="frame-card">
+        <div class="frame-demo frame-demo--parchment" style="gap:20px;">
+          <div class="state-cell">
+            <div style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(180deg,#fef3c7 0%,#fbbf24 100%);border:3px solid #92400e;border-radius:999px;padding:6px 18px;font-family:'Gaegu',cursive;font-size:20px;font-weight:700;color:#7c2d12;box-shadow:0 6px 10px rgba(0,0,0,.3),inset 0 2px 0 rgba(255,255,255,.5);user-select:none;">🪙 120</div>
+          </div>
+        </div>
+        <div class="el-spec">
+          <div><div class="el-label">Background</div><div class="el-token">--color-warning-100 → (no token for #fbbf24)</div><div class="el-code">#fef3c7 → #fbbf24</div></div>
+          <div><div class="el-label">Border</div><div class="el-token">(no exact token)</div><div class="el-code">3px solid #92400e</div></div>
+          <div><div class="el-label">Padding · radius</div><div class="el-token">--radius-full</div><div class="el-code">6px 16px · 999px</div></div>
+          <div><div class="el-label">Font</div><div class="el-token">--font-family-display</div><div class="el-value">Gaegu 700 · 20px · #7c2d12</div></div>
+          <div><div class="el-label">Padding · radius</div><div class="el-token">--radius-full</div><div class="el-code">6px 18px · 999px</div></div>
+          <div><div class="el-label">Box-shadow</div><div class="el-token">(custom)</div><div class="el-code">0 6px 10px rgba(0,0,0,.3), inset 0 2px 0 rgba(255,255,255,.5)</div></div>
+          <div><div class="el-label">Context</div><div class="el-token">—</div><div class="el-value">Sits inline with department title · flex row · not interactive</div></div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ════════════════════════════════════════════
+       §7 — ICON BUTTON
+  ═════════════════════════════════════════════ -->
+  <section class="section" id="icon-btn">
+    <div class="section-header">
+      <h2 class="section-title">Help Button</h2>
+      <span class="section-count">Circular · single glyph · "?" help</span>
+    </div>
+    <div class="frame-card">
+      <div class="frame-demo frame-demo--wood" style="gap:24px;">
+        <div class="state-cell">
+          <button class="gp-btn-icon">?</button>
+          <div class="state-name state-name-lt">Default</div>
+        </div>
+        <div class="state-cell">
+          <button class="gp-btn-icon is-hover">?</button>
+          <div class="state-name state-name-lt">Hover</div>
+        </div>
+        <div class="state-cell">
+          <button class="gp-btn-icon is-active">?</button>
+          <div class="state-name state-name-lt">Pressed</div>
+        </div>
+      </div>
+      <div class="el-spec el-spec-2">
+        <div><div class="el-label">Size · shape</div><div class="el-token">(custom — no token for 38px circle)</div><div class="el-code">38×38px · border-radius:50%</div></div>
+        <div><div class="el-label">Background · border</div><div class="el-token">--color-warning-50 → (no token) · (no exact token)</div><div class="el-code">#fffbeb → #fcd34d · 2px solid #78350f</div></div>
+        <div><div class="el-label">Font</div><div class="el-token">--font-family-body · --font-size-lg · --color-warning-800</div><div class="el-value">Nunito 900 · 18px · #7c2d12</div></div>
+        <div><div class="el-label">Hover · Press</div><div class="el-token">(custom — no tokens)</div><div class="el-code">translateY(−1px)/brightness(1.06) · translateY(+1px)/brightness(.94)</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════
+       BEHAVIOR NOTES
+  ═════════════════════════════════════════════ -->
+  <section class="section" id="notes">
+    <div class="section-header">
+      <h2 class="section-title">Behavior Notes</h2>
+      <span class="section-count">Non-visual · animation · truncation · conditional visibility</span>
+    </div>
+
+    <div class="notes">
+      <h4>Primary Button</h4>
+      <ul>
+        <li>Press animation uses <code>:active</code>, not <code>click</code>. The <code>translateY(+2px)</code> + shadow-reduce lands in 100ms.</li>
+        <li><code>::before</code> top-highlight spans the full pill including any lead icon — ensuring uniform sheen across all variants.</li>
+        <li>Header tab (active) uses <strong>Gaegu 700 19px</strong>; store/modal Add/Adopt uses <strong>Nunito 700 13–15px</strong>. Same background, different font family.</li>
+        <li>Never truncate the label. Buttons are always single-line; expand width rather than clip or ellipsis.</li>
+        <li>Use the <code>disabled</code> attribute directly — do not fake it with only a CSS class. The attribute also removes it from the tab order.</li>
+      </ul>
+    </div>
+
+    <div class="notes" style="margin-top:12px;">
+      <h4>Sign Button (SimTopBar)</h4>
+      <ul>
+        <li>Active/open state <em>lifts upward</em> (<code>translateY(−2px)</code>) rather than pressing down — signals a panel is open.</li>
+        <li>Badge is conditionally rendered: hidden when <code>badge === 0</code>. Never show a "0" badge.</li>
+        <li>Pig health dot: green (<code>#178740</code>) when all needs satisfied; inline badge (<code>#dc2626</code> / <code>#ea580c</code>) with worst-need icon + count for warning/critical.</li>
+        <li>Each pill carries a per-position <code>rotate(±0.5–1deg)</code> tilt to look hand-arranged. Do not exceed ±2deg.</li>
+        <li>Click outside any open panel closes all via <code>mousedown</code> on document. The tutorial overlay is explicitly excluded from this handler.</li>
+      </ul>
+    </div>
+
+    <div class="notes" style="margin-top:12px;">
+      <h4>Pause Button — Dual State</h4>
+      <ul>
+        <li>Same element toggles between green (playing) and amber (paused) states on click. Color and label transition simultaneously.</li>
+        <li>Label slots: <code>"⏸ Pause"</code> (playing) ↔ <code>"▶ Resume"</code> (paused).</li>
+        <li>The entire right-zone (coins + ? + pause) is hidden before pigs are adopted — <code>pigsAdopted === 0</code>.</li>
+      </ul>
+    </div>
+
+    <div class="notes" style="margin-top:12px;">
+      <h4>Dashed Button</h4>
+      <ul>
+        <li>Used only alongside a Primary CTA when a secondary escape-hatch is needed (e.g. "Choose different pigs" next to "Adopt").</li>
+        <li>On hover, fills with a very light cream tint (<code>rgba(254,243,199,.5)</code>) — not a solid fill. Keeps it visually subordinate.</li>
+        <li>Never use as the sole CTA on a surface. It must always be paired with a more prominent action.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GPS2 — Patterns</title>
+  <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    /* ── Shadow tokens ───────────────────────────────────────── */
+    :root {
+      --color-lime:           #84cc16;
+      --color-warning-300:    #fbbf24;
+      --color-warning-500:    #ea580c;
+      --color-need-hygiene:   #0ea5e9;
+      --color-accent-pink-100: #fce7f3;
+      --color-accent-pink-400: #f472b6;
+      --color-accent-pink-500: #ec4899;
+      --color-accent-pink-700: #be185d;
+      --color-accent-violet-100: #ede9fe;
+      --color-accent-violet-300: #c4b5fd;
+      --color-accent-violet-400: #a78bfa;
+      --color-accent-violet-500: #8b5cf6;
+      --color-accent-violet-600: #7c3aed;
+      --color-accent-cyan-300:  #67e8f9;
+      --color-accent-cyan-400:  #22d3ee;
+      --color-accent-cyan-600:  #0891b2;
+      --shadow-rivet:       inset 0 -1px 1px rgba(0,0,0,.42);
+      --shadow-ball:        0 2px 3px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.4);
+      --shadow-badge:       0 2px 3px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.3);
+      --shadow-disc:        0 2px 3px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.4);
+      --shadow-lift-sm:     0 3px 6px rgba(0,0,0,.2);
+      --shadow-lift-md:     0 5px 8px rgba(0,0,0,.25);
+      --shadow-lift-lg:     0 6px 10px -2px rgba(0,0,0,.3);
+      --shadow-frame:       0 8px 14px -4px rgba(69,26,3,.45), 0 3px 6px -2px rgba(69,26,3,.3), inset 0 2px 0 rgba(255,255,255,.55), inset 0 -2px 0 rgba(0,0,0,.18);
+      --shadow-frame-hover: 0 14px 20px -4px rgba(69,26,3,.5), 0 6px 10px -2px rgba(69,26,3,.35), inset 0 2px 0 rgba(255,255,255,.55), inset 0 -2px 0 rgba(0,0,0,.18);
+    }
+    html { font-size: 16px; }
+    body { font-family: 'Nunito', sans-serif; font-size: 14px; line-height: 1.5; color: #1e293b; background: #fff; display: flex; min-height: 100vh; }
+
+    /* ── Sidebar ─────────────────────────────────── */
+    .sidebar { width: 192px; flex-shrink: 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; background: #f8fafc; border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; }
+    .sidebar-brand { padding: 20px 16px 16px; border-bottom: 1px solid #e2e8f0; }
+    .sidebar-brand h1 { font-family: 'Gaegu', cursive; font-size: 26px; font-weight: 700; color: #0d9488; line-height: 1; }
+    .sidebar-brand span { display: block; font-size: 11px; color: #94a3b8; margin-top: 2px; }
+    .nav-label { padding: 14px 16px 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: #94a3b8; display: block; }
+    .nav-item { display: block; padding: 5px 16px; font-size: 13px; color: #475569; text-decoration: none; border-left: 2px solid transparent; transition: all 100ms; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .nav-item:hover { color: #0d9488; border-left-color: #0d9488; background: rgba(13,148,136,.05); }
+    .nav-sub { padding-left: 26px; font-size: 12px; }
+
+    /* ── Layout ──────────────────────────────────── */
+    .main { flex: 1; padding: 44px 56px 96px; max-width: 1060px; overflow-x: hidden; }
+    .page-header { margin-bottom: 52px; padding-bottom: 24px; border-bottom: 2px solid #e2e8f0; }
+    .page-title { font-family: 'Gaegu', cursive; font-size: 44px; font-weight: 700; color: #1e293b; line-height: 1; }
+    .page-title span { color: #0d9488; }
+    .page-meta { margin-top: 10px; font-size: 13px; color: #64748b; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .badge { background: #ccfbf1; color: #0d9488; padding: 2px 9px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+    .badge-amber { background: #fef3c7; color: #92400e; }
+    .badge-slate { background: #f1f5f9; color: #475569; }
+
+    /* ── Sections ────────────────────────────────── */
+    .section { margin-bottom: 72px; scroll-margin-top: 20px; }
+    .section-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 28px; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0; }
+    .section-title { font-family: 'Gaegu', cursive; font-size: 28px; font-weight: 700; color: #1e293b; line-height: 1; }
+    .section-count { font-size: 12px; color: #94a3b8; }
+    .subsection { margin-bottom: 32px; }
+    .sub-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #64748b; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    .sub-title::after { content: ''; flex: 1; height: 1px; background: #f1f5f9; }
+
+    /* ── Frame cards ─────────────────────────────── */
+    .frame-card { border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0; }
+    .frame-demo { background: #fff7e6; padding: 28px 32px; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 24px; min-height: 100px; }
+    .frame-demo--wood { background: linear-gradient(180deg, #c2700d 0%, #a05a0c 50%, #87470b 100%); }
+    .frame-demo--sky  { background: #87ceeb; }
+    .frame-demo--parchment { background: linear-gradient(180deg, #fef9ec 0%, #fef3c7 100%); }
+
+    /* ── Spec grid ───────────────────────────────── */
+    .el-spec { background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 10px 14px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .el-spec-2 { grid-template-columns: 1fr 1fr; }
+    .el-spec-full { grid-column: 1 / -1; }
+    .el-label { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #64748b; margin-bottom: 2px; }
+    .el-value { font-size: 12px; color: #334155; }
+    .el-code  { font-family: Consolas, monospace; font-size: 10.5px; color: #92400e; line-height: 1.6; }
+    .el-token { font-family: Consolas, monospace; font-size: 10px; color: #0369a1; line-height: 1.5; margin-bottom: 2px; display: block; }
+
+    /* ── State cells ─────────────────────────────── */
+    .states-row { display: flex; gap: 28px; align-items: flex-end; flex-wrap: wrap; }
+    .state-cell { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .state-name { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .05em; text-align: center; }
+    .state-name em { color: #94a3b8; font-style: normal; font-weight: 400; display: block; margin-top: 2px; font-size: 10px; }
+    .state-name-lt { color: #fde68a; }
+    .state-name-lt em { color: #fbbf24; }
+
+    /* ── Annotation dots ─────────────────────────── */
+    .ann-dot { position: absolute; width: 17px; height: 17px; border-radius: 50%; background: #0f172a; color: #fff; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; font-family: Consolas, monospace; pointer-events: none; z-index: 10; border: 1.5px solid #fff; }
+    .ann-legend { margin-top: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 5px 20px; max-width: 540px; }
+    .ann-row { display: flex; gap: 8px; align-items: flex-start; }
+    .ann-num { width: 16px; height: 16px; border-radius: 50%; background: #0f172a; color: #fff; font-size: 9px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: Consolas, monospace; margin-top: 1px; }
+    .ann-text { font-size: 12px; color: #334155; line-height: 1.4; }
+    .ann-code { font-family: Consolas, monospace; font-size: 10.5px; color: #92400e; }
+    .ann-token { font-family: Consolas, monospace; font-size: 10px; color: #0369a1; display: block; margin-bottom: 1px; }
+    .frame-demo--wood .ann-text { color: #fef9ec; }
+    .frame-demo--wood .ann-token { color: #93c5fd; }
+    .frame-demo--wood .ann-code { color: #fde68a; }
+
+    /* ── Notes ───────────────────────────────────── */
+    .notes { background: #fffbeb; border: 1px solid #fde68a; border-left: 3px solid #f59e0b; border-radius: 6px; padding: 14px 16px; margin-top: 20px; }
+    .notes h4 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #92400e; margin-bottom: 8px; }
+    .notes ul { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+    .notes li { font-size: 12px; color: #78350f; padding-left: 14px; position: relative; }
+    .notes li::before { content: '→'; position: absolute; left: 0; color: #f59e0b; }
+    .notes code { background: rgba(245,158,11,.15); padding: 1px 5px; border-radius: 3px; font-family: Consolas, monospace; font-size: 11px; }
+
+    /* ── Token table ─────────────────────────────── */
+    .token-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .token-table th { text-align: left; padding: 6px 10px; font-size: 10.5px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; font-family: 'Nunito', sans-serif; border-bottom: 2px solid #e2e8f0; }
+    .token-table td { padding: 7px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+    .token-table td:first-child { font-family: 'Nunito', sans-serif; color: #334155; font-weight: 600; }
+    .token-table td:not(:first-child) { font-family: Consolas, monospace; font-size: 11px; color: #92400e; }
+    .swatch-pair { display: flex; gap: 4px; }
+    .swatch { display: inline-block; width: 18px; height: 18px; border-radius: 3px; border: 1px solid rgba(0,0,0,.12); vertical-align: middle; }
+
+    /* ════════════════════════════════════════════
+       PATTERN COMPONENTS
+       ════════════════════════════════════════════ */
+
+    /* ── Item Row (Compound) ─────────────────────── */
+    .item-row {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 8px 7px; border-radius: 28px; position: relative;
+      background: linear-gradient(180deg, #b45309 0%, #92400e 40%, #7c2d12 100%);
+      border: 3px solid #451a03;
+      box-shadow: 0 4px 8px rgba(0,0,0,.35), inset 0 2px 0 rgba(255,255,255,.18), inset 0 -2px 0 rgba(0,0,0,.3);
+    }
+    .ir-rivet { position: absolute; width: 7px; height: 7px; border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #fde68a, #1c1917); pointer-events: none; }
+    .ir-qty {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 12px; border-radius: 9999px;
+      background: #fef08a;
+      border: 2px solid #451a03; color: #7c2d12;
+      font-family: 'Gaegu', cursive; font-size: 16px; font-weight: 700;
+      box-shadow: 0 2px 4px rgba(0,0,0,.2);
+      transform: rotate(-3deg);
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .ir-sell {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 12px; border-radius: 9999px;
+      background: linear-gradient(180deg, #fef3c7 0%, #fde68a 100%);
+      border: 2px solid #92400e; color: #7c2d12; cursor: pointer;
+      font-family: 'Gaegu', cursive; font-size: 14px; font-weight: 700;
+      box-shadow: 0 3px 5px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.5);
+      transition: transform 140ms cubic-bezier(.34,1.56,.64,1), box-shadow 140ms ease, filter 140ms ease;
+      white-space: nowrap;
+    }
+    .ir-sell:hover { transform: translateY(-1px); filter: brightness(1.04); box-shadow: 0 5px 7px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.55); }
+    .ir-sell:active { transform: translateY(0); filter: brightness(.97); }
+    .ir-add {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 6px 16px; border-radius: 9999px;
+      background: linear-gradient(180deg, #ec4899 0%, #be185d 100%);
+      border: none; color: #fff; cursor: pointer;
+      font-family: 'Gaegu', cursive; font-size: 16px; font-weight: 700;
+      text-shadow: 0 1px 0 rgba(0,0,0,.2);
+      box-shadow: 0 4px 6px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.4);
+      transition: transform 140ms cubic-bezier(.34,1.56,.64,1), box-shadow 140ms ease, filter 140ms ease;
+    }
+    .ir-add:hover { transform: translateY(-1px); filter: brightness(1.06); box-shadow: 0 6px 10px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.45); }
+    .ir-add:active { transform: translateY(0); filter: brightness(.97); }
+    .ir-add:disabled { opacity: .55; filter: grayscale(.3); cursor: not-allowed; pointer-events: none; }
+
+    /* ── Category Tab (Awning) ───────────────────── */
+    .cat-tab { display: flex; flex-direction: column; align-items: center; width: 140px;
+      cursor: pointer; border: none; background: transparent; padding: 0; font-family: 'Gaegu', cursive; position: relative;
+      margin-top: -8px; transition: margin-top 220ms cubic-bezier(.34,1.56,.64,1); }
+    .cat-awning { width: 88%; height: 44px; border-left: 3px solid #92400e; border-right: 3px solid #92400e;
+      box-shadow: inset 0 4px 0 rgba(255,255,255,.4); transition: height 220ms ease, box-shadow 200ms ease; }
+    .cat-label { margin-top: 8px; border: 2px solid #92400e; border-radius: 12px; padding: 5px 10px;
+      font-size: 15px; font-weight: 700; color: #7c2d12; display: flex; align-items: center; gap: 6px;
+      white-space: nowrap; box-shadow: var(--shadow-lift-sm);
+      transition: transform 200ms cubic-bezier(.34,1.56,.64,1), box-shadow 200ms ease, background 160ms ease; }
+    .cat-tab.is-active { margin-top: 0; }
+    .cat-tab.is-active .cat-awning { height: 60px !important; }
+    .cat-tab.is-active .cat-label { background: #fff !important; transform: translateY(-2px) scale(1.04); box-shadow: var(--shadow-lift-lg); }
+    .cat-tab.is-hover { margin-top: -3px; }
+    .cat-tab.is-hover .cat-awning { height: 52px !important; box-shadow: inset 0 4px 0 rgba(255,255,255,.55), 0 4px 8px -2px rgba(0,0,0,.18); }
+    .cat-tab.is-hover .cat-label { transform: translateY(-2px) scale(1.02); box-shadow: var(--shadow-lift-md); }
+
+    /* ── Action Board ────────────────────────────── */
+    .ab-rod { height: 14px; width: 100%; position: relative;
+      background: linear-gradient(180deg, #b45309 0%, #92400e 50%, #78350f 100%);
+      border-top: 2.5px solid #451a03; border-bottom: 2.5px solid #451a03;
+      box-shadow: inset 0 2px 0 rgba(255,255,255,.18), inset 0 -2px 0 rgba(0,0,0,.35), 0 4px 6px -2px rgba(0,0,0,.25); }
+    .ab-ball { position: absolute; top: 50%; transform: translateY(-50%);
+      width: 13px; height: 13px; border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #fde68a, #b45309);
+      border: 1.5px solid #451a03; box-shadow: var(--shadow-ball); }
+    .ab-wrap { display: flex; flex-direction: column; align-items: center; position: relative; }
+    .ab-stud { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); z-index: 10;
+      width: 13px; height: 13px; border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #fde68a, #b45309);
+      border: 1.5px solid #451a03; box-shadow: var(--shadow-ball); pointer-events: none; }
+    .ab-connector { width: 13px; height: 13px; border-radius: 50%; flex-shrink: 0;
+      background: radial-gradient(circle at 35% 30%, #fde68a, #b45309);
+      border: 1.5px solid #451a03; box-shadow: var(--shadow-ball); }
+    .ab-frame { position: relative; width: 158px;
+      background: linear-gradient(180deg, #fef9e8 0%, #f5e9c4 100%);
+      border: 3px solid #7c3a10; border-radius: 10px; overflow: hidden; cursor: pointer;
+      box-shadow: var(--shadow-frame);
+      transition: transform 140ms cubic-bezier(.34,1.56,.64,1), box-shadow 160ms ease; }
+    .ab-frame:hover { transform: translateY(-3px) scale(1.02); box-shadow: var(--shadow-frame-hover); }
+    .ab-frame:active { transform: translateY(0) scale(1); }
+    .ab-awning { height: 16px; border-bottom: 2px solid #7c3a10;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.4), inset 0 -1px 0 rgba(0,0,0,.18); }
+    .ab-grain { position: absolute; inset: 22px 5px 5px; border-radius: 3px; pointer-events: none;
+      background: repeating-linear-gradient(180deg, transparent 0 7px, rgba(120,53,15,.05) 7px 8px); }
+    .ab-rivet { position: absolute; width: 7px; height: 7px; border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #fde68a, #451a03);
+      box-shadow: var(--shadow-rivet); pointer-events: none; }
+    .ab-body { display: flex; align-items: center; gap: 10px; padding: 10px 10px 13px; position: relative; }
+    .ab-disc { width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 26px; line-height: 1;
+      box-shadow: 0 2px 5px rgba(0,0,0,.18), inset 0 2px 3px rgba(255,255,255,.28); }
+    .ab-label { font-family: 'Gaegu', cursive; font-size: 15px; font-weight: 700; color: #451a03; line-height: 1.25; flex: 1; }
+  </style>
+</head>
+<body>
+
+<!-- ══ SIDEBAR ══════════════════════════════════════════ -->
+<nav class="sidebar">
+  <div class="sidebar-brand">
+    <h1>GPS2</h1>
+    <span>Patterns</span>
+  </div>
+  <span class="nav-label">Patterns</span>
+  <a class="nav-item" href="#item-row">Item Row</a>
+  <a class="nav-item" href="#cat-tab">Category Tab</a>
+  <a class="nav-item" href="#action-board">Action Board</a>
+  <a class="nav-item" href="#notice-board">Notice Board</a>
+  <span class="nav-label">Reference</span>
+  <a class="nav-item" href="#notes">Behavior Notes</a>
+  <span class="nav-label" style="margin-top:auto;">See Also</span>
+  <a class="nav-item" href="GPS2 Buttons.html">← Buttons</a>
+  <a class="nav-item" href="../GPS2 Design Elements.html">Design Elements</a>
+</nav>
+
+<!-- ══ MAIN ═════════════════════════════════════════════ -->
+<main class="main">
+
+  <header class="page-header">
+    <h1 class="page-title">GPS2 <span>Patterns</span></h1>
+    <div class="page-meta">
+      <span>Compound UI patterns · assembled from tokens + components</span>
+      <span class="badge">Visual Language</span>
+      <span class="badge badge-amber">3 patterns</span>
+    </div>
+  </header>
+
+  <!-- ════════════════════════════════════════════
+       §1 — ITEM ROW
+  ═════════════════════════════════════════════ -->
+  <section class="section" id="item-row">
+    <div class="section-header">
+      <h2 class="section-title">Item Row</h2>
+      <span class="section-count">Compound · wooden tray · qty + sell + add</span>
+    </div>
+
+    <div class="subsection">
+      <div class="sub-title">Anatomy</div>
+      <div class="frame-card">
+        <div class="frame-demo frame-demo--wood" style="flex-direction:column; gap:20px; align-items:center;">
+          <div style="position:relative; display:inline-flex;">
+            <div class="item-row">
+              <span class="ir-rivet" style="top:4px;left:6px;"></span><span class="ir-rivet" style="top:4px;right:6px;"></span>
+              <span class="ir-rivet" style="bottom:4px;left:6px;"></span><span class="ir-rivet" style="bottom:4px;right:6px;"></span>
+              <div class="ir-qty">🪙 4</div>
+              <button class="ir-sell">Sell <span style="font-size:12px;opacity:.85;">🪙</span>2</button>
+              <button class="ir-add">Add</button>
+            </div>
+            <span class="ann-dot" style="top:-9px;left:10px;">1</span>
+            <span class="ann-dot" style="top:-9px;left:58px;">2</span>
+            <span class="ann-dot" style="top:-9px;right:54px;">3</span>
+            <span class="ann-dot" style="top:-9px;right:-9px;">4</span>
+          </div>
+          <div class="ann-legend" style="max-width:500px;">
+            <div class="ann-row"><span class="ann-num">1</span><span class="ann-text">Wooden tray — <span class="ann-token">(no exact tokens) · --radius-full (inner pills)</span><span class="ann-code">#b45309→#7c2d12 · 3px solid #451a03 · br:28px</span></span></div>
+            <div class="ann-row"><span class="ann-num">2</span><span class="ann-text">Price tag — <span class="ann-token">(custom — no token for #fef08a) · --radius-full</span><span class="ann-code">flat yellow · rotate(−3deg) · 🪙 inline · pad:4px 12px · Gaegu 16px</span> · read-only</span></div>
+            <div class="ann-row"><span class="ann-num">3</span><span class="ann-text">Sell pill — <span class="ann-token">--color-warning-100 → --color-warning-200 · --radius-full</span><span class="ann-code">#fef3c7→#fde68a · pad:4px 12px · Gaegu 14px</span> · hidden when qty=0</span></div>
+            <div class="ann-row"><span class="ann-num">4</span><span class="ann-text">Add pill — <span class="ann-token">--color-accent-pink-500 → --color-primary-dark · --radius-full</span><span class="ann-code">#ec4899→#be185d · pad:6px 16px · Gaegu 16px</span> · disabled at inventory cap</span></div>
+          </div>
+        </div>
+        <div class="el-spec">
+          <div><div class="el-label">Tray bg</div><div class="el-token">(no exact tokens — game-specific brown gradient)</div><div class="el-code">#b45309→#7c2d12</div></div>
+          <div><div class="el-label">Tray border</div><div class="el-token">(no token — game-specific darkest brown)</div><div class="el-code">3px solid #451a03</div></div>
+          <div><div class="el-label">Tray br · padding</div><div class="el-token">(custom — no token for 28px) · --space-2 gap</div><div class="el-code">28px · 5px 8px 7px · gap:6px</div></div>
+          <div><div class="el-label">Price pill bg</div><div class="el-token">(custom — no token for #fef08a)</div><div class="el-code">#fef08a · flat · rotate(−3deg)</div></div>
+          <div><div class="el-label">Price pill border</div><div class="el-token">(no token — darkest brown)</div><div class="el-code">2px solid #451a03 · br:9999px · pad:4px 12px</div></div>
+          <div><div class="el-label">Price pill font</div><div class="el-token">--font-family-heading · --font-weight-bold</div><div class="el-code">Gaegu 700 · 16px · inline 🪙 coin</div></div>
+          <div><div class="el-label">Sell bg</div><div class="el-token">--color-warning-100 → --color-warning-200</div><div class="el-code">#fef3c7 → #fde68a · pad:4px 12px · 14px Gaegu</div></div>
+          <div><div class="el-label">Add pill bg</div><div class="el-token">--color-accent-pink-500 → --color-primary-dark</div><div class="el-code">#ec4899 → #be185d · pad:6px 16px · 16px Gaegu</div></div>
+          <div><div class="el-label">Tray rivets</div><div class="el-token">(custom — no token)</div><div class="el-code">7×7px at 4 corners</div></div>
+          <div><div class="el-label">Sell box-shadow</div><div class="el-token">(custom — no direct token)</div><div class="el-code">0 3px 5px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.5)</div></div>
+          <div><div class="el-label">Add box-shadow</div><div class="el-token">(custom — no direct token)</div><div class="el-code">0 4px 6px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.4)</div></div>
+          <div class="el-spec-full"><div class="el-label">Tray box-shadow</div><div class="el-token">(custom — no direct token)</div><div class="el-code">0 4px 8px rgba(0,0,0,.35), inset 0 2px 0 rgba(255,255,255,.18), inset 0 -2px 0 rgba(0,0,0,.3)</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="sub-title">Variants</div>
+      <div class="frame-card">
+        <div class="frame-demo frame-demo--wood" style="gap:20px; flex-wrap:wrap; justify-content:center;">
+          <div class="state-cell">
+            <div class="item-row">
+              <span class="ir-rivet" style="top:4px;left:6px;"></span><span class="ir-rivet" style="top:4px;right:6px;"></span>
+              <span class="ir-rivet" style="bottom:4px;left:6px;"></span><span class="ir-rivet" style="bottom:4px;right:6px;"></span>
+              <div class="ir-qty">🪙 4</div>
+              <button class="ir-sell">Sell <span style="font-size:12px;opacity:.85;">🪙</span>2</button>
+              <button class="ir-add">Add</button>
+            </div>
+            <div class="state-name state-name-lt">qty + sell + add</div>
+          </div>
+          <div class="state-cell">
+            <div class="item-row">
+              <span class="ir-rivet" style="top:4px;left:6px;"></span><span class="ir-rivet" style="top:4px;right:6px;"></span>
+              <span class="ir-rivet" style="bottom:4px;left:6px;"></span><span class="ir-rivet" style="bottom:4px;right:6px;"></span>
+              <div class="ir-qty">🪙 3</div>
+              <button class="ir-add">Add</button>
+            </div>
+            <div class="state-name state-name-lt">qty=0 · sell hidden</div>
+          </div>
+          <div class="state-cell">
+            <div class="item-row">
+              <span class="ir-rivet" style="top:4px;left:6px;"></span><span class="ir-rivet" style="top:4px;right:6px;"></span>
+              <span class="ir-rivet" style="bottom:4px;left:6px;"></span><span class="ir-rivet" style="bottom:4px;right:6px;"></span>
+              <div class="ir-qty">🪙 12</div>
+              <button class="ir-sell">Sell <span style="font-size:12px;opacity:.85;">🪙</span>6</button>
+              <button class="ir-add" disabled="">Add</button>
+            </div>
+            <div class="state-name state-name-lt">Add disabled<em>inventory full</em></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════
+       §2 — CATEGORY TAB
+  ═════════════════════════════════════════════ -->
+  <section class="section" id="cat-tab">
+    <div class="section-header">
+      <h2 class="section-title">Category Tab</h2>
+      <span class="section-count">Store awning · 5 departments · animated height</span>
+    </div>
+
+    <div class="subsection">
+      <div class="sub-title">All departments — default · hover · active</div>
+      <div class="frame-card">
+        <div class="frame-demo frame-demo--sky" style="flex-direction:column; padding:0; gap:0; overflow:hidden;">
+          <!-- Wooden Beam -->
+          <div style="position:relative; z-index:2; width:100%; height:32px; background:linear-gradient(180deg,#b45309 0%,#92400e 50%,#78350f 100%); border-top:3px solid #451a03; border-bottom:3px solid #451a03; box-shadow:inset 0 2px 0 rgba(255,255,255,.18),inset 0 -2px 0 rgba(0,0,0,.35),0 6px 8px -3px rgba(0,0,0,.35);">
+            <div aria-hidden="true" style="position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 80px,rgba(0,0,0,.18) 80px 82px,transparent 82px 160px);pointer-events:none;"></div>
+            <div aria-hidden="true" style="position:absolute;top:50%;transform:translateY(-50%);left:14px;width:8px;height:8px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fde68a,#1c1917);"></div>
+            <div aria-hidden="true" style="position:absolute;top:50%;transform:translateY(-50%);right:14px;width:8px;height:8px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fde68a,#1c1917);"></div>
+          </div>
+          <!-- tabs -->
+          <div style="display:flex; justify-content:center; gap:0; padding:0 16px 24px; background:#87ceeb;">
+            <button class="cat-tab is-active">
+              <div class="cat-awning" style="background:repeating-linear-gradient(90deg,var(--color-warning-300) 0 18px,#fff 18px 36px);"></div>
+              <svg width="140" height="16" viewBox="0 0 140 18" style="display:block;margin-top:-1px;"><path d="M 2 0 Q 14 20 26 0 Q 38 20 50 0 Q 62 20 74 0 Q 86 20 98 0 Q 110 20 122 0 Q 134 20 138 0 L 138 -2 L 2 -2 Z" style="fill:var(--color-warning-300)" stroke="#92400e" stroke-width="2.5"></path></svg>
+              <div class="cat-label" style="background:#fff; border-color:#92400e; transform:translateY(-2px) scale(1.04); box-shadow:0 6px 10px -2px rgba(0,0,0,.3);">⭐ Today's Picks</div>
+            </button>
+            <button class="cat-tab is-hover">
+              <div class="cat-awning" style="background:repeating-linear-gradient(90deg,var(--color-lime) 0 18px,#fff 18px 36px);"></div>
+              <svg width="140" height="16" viewBox="0 0 140 18" style="display:block;margin-top:-1px;"><path d="M 2 0 Q 14 20 26 0 Q 38 20 50 0 Q 62 20 74 0 Q 86 20 98 0 Q 110 20 122 0 Q 134 20 138 0 L 138 -2 L 2 -2 Z" style="fill:var(--color-lime)" stroke="#92400e" stroke-width="2.5"></path></svg>
+              <div class="cat-label" style="background:#ecfccb; border-color:#92400e; transform:translateY(-2px) scale(1.02);">🌾 Hay Loft</div>
+            </button>
+            <button class="cat-tab">
+              <div class="cat-awning" style="background:repeating-linear-gradient(90deg,var(--color-accent-pink-500) 0 18px,#fff 18px 36px);"></div>
+              <svg width="140" height="16" viewBox="0 0 140 18" style="display:block;margin-top:-1px;"><path d="M 2 0 Q 14 20 26 0 Q 38 20 50 0 Q 62 20 74 0 Q 86 20 98 0 Q 110 20 122 0 Q 134 20 138 0 L 138 -2 L 2 -2 Z" style="fill:var(--color-accent-pink-500)" stroke="#92400e" stroke-width="2.5"></path></svg>
+              <div class="cat-label" style="background:var(--color-accent-pink-100); border-color:#92400e;">🥗 Grocery</div>
+            </button>
+            <button class="cat-tab">
+              <div class="cat-awning" style="background:repeating-linear-gradient(90deg,var(--color-accent-violet-500) 0 18px,#fff 18px 36px);"></div>
+              <svg width="140" height="16" viewBox="0 0 140 18" style="display:block;margin-top:-1px;"><path d="M 2 0 Q 14 20 26 0 Q 38 20 50 0 Q 62 20 74 0 Q 86 20 98 0 Q 110 20 122 0 Q 134 20 138 0 L 138 -2 L 2 -2 Z" style="fill:var(--color-accent-violet-500)" stroke="#92400e" stroke-width="2.5"></path></svg>
+              <div class="cat-label" style="background:var(--color-accent-violet-100); border-color:#92400e;">🛏️ Bedding</div>
+            </button>
+            <button class="cat-tab">
+              <div class="cat-awning" style="background:repeating-linear-gradient(90deg,var(--color-need-hygiene) 0 18px,#fff 18px 36px);"></div>
+              <svg width="140" height="16" viewBox="0 0 140 18" style="display:block;margin-top:-1px;"><path d="M 2 0 Q 14 20 26 0 Q 38 20 50 0 Q 62 20 74 0 Q 86 20 98 0 Q 110 20 122 0 Q 134 20 138 0 L 138 -2 L 2 -2 Z" style="fill:var(--color-need-hygiene)" stroke="#92400e" stroke-width="2.5"></path></svg>
+              <div class="cat-label" style="background:#e0f2fe; border-color:#92400e;">🏠 Habitat</div>
+            </button>
+          </div>
+        </div>
+        <div class="el-spec">
+          <div><div class="el-label">Tab width</div><div class="el-token">(custom — fixed)</div><div class="el-code">140px (fixed)</div></div>
+          <div><div class="el-label">Awning height</div><div class="el-token">(custom — no token)</div><div class="el-code">default:44px · hover:52px · active:60px</div></div>
+          <div><div class="el-label">Stripe repeat</div><div class="el-token">(custom — no token)</div><div class="el-code">18px stripe · 36px total</div></div>
+          <div><div class="el-label">Label border</div><div class="el-token">(no exact token) · --radius-xl</div><div class="el-code">2px solid #92400e · br:12px</div></div>
+          <div><div class="el-label">Label font</div><div class="el-token">--font-family-heading · --font-weight-bold · --color-warning-800</div><div class="el-value">Gaegu 700 · 15px · #7c2d12</div></div>
+          <div><div class="el-label">Active label bg</div><div class="el-token">--color-text-inverse</div><div class="el-code">#fff (others: tint c2)</div></div>
+          <div class="el-spec-full"><div class="el-label">Animation</div><div class="el-token">(custom easing — no token)</div><div class="el-code">margin-top: 0 (active) / −3px (hover) / −8px (default) · transition: 220ms cubic-bezier(.34,1.56,.64,1)</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="sub-title">Department color tokens</div>
+      <div class="frame-card">
+        <div style="padding:14px;">
+          <table class="token-table">
+            <thead><tr><th>Department</th><th>Stripe (c1)</th><th>c1 Token</th><th>Label bg (c2)</th><th>c2 Token</th><th>Swatches</th></tr></thead>
+            <tbody>
+              <tr><td>Today's Picks</td><td>#fbbf24</td><td>--color-warning-300</td><td>#fef3c7</td><td>--color-warning-100</td><td><div class="swatch-pair"><span class="swatch" style="background:#fbbf24;"></span><span class="swatch" style="background:#fef3c7;"></span></div></td></tr>
+              <tr><td>Hay Loft</td><td>#84cc16</td><td>--color-lime</td><td>#ecfccb</td><td>(no GPS2 token)</td><td><div class="swatch-pair"><span class="swatch" style="background:#84cc16;"></span><span class="swatch" style="background:#ecfccb;"></span></div></td></tr>
+              <tr><td>Grocery</td><td>#ec4899</td><td>--color-accent-pink-500</td><td>#fce7f3</td><td>--color-accent-pink-100</td><td><div class="swatch-pair"><span class="swatch" style="background:#ec4899;"></span><span class="swatch" style="background:#fce7f3;"></span></div></td></tr>
+              <tr><td>Bedding</td><td>#8b5cf6</td><td>--color-accent-violet-500</td><td>#ede9fe</td><td>--color-accent-violet-100</td><td><div class="swatch-pair"><span class="swatch" style="background:#8b5cf6;"></span><span class="swatch" style="background:#ede9fe;"></span></div></td></tr>
+              <tr><td>Habitat</td><td>#0ea5e9</td><td>--color-need-hygiene</td><td>#e0f2fe</td><td>(no GPS2 token)</td><td><div class="swatch-pair"><span class="swatch" style="background:#0ea5e9;"></span><span class="swatch" style="background:#e0f2fe;"></span></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════
+       §3 — ACTION BOARD
+  ═════════════════════════════════════════════ -->
+  <section class="section" id="action-board">
+    <div class="section-header">
+      <h2 class="section-title">Action Board</h2>
+      <span class="section-count">Wooden sign · hangs from rod · NeedsPanel interactions</span>
+    </div>
+
+    <div class="frame-card">
+      <div class="frame-demo frame-demo--sky" style="flex-direction:column; padding:0; gap:0; overflow:hidden;">
+        <div class="ab-rod"></div>
+        <div style="display:flex; gap:12px; justify-content:center; padding:4px 16px 32px; background:#87ceeb;">
+          <div class="ab-wrap">
+            <span class="ab-stud" aria-hidden="true"></span>
+            <div class="ab-frame" style="transform:rotate(-1.5deg)">
+              <div class="ab-awning" style="background:repeating-linear-gradient(90deg,#ec4899 0 12px,#fffbeb 12px 24px);"></div>
+              <div class="ab-grain"></div>
+              <div class="ab-body">
+                <div class="ab-disc" style="background:radial-gradient(circle at 38% 32%,var(--color-accent-pink-400) 0%,var(--color-accent-pink-500) 55%,var(--color-accent-pink-700) 100%);">🍎</div>
+                <div class="ab-label">Give<br>Food</div>
+              </div>
+            </div>
+          </div>
+          <div class="ab-wrap">
+            <span class="ab-stud" aria-hidden="true"></span>
+            <div class="ab-frame" style="transform:rotate(1deg)">
+              <div class="ab-awning" style="background:repeating-linear-gradient(90deg,var(--color-lime) 0 12px,#fffbeb 12px 24px);"></div>
+              <div class="ab-grain"></div>
+              <div class="ab-body">
+                <div class="ab-disc" style="background:radial-gradient(circle at 38% 32%,#a3e635 0%,var(--color-lime) 55%,#65a30d 100%);">  🎾</div>
+                <div class="ab-label">Help<br>Play</div>
+              </div>
+            </div>
+          </div>
+          <div class="ab-wrap">
+            <span class="ab-stud" aria-hidden="true"></span>
+            <div class="ab-frame" style="transform:rotate(-0.8deg)">
+              <div class="ab-awning" style="background:repeating-linear-gradient(90deg,#a78bfa 0 12px,#fffbeb 12px 24px);"></div>
+              <div class="ab-grain"></div>
+              <div class="ab-body">
+                <div class="ab-disc" style="background:radial-gradient(circle at 38% 32%,var(--color-accent-violet-300) 0%,var(--color-accent-violet-400) 55%,var(--color-accent-violet-600) 100%);">💜</div>
+                <div class="ab-label">Give<br>Care</div>
+              </div>
+            </div>
+          </div>
+          <div class="ab-wrap">
+            <span class="ab-stud" aria-hidden="true"></span>
+            <div class="ab-frame" style="transform:rotate(1.2deg)">
+              <div class="ab-awning" style="background:repeating-linear-gradient(90deg,#fb923c 0 12px,#fffbeb 12px 24px);"></div>
+              <div class="ab-grain"></div>
+              <div class="ab-body">
+                <div class="ab-disc" style="background:radial-gradient(circle at 38% 32%,#fdba74 0%,#fb923c 55%,var(--color-warning-500) 100%);">😊</div>
+                <div class="ab-label">Socialize</div>
+              </div>
+            </div>
+          </div>
+          <div class="ab-wrap">
+            <span class="ab-stud" aria-hidden="true"></span>
+            <div class="ab-frame" style="transform:rotate(-1deg)">
+              <div class="ab-awning" style="background:repeating-linear-gradient(90deg,#22d3ee 0 12px,#fffbeb 12px 24px);"></div>
+              <div class="ab-grain"></div>
+              <div class="ab-body">
+                <div class="ab-disc" style="background:radial-gradient(circle at 38% 32%,var(--color-accent-cyan-300) 0%,var(--color-accent-cyan-400) 55%,var(--color-accent-cyan-600) 100%);">💙</div>
+                <div class="ab-label">Encourage</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="el-spec">
+        <div><div class="el-label">Frame width</div><div class="el-token">(custom — no token)</div><div class="el-code">158px</div></div>
+        <div><div class="el-label">Frame bg</div><div class="el-token">≈ --color-warning-50 (slightly darker custom)</div><div class="el-code">#fef9e8 → #f5e9c4</div></div>
+        <div><div class="el-label">Frame border</div><div class="el-token">≈ --color-warning-800 · ≈ --radius-xl</div><div class="el-code">3px solid #7c3a10 · br:10px</div></div>
+        <div><div class="el-label">Awning height</div><div class="el-token">(custom — no token)</div><div class="el-code">16px · stripe:12px / repeat:24px</div></div>
+        <div><div class="el-label">Grain overlay</div><div class="el-token">(custom — no token)</div><div class="el-code">repeating-linear-gradient · step:8px · rgba(120,53,15,.05)</div></div>
+        <div><div class="el-label">Rivets</div><div class="el-token">(custom — no token)</div><div class="el-code">7×7px at 4 corners</div></div>
+        <div><div class="el-label">Icon disc</div><div class="el-token">Icon Sticker large · (custom — category color)</div><div class="el-code">44×44px · br:50% · radial-gradient(38% 32%) · shadow only · font-size:26px</div></div>
+        <div><div class="el-label">Label font</div><div class="el-token">--font-family-heading · --font-weight-bold · (no token for 15px or #451a03)</div><div class="el-value">Gaegu 700 · 15px · #451a03 · lh:1.25</div></div>
+        <div><div class="el-label">Connector ball</div><div class="el-token">(custom — no token)</div><div class="el-code">13×13px · br:50% · brass gradient</div></div>
+        <div><div class="el-label">Body padding</div><div class="el-token">≈ --space-2 / --space-3</div><div class="el-code">10px 10px 13px · gap:10px</div></div>
+        <div><div class="el-label">Hover transform</div><div class="el-token">(custom — no token)</div><div class="el-code">translateY(−3px) scale(1.02)</div></div>
+        <div class="el-spec-full"><div class="el-label">Box-shadow</div><div class="el-token">≈ --shadow-lg (custom alpha + inset)</div><div class="el-code">0 8px 14px -4px rgba(69,26,3,.45), 0 3px 6px -2px rgba(69,26,3,.3), inset 0 2px 0 rgba(255,255,255,.55), inset 0 -2px 0 rgba(0,0,0,.18)</div></div>
+      </div>
+    </div>
+
+    <div class="subsection" style="margin-top:20px;">
+      <div class="sub-title">Action awning color tokens</div>
+      <div class="frame-card">
+        <div style="padding:14px;">
+          <table class="token-table">
+            <thead><tr><th>Action</th><th>Awning stripe</th><th>Stripe token</th><th>Disc top stop</th><th>Disc token</th></tr></thead>
+            <tbody>
+              <tr><td>Give Food</td><td>#ec4899</td><td>--color-accent-pink-500</td><td>#fecdd3</td><td>≈ --color-accent-pink-200</td></tr>
+              <tr><td>Help Play</td><td>#84cc16</td><td>--color-lime</td><td>#d9f99d</td><td>(no GPS2 token)</td></tr>
+              <tr><td>Give Care</td><td>#a78bfa</td><td>--color-accent-violet-400</td><td>#ede9fe</td><td>--color-accent-violet-100</td></tr>
+              <tr><td>Socialize</td><td>#fb923c</td><td>≈ --color-need-stimulation</td><td>#fed7aa</td><td>(no GPS2 token)</td></tr>
+              <tr><td>Encourage</td><td>#22d3ee</td><td>--color-accent-cyan-400</td><td>#cffafe</td><td>--color-accent-cyan-100</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════
+       §4 — NOTICE BOARD
+  ═════════════════════════════════════════════ -->
+  <section class="section" id="notice-board">
+    <div class="section-header">
+      <h2 class="section-title">Notice Board</h2>
+      <span class="section-count">Assembled panel · parchment + awning stripe + brass studs · layer stack</span>
+    </div>
+
+    <div class="subsection">
+      <div class="sub-title">Assembled Panel — all layers together</div>
+      <div style="display:flex;gap:32px;align-items:flex-start;">
+        <div style="flex-shrink:0;">
+          <div style="position:relative;width:300px;background:linear-gradient(180deg,#fffbeb 0%,#fef3c7 100%);border:4px solid #92400e;border-radius:14px;padding:0;box-shadow:rgba(69,26,3,.55) 0 22px 30px -8px,rgba(69,26,3,.4) 0 10px 14px -4px,rgba(255,255,255,.55) 0 2px 0 inset,rgba(0,0,0,.18) 0 -2px 0 inset;overflow:hidden;color:#451a03;">
+            <!-- Awning stripe -->
+            <div style="height:14px;background:repeating-linear-gradient(90deg,#fbbf24 0 14px,#fffbeb 14px 28px);border-bottom:2px solid #92400e;box-shadow:rgba(255,255,255,.4) 0 1px 0 inset,rgba(0,0,0,.18) 0 -1px 0 inset;"></div>
+            <!-- Brass studs -->
+            <span aria-hidden="true" style="position:absolute;top:5px;left:5px;width:7px;height:7px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fde68a,#451a03);box-shadow:rgba(0,0,0,.4) 0 -1px 1px inset;pointer-events:none;z-index:3;"></span>
+            <span aria-hidden="true" style="position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fde68a,#451a03);box-shadow:rgba(0,0,0,.4) 0 -1px 1px inset;pointer-events:none;z-index:3;"></span>
+            <span aria-hidden="true" style="position:absolute;bottom:5px;left:5px;width:7px;height:7px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fde68a,#451a03);box-shadow:rgba(0,0,0,.4) 0 -1px 1px inset;pointer-events:none;z-index:3;"></span>
+            <span aria-hidden="true" style="position:absolute;bottom:5px;right:5px;width:7px;height:7px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fde68a,#451a03);box-shadow:rgba(0,0,0,.4) 0 -1px 1px inset;pointer-events:none;z-index:3;"></span>
+            <!-- Paper grain overlay -->
+            <div aria-hidden="true" style="position:absolute;inset:20px 6px 6px;background-image:repeating-linear-gradient(transparent 0 7px,rgba(120,53,15,.05) 7px 8px);pointer-events:none;border-radius:4px;"></div>
+            <!-- Content -->
+            <div style="position:relative;padding:14px;">
+              <div style="font-family:'Gaegu',cursive;font-size:24px;font-weight:700;color:#7c2d12;border-bottom:2px solid #d97706;padding-bottom:6px;margin-bottom:10px;padding-left:4px;">📓 Activity</div>
+              <div style="display:flex;flex-direction:column;gap:6px;">
+                <div style="display:flex;flex-direction:column;gap:2px;padding:8px 12px;background:#fff7e6;border:1.5px solid #fcd5a5;border-inline-start:4px solid #92400e;border-radius:8px;">
+                  <div style="font-size:11px;color:#92400e;font-weight:600;letter-spacing:.04em;">23:33:43</div>
+                  <div style="font-size:14px;color:#451a03;display:flex;gap:6px;align-items:flex-start;">
+                    <span style="font-size:16px;line-height:1.2;">🏠</span>
+                    <span>Welcomed Biscuit &amp; Peanut home!</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:9px;">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin-bottom:2px;">Layer Stack — bottom → top</div>
+          <div style="display:flex;gap:10px;align-items:flex-start;"><div style="width:28px;height:16px;border-radius:3px;background:linear-gradient(180deg,#fffbeb 0%,#fef3c7 100%);border:1px solid #fde68a;flex-shrink:0;margin-top:2px;"></div><div style="font-size:12px;color:#334155;"><strong>1. Parchment fill</strong> — <code style="font-family:Consolas,monospace;font-size:10px;color:#92400e;">linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%)</code></div></div>
+          <div style="display:flex;gap:10px;align-items:flex-start;"><div style="width:28px;height:16px;border-radius:3px;background:#fef3c7;background-image:repeating-linear-gradient(180deg,transparent 0 5px,rgba(120,53,15,.1) 5px 6px);border:1px solid #fde68a;flex-shrink:0;margin-top:2px;"></div><div style="font-size:12px;color:#334155;"><strong>2. Paper grain overlay</strong> — <code style="font-family:Consolas,monospace;font-size:10px;color:#92400e;">repeating-linear-gradient(180deg, transparent 0 7px, rgba(120,53,15,.05) 7px 8px)</code> — absolute, below awning stripe, aria-hidden</div></div>
+          <div style="display:flex;gap:10px;align-items:flex-start;"><div style="width:28px;height:10px;background:repeating-linear-gradient(90deg,#ec4899 0 7px,#fffbeb 7px 14px);border:1px solid #92400e;flex-shrink:0;margin-top:4px;"></div><div style="font-size:12px;color:#334155;"><strong>3. Awning stripe header</strong> — <code style="font-family:Consolas,monospace;font-size:10px;color:#92400e;">repeating-linear-gradient(90deg, {accent} 0 14px, #fffbeb 14px 28px)</code> — height 10–18px depending on context</div></div>
+          <div style="display:flex;gap:10px;align-items:flex-start;"><div style="width:10px;height:10px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fde68a,#1c1917);flex-shrink:0;margin-top:3px;margin-left:9px;"></div><div style="font-size:12px;color:#334155;"><strong>4. Brass studs</strong> — 4-corner positioned, <code style="font-family:Consolas,monospace;font-size:10px;color:#92400e;">radial-gradient(circle at 30% 30%, #fde68a, #1c1917)</code> · 8px circle · aria-hidden</div></div>
+          <div style="display:flex;gap:10px;align-items:flex-start;"><div style="width:28px;height:16px;border-radius:3px;border:3px solid #92400e;flex-shrink:0;margin-top:2px;"></div><div style="font-size:12px;color:#334155;"><strong>5. Frame border</strong> — <code style="font-family:Consolas,monospace;font-size:10px;color:#92400e;">4px solid #92400e</code> (Tutorial / popovers) · <code style="font-family:Consolas,monospace;font-size:10px;color:#92400e;">3px solid #451a03</code> (Certificate) · border-radius: 16px</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════
+       BEHAVIOR NOTES
+  ═════════════════════════════════════════════ -->
+  <section class="section" id="notes">
+    <div class="section-header">
+      <h2 class="section-title">Behavior Notes</h2>
+      <span class="section-count">Non-visual · animation · truncation · conditional visibility</span>
+    </div>
+
+    <div class="notes">
+      <h4>Item Row (Compound)</h4>
+      <ul>
+        <li><strong>Sell button</strong> is fully hidden (<code>display:none</code>) when <code>qty === 0</code> — the layout collapses, leaving just qty + add.</li>
+        <li><strong>Add button</strong> receives the <code>disabled</code> attribute when inventory is at the player's capacity limit.</li>
+        <li>The price tag pill uses a flat <code>#fef08a</code> yellow (not a gradient), a <code>rotate(−3deg)</code> tilt, and an inline 🪙 emoji — no separate coin disc.</li>
+        <li>The wooden tray container does not respond to hover as a unit. Only the inner Sell/Add pills fire pointer events.</li>
+      </ul>
+    </div>
+
+    <div class="notes" style="margin-top:12px;">
+      <h4>Category Tab (Awning)</h4>
+      <ul>
+        <li>Awning height animates via <code>CSS height transition 220ms cubic-bezier(.34,1.56,.64,1)</code> — a springy "pull-down" feel.</li>
+        <li>Tab group behaves as a radio — exactly one tab is active at all times; active label bg is always <code>#fff</code>.</li>
+        <li>The scallop SVG fill must match <code>c1</code> (stripe color) to appear continuous with the awning.</li>
+        <li>Tab width is fixed at <strong>140px</strong>. Labels must not exceed one line; shorten copy before increasing width.</li>
+      </ul>
+    </div>
+
+    <div class="notes" style="margin-top:12px;">
+      <h4>Action Board</h4>
+      <ul>
+        <li>Boards are <strong>hidden</strong> (not disabled) when the corresponding need is at max capacity — there's nothing to do.</li>
+        <li>Hover floats the card up (<code>translateY(−3px) scale(1.02)</code>). Press returns to baseline.</li>
+        <li>The wooden rod and brass connector balls are presentational — they have no pointer events and carry no state.</li>
+        <li>Labels wrap to 2 lines at word boundary. The board height grows to accommodate — never clip with <code>overflow:hidden</code>.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+  <script>
+    // Category Tab hover animation
+    document.querySelectorAll('#cat-tab .cat-tab:not(.is-active)').forEach(tab => {
+      tab.addEventListener('mouseenter', () => tab.classList.add('is-hover'));
+      tab.addEventListener('mouseleave', () => tab.classList.remove('is-hover'));
+    });
+  </script>
+</body>
+</html>

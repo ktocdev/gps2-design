@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GPS2 — Design Elements</title>
+  <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Nunito:wght@400;500;600;700&family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Wood */
+      --color-wood-amber:  #d97706;
+      --color-wood-light:  #c2700d;
+      --color-wood-mid:    #b45309;
+      --color-wood-dark:   #92400e;
+      --color-wood-shadow: #78350f;
+      --color-wood-border: #451a03;
+      /* Gold scale */
+      --color-gold-50:  #fffbeb;
+      --color-gold-100: #fef3c7;
+      --color-gold-200: #fde68a;
+      --color-gold-300: #fbbf24;
+      --color-gold-400: #f59e0b;
+      --color-gold-500: #ea580c;
+      --color-gold-600: #c2410c;
+      --color-gold-700: #9a3412;
+      --color-gold-800: #7c2d12;
+      --color-gold-900: #431407;
+      /* Neutral scale */
+      --color-neutral-50:  #f8fafc;
+      --color-neutral-100: #f1f5f9;
+      --color-neutral-200: #e2e8f0;
+      --color-neutral-300: #cbd5e1;
+      --color-neutral-400: #94a3b8;
+      --color-neutral-500: #64748b;
+      --color-neutral-600: #475569;
+      --color-neutral-700: #334155;
+      --color-neutral-800: #1e293b;
+      --color-neutral-900: #0f172a;
+      /* Pink scale */
+      --color-pink-100: #fce7f3;
+      --color-pink-200: #fbcfe8;
+      --color-pink-300: #f9a8d4;
+      --color-pink-400: #f472b6;
+      --color-pink-500: #ec4899;
+      --color-pink-600: #db2777;
+      --color-pink-700: #be185d;
+      --color-pink-800: #9f1239;
+      /* Green scale */
+      --color-green-200: #bbf7d0;
+      --color-green-400: #4ade80;
+      --color-green-500: #22c55e;
+      --color-green-600: #178740;
+      --color-green-700: #15803d;
+      --color-green-800: #166534;
+      /* Violet scale */
+      --color-violet-300: #c4b5fd;
+      --color-violet-400: #a78bfa;
+      --color-violet-500: #8b5cf6;
+      --color-violet-600: #7c3aed;
+      --color-violet-700: #6d28d9;
+      --color-violet-800: #5b21b6;
+      /* Cyan scale */
+      --color-cyan-300: #67e8f9;
+      --color-cyan-400: #22d3ee;
+      --color-cyan-500: #06b6d4;
+      --color-cyan-600: #0891b2;
+      --color-cyan-700: #0e7490;
+      /* Needs */
+      --color-need-hunger:     #f59e0b;
+      --color-need-thirst:     #06b6d4;
+      --color-need-energy:     #1e3a8a;
+      --color-need-shelter:    #9a3412;
+      --color-need-play:       #22c55e;
+      --color-need-social:     #ec4899;
+      --color-need-stimulation:#f97316;
+      --color-need-comfort:    #8b5cf6;
+      --color-need-hygiene:    #67e8f9;
+      --color-need-nails:      #64748b;
+      --color-need-chew:       #fde68a;
+      /* Game / Panel */
+      --color-pink:        #ec4899;
+      --color-pink-deep:   #db2777;
+      --color-orange:      #ea580c;
+      --color-gold-deep:   #f59e0b;
+      --color-gold:        #fbbf24;
+      --color-lime:        #4ade80;
+      --color-ivy:         #84cc16;
+      --color-green:       #178740;
+      --color-sky:         #06b6d4;
+      --color-cyan:        #22d3ee;
+      --color-violet:      #a78bfa;
+      --color-violet-mid:  #8b5cf6;
+      --color-violet-deep: #7c3aed;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Nunito', sans-serif; font-size: 14px; line-height: 1.5; color: var(--color-neutral-800); background: #fff; display: flex; min-height: 100vh; }
+
+    .sidebar { width: 192px; flex-shrink: 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; background: var(--color-neutral-50); border-right: 1px solid var(--color-neutral-200); display: flex; flex-direction: column; }
+    .sidebar-brand { padding: 20px 16px 16px; border-bottom: 1px solid var(--color-neutral-200); }
+    .sidebar-brand h1 { font-family: 'Gaegu', cursive; font-size: 26px; font-weight: 700; color: var(--color-wood-mid); line-height: 1; }
+    .sidebar-brand span { display: block; font-size: 11px; color: var(--color-neutral-400); margin-top: 2px; }
+    .nav-label { padding: 14px 16px 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--color-neutral-400); display: block; }
+    .nav-item { display: block; padding: 5px 16px; font-size: 13px; color: var(--color-neutral-600); text-decoration: none; border-left: 2px solid transparent; transition: all 100ms; }
+    .nav-item:hover, .nav-item.active { color: var(--color-wood-mid); border-left-color: var(--color-wood-mid); background: rgba(180,83,9,.05); }
+
+    .main { flex: 1; padding: 44px 56px 96px; max-width: 980px; overflow-x: hidden; }
+    .page-header { margin-bottom: 52px; padding-bottom: 24px; border-bottom: 2px solid var(--color-neutral-200); }
+    .page-title { font-family: 'Gaegu', cursive; font-size: 44px; font-weight: 700; color: var(--color-neutral-800); line-height: 1; }
+    .page-title span { color: var(--color-wood-mid); }
+    .page-meta { margin-top: 10px; font-size: 13px; color: var(--color-neutral-500); display: flex; align-items: center; gap: 12px; }
+    .page-meta a { color: var(--color-wood-mid); text-decoration: none; font-size: 12px; }
+    .badge { background: var(--color-gold-100); color: var(--color-wood-dark); padding: 2px 9px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+
+    .section { margin-bottom: 72px; scroll-margin-top: 20px; }
+    .section-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 28px; padding-bottom: 12px; border-bottom: 1px solid var(--color-neutral-200); }
+    .section-title { font-family: 'Gaegu', cursive; font-size: 28px; font-weight: 700; color: var(--color-neutral-800); line-height: 1; }
+    .section-count { font-size: 12px; color: var(--color-neutral-400); }
+    .subsection { margin-bottom: 36px; }
+    .sub-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--color-neutral-500); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    .sub-title::after { content: ''; flex: 1; height: 1px; background: var(--color-neutral-100); }
+
+    .el-spec { background: var(--color-neutral-50); border: 1px solid var(--color-neutral-200); border-top: none; border-radius: 0 0 8px 8px; padding: 10px 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .el-spec-full { grid-column: 1 / -1; }
+    .el-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--color-neutral-500); margin-bottom: 2px; }
+    .el-value { font-size: 12px; color: var(--color-neutral-700); }
+    .el-code { font-family: Consolas, monospace; font-size: 10px; color: var(--color-wood-dark); line-height: 1.65; }
+
+    .frame-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+    .frame-card { border-radius: 8px; overflow: hidden; border: 1px solid var(--color-neutral-200); }
+    .frame-demo { background: var(--color-gold-50); padding: 20px; display: flex; align-items: center; justify-content: center; height: 170px; }
+
+    .hw-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+    .hw-card { border: 1px solid var(--color-neutral-200); border-radius: 8px; overflow: hidden; }
+    .hw-demo { height: 90px; display: flex; align-items: center; justify-content: center; background: var(--color-gold-50); border-bottom: 1px solid var(--color-neutral-200); }
+    .hw-info { padding: 10px 12px; }
+    .hw-name { font-size: 12px; font-weight: 700; color: var(--color-neutral-700); }
+    .hw-use { font-size: 11px; color: var(--color-neutral-500); margin-top: 2px; }
+    .hw-css { font-family: Consolas, monospace; font-size: 9.5px; color: var(--color-neutral-400); margin-top: 5px; line-height: 1.55; word-break: break-all; }
+
+    .notes { background: var(--color-gold-50); border: 1px solid var(--color-gold-200); border-left: 3px solid var(--color-gold-deep); border-radius: 6px; padding: 14px 16px; margin-top: 24px; }
+    .notes h4 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--color-wood-dark); margin-bottom: 8px; }
+    .notes ul { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+    .notes li { font-size: 12px; color: var(--color-wood-shadow); padding-left: 14px; position: relative; }
+    .notes li::before { content: '→'; position: absolute; left: 0; color: var(--color-gold-deep); }
+    .notes code { background: rgba(245,158,11,.15); padding: 1px 5px; border-radius: 3px; font-family: Consolas, monospace; font-size: 11px; }
+
+    .de-table { width: 100%; border-collapse: collapse; border: 1px solid var(--color-neutral-200); border-radius: 8px; overflow: hidden; font-size: 13px; }
+    .de-table th { background: var(--color-neutral-50); padding: 9px 14px; text-align: left; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--color-neutral-500); border-bottom: 1px solid var(--color-neutral-200); }
+    .de-table td { padding: 9px 14px; border-bottom: 1px solid var(--color-neutral-100); vertical-align: middle; }
+    .de-table tr:last-child td { border-bottom: none; }
+    .de-table tr:nth-child(even) td { background: var(--color-neutral-50); }
+    .de-table code { background: var(--color-neutral-100); padding: 2px 6px; border-radius: 3px; font-family: Consolas, monospace; font-size: 11px; color: var(--color-wood-mid); }
+
+    .spec-box { background: var(--color-neutral-50); border: 1px solid var(--color-neutral-200); border-radius: 6px; padding: 10px 14px; }
+
+    /* ── SignPill (warm context) ── */
+    .sign-pill {
+      display: inline-flex; align-items: center; gap: 8px; position: relative;
+      height: 42px; padding: 0 14px; border-radius: 10px;
+      background: linear-gradient(180deg, var(--color-gold-50) 0%, var(--color-gold-100) 100%);
+      color: var(--color-gold-800); border: 3px solid var(--color-wood-dark); cursor: pointer;
+      font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 700;
+      box-shadow: 0 6px 8px -2px rgba(69,26,3,.4), 0 2px 4px -1px rgba(69,26,3,.25), inset 0 2px 0 rgba(255,255,255,.55), inset 0 -1px 0 rgba(146,64,14,.22);
+      transition: transform 140ms cubic-bezier(.34,1.56,.64,1), box-shadow 160ms ease, border-color 140ms ease;
+      user-select: none; white-space: nowrap;
+    }
+    .sign-pill:hover { transform: translateY(-1px); filter: brightness(1.03); }
+    .sign-pill--active { transform: translateY(-2px); border-color: var(--color-gold-800);
+      box-shadow: 0 10px 14px -4px rgba(69,26,3,.55), 0 4px 6px -2px rgba(69,26,3,.35), inset 0 2px 0 rgba(255,255,255,.6), inset 0 -1px 0 rgba(146,64,14,.25); }
+    /* Corner rivets */
+    .sp-rivet { position: absolute; width: 4px; height: 4px; border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, var(--color-gold-200), var(--color-wood-border));
+      box-shadow: inset 0 -1px 1px rgba(0,0,0,.42); pointer-events: none; }
+    /* Icon disc */
+    .sp-icon { display: inline-flex; align-items: center; justify-content: center;
+      width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; font-size: 15px; line-height: 1;
+      box-shadow: 0 2px 3px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.4); }
+    /* Chevron */
+    .sp-chev { font-size: 9px; color: var(--color-wood-dark); opacity: .7; margin-left: -2px; }
+
+  </style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar-brand">
+    <h1>GPS2</h1>
+    <span>Design Elements</span>
+  </div>
+  <span class="nav-label">Elements</span>
+  <a href="#wood" class="nav-item">Wood</a>
+  <a href="#paper" class="nav-item">Paper</a>
+  <a href="#awnings" class="nav-item">Awnings</a>
+  <a href="#whitebulletin" class="nav-item">Signs</a>
+  <a href="#hardware" class="nav-item">Hardware</a>
+  <a href="#decorations" class="nav-item">Decorations</a>
+  <a href="#iconsticker" class="nav-item">Stickers</a>
+  <span class="nav-label" style="margin-top:auto;">See Also</span>
+  <a href="GPS2 Tokens.html" class="nav-item">← Tokens</a>
+</nav>
+
+<main class="main">
+
+  <header class="page-header">
+    <h1 class="page-title">GPS2 <span>Design Elements</span></h1>
+    <div class="page-meta">
+      <span>CSS-only · no external assets · all rendered live</span>
+      <span class="badge">Visual Language</span>
+    </div>
+  </header>
+
+  <!-- ── WOOD ──────────────────────────────────────────────────────── -->
+  <section class="section" id="wood">
+    <div class="section-header">
+      <h2 class="section-title">Wood</h2>
+      <span class="section-count">6 variants · beams, planks, shelves, divider rule &amp; frames</span>
+    </div>
+
+    <div class="subsection">
+      <div class="sub-title">Horizontal Bars</div>
+
+      <!-- Wooden Beam -->
+      <div style="margin-bottom:20px;">
+        <div style="font-size:12px;font-weight:700;color:var(--color-neutral-700);margin-bottom:6px;">Wooden Beam <span style="font-weight:400;color:var(--color-neutral-500);">— SuppliesStore · 22px · awning support</span></div>
+        <div style="border:1px solid var(--color-neutral-200); border-radius:8px 8px 0 0; overflow:hidden;">
+          <div style="position:relative; height:32px; background:linear-gradient(180deg,var(--color-wood-mid) 0%,var(--color-wood-dark) 50%,var(--color-wood-shadow) 100%); border-top:3px solid var(--color-wood-border); border-bottom:3px solid var(--color-wood-border); box-shadow:inset 0 2px 0 rgba(255,255,255,.18),inset 0 -2px 0 rgba(0,0,0,.35),0 6px 8px -3px rgba(0,0,0,.35);">
+            <div aria-hidden="true" style="position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 80px,rgba(0,0,0,.18) 80px 82px,transparent 82px 160px);pointer-events:none;"></div>
+            <div aria-hidden="true" style="position:absolute;top:50%;transform:translateY(-50%);left:14px;width:8px;height:8px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--color-gold-200),#1c1917);"></div>
+            <div aria-hidden="true" style="position:absolute;top:50%;transform:translateY(-50%);right:14px;width:8px;height:8px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--color-gold-200),#1c1917);"></div>
+          </div>
+        </div>
+        <div class="el-spec">
+          <div><div class="el-label">Used In</div><div class="el-value">SuppliesStore — horizontal beam awnings hang from above the storefront window</div></div>
+          <div><div class="el-label">Dimensions</div><div class="el-value">22px tall · full-width · border-top/bottom: 3px solid var(--color-wood-border)</div></div>
+          <div class="el-spec-full"><div class="el-label">CSS</div><div class="el-code">background: linear-gradient(180deg, var(--color-wood-mid) 0%, var(--color-wood-dark) 50%, var(--color-wood-shadow) 100%)<br>grain: repeating-linear-gradient(90deg, transparent 0 80px, rgba(0,0,0,.18) 80px 82px, transparent 82px 160px) — vertical dots every 80px<br>2× brass rivets at horizontal ends · box-shadow: inset 0 2px 0 rgba(255,255,255,.18), inset 0 -2px 0 rgba(0,0,0,.35), 0 6px 8px -3px rgba(0,0,0,.35)</div></div>
+        </div>
+      </div>
+
+      <!-- Wood Plank -->
+      <div style="margin-bottom:20px;">
+        <div style="font-size:12px;font-weight:700;color:var(--color-neutral-700);margin-bottom:6px;">Wood Plank <span style="font-weight:400;color:var(--color-neutral-500);">— SimTopBar · habitat secondary bar</span></div>
+        <div style="border:1px solid var(--color-neutral-200); border-radius:8px 8px 0 0; overflow:hidden;">
+          <div style="position:relative; height:52px; background:linear-gradient(180deg,var(--color-wood-light) 0%,var(--color-wood-dark) 50%,var(--color-wood-shadow) 100%); border-bottom:3px solid var(--color-wood-border); box-shadow:inset 0 2px 0 rgba(255,235,200,.22),inset 0 -2px 0 rgba(0,0,0,.4),0 6px 8px -3px rgba(0,0,0,.35);">
+            <div aria-hidden="true" style="position:absolute;inset:0;overflow:hidden;background:repeating-linear-gradient(180deg,rgba(255,255,255,.04) 0 3px,transparent 3px 6px);pointer-events:none;"></div>
+            <div aria-hidden="true" style="position:absolute;top:8px;left:8px;width:8px;height:8px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--color-gold-200),#1c1917);"></div>
+            <div aria-hidden="true" style="position:absolute;top:8px;right:8px;width:8px;height:8px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--color-gold-200),#1c1917);"></div>
+            <div aria-hidden="true" style="position:absolute;bottom:8px;left:8px;width:8px;height:8px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--color-gold-200),#1c1917);"></div>
+            <div aria-hidden="true" style="position:absolute;bottom:8px;right:8px;width:8px;height:8px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--color-gold-200),#1c1917);"></div>
+          </div>
+        </div>
+        <div class="el-spec">
+          <div><div class="el-label">Used In</div><div class="el-value">SimTopBar — secondary bar pinned below the main header in the habitat view</div></div>
+          <div><div class="el-label">Dimensions</div><div class="el-value">Full-width · padding: 12px 18px 14px · border-bottom: 3px solid var(--color-wood-border)</div></div>
+          <div class="el-spec-full"><div class="el-label">CSS</div><div class="el-code">background: linear-gradient(180deg, var(--color-wood-light) 0%, var(--color-wood-dark) 50%, var(--color-wood-shadow) 100%)<br>grain: repeating-linear-gradient(180deg, rgba(255,255,255,.04) 0 3px, transparent 3px 6px) — absolute inset 0 overflow:hidden<br>4× brass rivets at all corners · box-shadow: inset 0 2px 0 rgba(255,235,200,.22), inset 0 -2px 0 rgba(0,0,0,.4), 0 6px 8px -3px rgba(0,0,0,.35)</div></div>
+        </div>
+      </div>
+
+      <!-- Wood Shelf -->
+      <div style="margin-bottom:20px;">
+        <div style="font-size:12px;font-weight:700;color:var(--color-neutral-700);margin-bottom:6px;">Wood Shelf <span style="font-weight:400;color:var(--color-neutral-500);">— SuppliesStore · items rest on top · clip-path bracket legs</span></div>
+        <div style="border:1px solid var(--color-neutral-200); border-radius:8px 8px 0 0; overflow:hidden;">
+          <div style="position:relative; padding-bottom:26px; background:var(--color-gold-50);">
+            <div style="position:relative; height:22px; background:linear-gradient(180deg,var(--color-wood-mid) 0%,var(--color-wood-dark) 50%,var(--color-wood-shadow) 100%); box-shadow:0 10px 14px -4px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.25),inset 0 -2px 0 rgba(0,0,0,.4);">
+              <div style="position:absolute;top:5px;left:8%;right:8%;height:1px;background:rgba(0,0,0,.22);"></div>
+              <div style="position:absolute;top:11px;left:14%;right:22%;height:1px;background:rgba(0,0,0,.18);"></div>
+              <div style="position:absolute;top:16px;left:28%;right:10%;height:1px;background:rgba(0,0,0,.14);"></div>
+              <div style="position:absolute;bottom:0;left:0;right:0;height:4px;background:linear-gradient(180deg,transparent,rgba(0,0,0,.45));border-radius:0 0 3px 3px;"></div>
+            </div>
+            <div aria-hidden="true" style="position:absolute;bottom:0;left:6%;width:18px;height:26px;background:linear-gradient(180deg,var(--color-wood-shadow) 0%,var(--color-wood-border) 100%);clip-path:polygon(0 0, 100% 0, 100% 30%, 30% 100%);box-shadow:2px 2px 4px rgba(0,0,0,.35);"></div>
+            <div aria-hidden="true" style="position:absolute;bottom:0;right:6%;width:18px;height:26px;background:linear-gradient(180deg,var(--color-wood-shadow) 0%,var(--color-wood-border) 100%);clip-path:polygon(0 0, 100% 0, 70% 100%, 0 30%);box-shadow:-2px 2px 4px rgba(0,0,0,.35);"></div>
+          </div>
+        </div>
+        <div class="el-spec">
+          <div><div class="el-label">Used In</div><div class="el-value">SuppliesStore — shelf boards separating item rows; optional label tag at right end</div></div>
+          <div><div class="el-label">Dimensions</div><div class="el-value">22px shelf height · bracket legs 18×26px · clip-path triangles</div></div>
+          <div class="el-spec-full"><div class="el-label">CSS</div><div class="el-code">shelf: linear-gradient(180deg, var(--color-wood-mid) 0%, var(--color-wood-dark) 50%, var(--color-wood-shadow) 100%)<br>grain: 3 hardcoded hairlines at top:5/11/16px → rgba(0,0,0,.22/.18/.14) — irregular spacing for natural wood look<br>left bracket: clip-path: polygon(0 0, 100% 0, 100% 30%, 30% 100%) · gradient var(--color-wood-shadow)→var(--color-wood-border) · box-shadow: 2px 2px 4px rgba(0,0,0,.35)<br>right bracket: clip-path: polygon(0 0, 100% 0, 70% 100%, 0 30%)</div></div>
+        </div>
+      </div>
+
+      <!-- Section Divider Rule -->
+      <div style="margin-bottom:20px;">
+        <div style="font-size:12px;font-weight:700;color:var(--color-neutral-700);margin-bottom:6px;">Section Divider Rule <span style="font-weight:400;color:var(--color-neutral-500);">— SuppliesStore department header · flex filler between title and currency badge</span></div>
+        <div style="border:1px solid var(--color-neutral-200); border-radius:8px 8px 0 0; overflow:hidden;">
+          <div style="padding:20px 24px; background:var(--color-gold-50); display:flex; align-items:center; gap:16px;">
+            <span style="font-family:'Gaegu',cursive; font-size:24px; font-weight:700; color:var(--color-wood-border); white-space:nowrap;">Today's Picks</span>
+            <div style="flex:1; height:6px; background:linear-gradient(180deg,var(--color-wood-mid) 0%,var(--color-wood-shadow) 100%); border-radius:3px; box-shadow:inset 0 1px 0 rgba(255,255,255,.2),inset 0 -1px 0 rgba(0,0,0,.3);"></div>
+          </div>
+        </div>
+        <div class="el-spec">
+          <div><div class="el-label">Used In</div><div class="el-value">SuppliesStore department header — fills space between section title and currency badge in a flex row</div></div>
+          <div><div class="el-label">Dimensions</div><div class="el-value">height: 6px · flex: 1 (fills available space) · border-radius: 3px</div></div>
+          <div class="el-spec-full"><div class="el-label">CSS</div><div class="el-code">background: linear-gradient(180deg, var(--color-wood-mid) 0%, var(--color-wood-shadow) 100%)<br>border-radius: 3px<br>box-shadow: inset 0 1px 0 rgba(255,255,255,.2), inset 0 -1px 0 rgba(0,0,0,.3)</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="sub-title">Frames</div>
+      <div class="frame-grid">
+
+        <div class="frame-card">
+          <div class="frame-demo">
+            <div style="position:relative;width:188px;height:128px;background:linear-gradient(180deg,var(--color-wood-mid) 0%,var(--color-wood-dark) 50%,var(--color-wood-shadow) 100%);border-radius:14px;border:3px solid var(--color-wood-border);box-shadow:0 8px 14px -3px rgba(69,26,3,.4),inset 0 2px 0 rgba(255,255,255,.18);">
+              <div aria-hidden="true" style="position:absolute;inset:6px 8px;border-radius:8px;pointer-events:none;background-image:repeating-linear-gradient(180deg,transparent 0 18px,rgba(0,0,0,.18) 18px 19px,transparent 19px 21px,rgba(0,0,0,.10) 21px 22px,transparent 22px 38px);"></div>
+              <div aria-hidden="true" style="position:absolute;top:3px;left:8px;right:8px;height:1px;background:rgba(255,255,255,.22);border-radius:1px;"></div>
+              <div aria-hidden="true" style="position:absolute;bottom:3px;left:8px;right:8px;height:2px;background:rgba(0,0,0,.32);border-radius:1px;"></div>
+              <div style="position:absolute;inset:16px;border-radius:8px;background:linear-gradient(180deg,var(--color-gold-50) 0%,var(--color-gold-100) 100%);border:1px solid rgba(146,64,14,.3);display:flex;align-items:center;justify-content:center;">
+                <span style="font-family:'Gaegu',cursive;font-size:13px;color:var(--color-wood-dark);opacity:.6;">cage interior</span>
+              </div>
+            </div>
+          </div>
+          <div class="el-spec" style="border-top:1px solid var(--color-neutral-200);">
+            <div><div class="el-label">Name</div><div class="el-value" style="font-weight:700;">Cage Frame — Pet Store</div></div>
+            <div><div class="el-label">Used In</div><div class="el-value">Outer frame of each habitat cage on the Pick Your Bonded Pair screen</div></div>
+            <div class="el-spec-full"><div class="el-label">CSS</div><div class="el-code">background: linear-gradient(180deg, var(--color-wood-mid) 0%, var(--color-wood-dark) 50%, var(--color-wood-shadow) 100%)<br>border-radius: 14px · border: 3px solid var(--color-wood-border) (selected: 3px solid {accentDark})<br>grain: repeating-linear-gradient(180deg, transparent 0 18px, rgba(0,0,0,.18) 18px 19px, transparent 19px 21px, rgba(0,0,0,.10) 21px 22px, transparent 22px 38px)<br>top highlight: rgba(255,255,255,.22) 1px · bottom shadow: rgba(0,0,0,.32) 2px</div></div>
+          </div>
+        </div>
+
+        <div class="frame-card">
+          <div class="frame-demo">
+            <div style="position:relative;width:188px;height:128px;background:linear-gradient(180deg,var(--color-wood-amber) 0%,var(--color-wood-mid) 100%);border-radius:10px;border:3px solid var(--color-wood-border);box-shadow:0 22px 28px -8px rgba(69,26,3,.5),inset 0 2px 0 rgba(255,255,255,.2),inset 0 -3px 0 rgba(69,26,3,.3);">
+              <div aria-hidden="true" style="position:absolute;inset:12px;border-radius:4px;pointer-events:none;background-image:repeating-linear-gradient(180deg,transparent 0 22px,rgba(0,0,0,.18) 22px 24px,transparent 24px 26px);"></div>
+              <div aria-hidden="true" style="position:absolute;top:6px;left:6px;width:8px;height:8px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--color-gold-200),var(--color-wood-border));box-shadow:inset 0 -1px 1px rgba(0,0,0,.4);"></div>
+              <div aria-hidden="true" style="position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--color-gold-200),var(--color-wood-border));box-shadow:inset 0 -1px 1px rgba(0,0,0,.4);"></div>
+              <div aria-hidden="true" style="position:absolute;bottom:6px;left:6px;width:8px;height:8px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--color-gold-200),var(--color-wood-border));box-shadow:inset 0 -1px 1px rgba(0,0,0,.4);"></div>
+              <div aria-hidden="true" style="position:absolute;bottom:6px;right:6px;width:8px;height:8px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--color-gold-200),var(--color-wood-border));box-shadow:inset 0 -1px 1px rgba(0,0,0,.4);"></div>
+              <div style="position:absolute;inset:22px;border-radius:6px;background:linear-gradient(180deg,var(--color-gold-50) 0%,var(--color-gold-100) 100%);display:flex;align-items:center;justify-content:center;">
+                <span style="font-family:'Gaegu',cursive;font-size:12px;color:var(--color-wood-dark);opacity:.6;">pig info</span>
+              </div>
+            </div>
+          </div>
+          <div class="el-spec" style="border-top:1px solid var(--color-neutral-200);">
+            <div><div class="el-label">Name</div><div class="el-value" style="font-weight:700;">Bonded Pair Slot Frame</div></div>
+            <div><div class="el-label">Used In</div><div class="el-value">Pet Store — selected/adopted pair info slot · warmer amber tone</div></div>
+            <div class="el-spec-full"><div class="el-label">CSS</div><div class="el-code">background: linear-gradient(180deg, var(--color-wood-amber) 0%, var(--color-wood-mid) 100%)<br>border-radius: 10px · border: 3px solid var(--color-wood-border)<br>grain: repeating-linear-gradient(180deg, transparent 0 22px, rgba(0,0,0,.18) 22px 24px, transparent 24px 26px)<br>4× dark brass studs: radial-gradient(circle at 30% 30%, var(--color-gold-200), var(--color-wood-border)) — darker centre than SimTopBar<br>box-shadow: 0 22px 28px -8px rgba(69,26,3,.5), inset 0 2px 0 rgba(255,255,255,.2), inset 0 -3px 0 rgba(69,26,3,.3)</div></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="notes">
+      <h4>Notes</h4>
+      <ul>
+        <li>Three brown tiers: dark (var(--color-wood-mid)→var(--color-wood-shadow)) — beam, shelf, cage frame; medium (var(--color-wood-light)→var(--color-wood-shadow)) — SimTopBar plank; amber (var(--color-wood-amber)→var(--color-wood-mid)) — bonded pair slot + aisle plaque</li>
+        <li>Grain is always an <code>aria-hidden="true" position:absolute; inset:0; pointer-events:none</code> overlay — never part of the base background shorthand</li>
+        <li>Shelf bracket legs use <code>clip-path: polygon()</code> — no SVG needed</li>
+        <li>Cage frame grain uses two interleaved hairlines per 20px repeat; Bonded Pair grain uses one hairline per 24px repeat — different spacing creates a distinct register</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ── PAPER group header ──────────────────────────────────────── -->
+  <section class="section" id="paper">
+  <div style="display:flex;align-items:baseline;gap:12px;margin:0 0 40px;padding:10px 0 12px;border-top:2px solid var(--color-neutral-200);border-bottom:1px solid var(--color-neutral-100);scroll-margin-top:20px;">
+    <h2 style="font-family:'Gaegu',cursive;font-size:32px;font-weight:700;color:var(--color-neutral-800);line-height:1;">Paper</h2>
+    <span style="font-size:12px;color:var(--color-neutral-400);">Parchment backgrounds · notice-board pattern · ornate certificate</span>
+  </div>
+
+  <!-- ── SCREEN BACKGROUNDS ────────────────────────────────────────── -->
+  <div id="screenbg">
+    <div class="subsection">
+      <div class="sub-title">Pick Your Bonded Pair — Parchment Wash + Paper Grain</div>
+      <div style="border:1px solid var(--color-neutral-200);border-radius:8px 8px 0 0;overflow:hidden;height:120px;position:relative;
+        background:
+          repeating-linear-gradient(0deg, rgba(146,64,14,.025) 0 1px, transparent 1px 9px),
+          radial-gradient(ellipse at 50% 0%, var(--color-gold-50) 0%, var(--color-gold-100) 55%, var(--color-gold-100) 100%);">
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+          <span style="font-family:'Gaegu',cursive;font-size:28px;font-weight:700;color:var(--color-wood-dark);opacity:.35;">Pick your bonded pair</span>
+        </div>
+      </div>
+      <div class="el-spec">
+        <div><div class="el-label">Used In</div><div class="el-value">PetStore screen — full-page background behind habitat cage cards</div></div>
+        <div><div class="el-label">Source</div><div class="el-value"><code style="font-family:Consolas,monospace;font-size:11px;color:var(--color-wood-dark);">PetStore.jsx</code> — outermost div background</div></div>
+        <div class="el-spec-full"><div class="el-label">CSS</div><div class="el-code">background:<br>  repeating-linear-gradient(0deg, rgba(146,64,14,.025) 0 1px, transparent 1px 9px),<br>  radial-gradient(ellipse at 50% 0%, var(--color-gold-50) 0%, var(--color-gold-100) 55%, var(--color-gold-100) 100%)<br><br>Layer 1 (top): horizontal paper-grain hairlines every 9px · rgba(146,64,14,.025) — nearly invisible warm brown<br>Layer 2 (base): radial warm bleed from top-centre · lightest var(--color-gold-50) → mid var(--color-gold-100) → warm amber var(--color-gold-100) at edges</div></div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="sub-title">Supplies Store — Warm Vertical Gradient</div>
+      <div style="border:1px solid var(--color-neutral-200);border-radius:8px 8px 0 0;overflow:hidden;height:120px;position:relative;
+        background: linear-gradient(180deg, var(--color-gold-50) 0%, var(--color-gold-100) 60%, var(--color-gold-200) 100%);">
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+          <span style="font-family:'Gaegu',cursive;font-size:28px;font-weight:700;color:var(--color-wood-dark);opacity:.35;">Supplies Store</span>
+        </div>
+      </div>
+      <div class="el-spec">
+        <div><div class="el-label">Used In</div><div class="el-value">SuppliesStore screen — full-page background behind shelves and item crates</div></div>
+        <div><div class="el-label">Source</div><div class="el-value"><code style="font-family:Consolas,monospace;font-size:11px;color:var(--color-wood-dark);">SuppliesStore.jsx</code> — outermost div background</div></div>
+        <div class="el-spec-full"><div class="el-label">CSS</div><div class="el-code">background: linear-gradient(180deg, var(--color-gold-50) 0%, var(--color-gold-100) 60%, var(--color-gold-200) 100%)<br><br>Simple top-to-bottom warm amber progression · lightest cream var(--color-gold-50) at top (near window/sky) → richer gold var(--color-gold-200) at bottom (near floor/shelves)<br>No grain overlay — flatter feel suits the retail storefront context</div></div>
+      </div>
+    </div>
+
+    <div class="subsection" id="ornate-parchment" style="scroll-margin-top:20px; margin-top:36px;">
+      <div class="sub-title">Ornate Parchment — AdoptionCertificate only</div>
+      <div style="border:3px solid var(--color-wood-border);border-radius:10px;overflow:hidden;padding:20px 28px 16px;background:repeating-linear-gradient(90deg,rgba(146,64,14,.025) 0 1px,transparent 1px 5px),repeating-linear-gradient(0deg,rgba(146,64,14,.02) 0 1px,transparent 1px 7px),radial-gradient(ellipse at 50% 0%,var(--color-gold-50) 0%,var(--color-gold-100) 60%,var(--color-gold-200) 100%);position:relative;margin-bottom:12px;">
+        <div aria-hidden="true" style="position:absolute;inset:10px;border:1px solid rgba(146,64,14,.35);border-radius:6px;pointer-events:none;"></div>
+        <div style="text-align:center;">
+          <div style="font-family:Georgia,serif;font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--color-gold-800);font-weight:700;">— The Cuddly Cavies Adoption Bureau —</div>
+          <div style="font-family:Georgia,serif;font-size:22px;font-weight:700;color:var(--color-wood-border);margin-top:4px;text-shadow:0 1px 0 rgba(255,255,255,.55);">Certificate <em style="font-style:italic;font-weight:400;">of</em> Adoption</div>
+        </div>
+      </div>
+      <div class="spec-box">
+        <div class="el-label" style="margin-bottom:4px;">CSS — Ornate Parchment</div>
+        <div class="el-code">background:<br>  repeating-linear-gradient(90deg, rgba(146,64,14,.025) 0 1px, transparent 1px 5px),<br>  repeating-linear-gradient(0deg, rgba(146,64,14,.02) 0 1px, transparent 1px 7px),<br>  radial-gradient(ellipse at 50% 0%, var(--color-gold-50) 0%, var(--color-gold-100) 60%, var(--color-gold-200) 100%)<br>border: 3px solid var(--color-wood-border) · border-radius: 10px<br>inner hairline: position:absolute; inset:10px; border: 1px solid rgba(146,64,14,.35); border-radius: 6px</div>
+      </div>
+    </div>
+
+    <div class="notes">
+      <h4>Notes</h4>
+      <ul>
+        <li>Both screens share the same parchment palette (var(--color-gold-50) / var(--color-gold-100) / var(--color-gold-200) / var(--color-gold-100)) — the difference is dimensionality: PetStore adds a paper-grain overlay and radial warmth; SuppliesStore stays flat</li>
+        <li>PetStore paper-grain hairline opacity (.025) is intentionally near-invisible — it adds texture without competing with the cage cards</li>
+        <li>PetStore radial origin is <code>50% 0%</code> (top-centre) so warmth bleeds inward from the top, mimicking diffused natural light through a window</li>
+        <li>These are candidates for future dark-mode overrides — the grain technique ports cleanly to dark parchment by shifting base colors and raising hairline opacity</li>
+      </ul>
+    </div>
+  </div>
+  </section>
+
+  <!-- ── AWNINGS ────────────────────────────────────────────────────── -->
+  <section class="section" id="awnings">
+    <div class="section-header">
+      <h2 class="section-title">Awnings</h2>
+      <span class="section-count">2 forms · storefront scalloped + panel header strip · 15 accent colors · in-game map</span>
+    </div>
+
+    <div class="subsection">
+      <div class="sub-title">Storefront Awning — SuppliesStore</div>
+      <div style="border:1px solid var(--color-neutral-200); border-radius:8px; overflow:hidden; margin-bottom:12px;">
+        <div style="display:flex; flex-direction:column; background:#87ceeb; padding:0; gap:0;">
+          <!-- Wooden Beam -->
+          <div style="position:relative; z-index:2; width:100%; height:32px; background:linear-gradient(180deg,var(--color-wood-mid) 0%,var(--color-wood-dark) 50%,var(--color-wood-shadow) 100%); border-top:3px solid var(--color-wood-border); border-bottom:3px solid var(--color-wood-border); box-shadow:inset 0 2px 0 rgba(255,255,255,.18),inset 0 -2px 0 rgba(0,0,0,.35),0 6px 8px -3px rgba(0,0,0,.35);">
+            <div aria-hidden="true" style="position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 80px,rgba(0,0,0,.18) 80px 82px,transparent 82px 160px);pointer-events:none;"></div>
+            <div aria-hidden="true" style="position:absolute;top:50%;transform:translateY(-50%);left:14px;width:8px;height:8px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--color-gold-200),#1c1917);"></div>
+            <div aria-hidden="true" style="position:absolute;top:50%;transform:translateY(-50%);right:14px;width:8px;height:8px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--color-gold-200),#1c1917);"></div>
+          </div>
+          <!-- Awning tabs — no labels -->
+          <div style="display:flex; justify-content:center; gap:0; padding:0 16px 24px; background:#87ceeb;">
+            <!-- Today's Picks — active -->
+            <div style="display:flex;flex-direction:column;align-items:center;width:140px;margin-top:0;position:relative;">
+              <div style="width:88%;height:60px;background:repeating-linear-gradient(90deg,var(--color-gold) 0 18px,#fff 18px 36px);border-left:3px solid var(--color-wood-dark);border-right:3px solid var(--color-wood-dark);box-shadow:inset 0 4px 0 rgba(255,255,255,.4);"></div>
+              <svg width="140" height="16" viewBox="0 0 140 18" style="display:block;margin-top:-1px;"><path d="M 2 0 Q 14 20 26 0 Q 38 20 50 0 Q 62 20 74 0 Q 86 20 98 0 Q 110 20 122 0 Q 134 20 138 0 L 138 -2 L 2 -2 Z" fill="#fbbf24" stroke="#92400e" stroke-width="2.5"/></svg>
+            </div>
+            <!-- Hay Loft — hover -->
+            <div style="display:flex;flex-direction:column;align-items:center;width:140px;margin-top:-3px;position:relative;">
+              <div style="width:88%;height:52px;background:repeating-linear-gradient(90deg,var(--color-ivy) 0 18px,#fff 18px 36px);border-left:3px solid var(--color-wood-dark);border-right:3px solid var(--color-wood-dark);box-shadow:inset 0 4px 0 rgba(255,255,255,.55),0 4px 8px -2px rgba(0,0,0,.18);"></div>
+              <svg width="140" height="16" viewBox="0 0 140 18" style="display:block;margin-top:-1px;"><path d="M 2 0 Q 14 20 26 0 Q 38 20 50 0 Q 62 20 74 0 Q 86 20 98 0 Q 110 20 122 0 Q 134 20 138 0 L 138 -2 L 2 -2 Z" fill="#84cc16" stroke="#92400e" stroke-width="2.5"/></svg>
+            </div>
+            <!-- Grocery — default -->
+            <div style="display:flex;flex-direction:column;align-items:center;width:140px;margin-top:-8px;position:relative;">
+              <div style="width:88%;height:44px;background:repeating-linear-gradient(90deg,var(--color-pink) 0 18px,#fff 18px 36px);border-left:3px solid var(--color-wood-dark);border-right:3px solid var(--color-wood-dark);box-shadow:inset 0 4px 0 rgba(255,255,255,.4);"></div>
+              <svg width="140" height="16" viewBox="0 0 140 18" style="display:block;margin-top:-1px;"><path d="M 2 0 Q 14 20 26 0 Q 38 20 50 0 Q 62 20 74 0 Q 86 20 98 0 Q 110 20 122 0 Q 134 20 138 0 L 138 -2 L 2 -2 Z" fill="#ec4899" stroke="#92400e" stroke-width="2.5"/></svg>
+            </div>
+            <!-- Bedding — default -->
+            <div style="display:flex;flex-direction:column;align-items:center;width:140px;margin-top:-8px;position:relative;">
+              <div style="width:88%;height:44px;background:repeating-linear-gradient(90deg,var(--color-violet-mid) 0 18px,#fff 18px 36px);border-left:3px solid var(--color-wood-dark);border-right:3px solid var(--color-wood-dark);box-shadow:inset 0 4px 0 rgba(255,255,255,.4);"></div>
+              <svg width="140" height="16" viewBox="0 0 140 18" style="display:block;margin-top:-1px;"><path d="M 2 0 Q 14 20 26 0 Q 38 20 50 0 Q 62 20 74 0 Q 86 20 98 0 Q 110 20 122 0 Q 134 20 138 0 L 138 -2 L 2 -2 Z" fill="#8b5cf6" stroke="#92400e" stroke-width="2.5"/></svg>
+            </div>
+            <!-- Habitat — default -->
+            <div style="display:flex;flex-direction:column;align-items:center;width:140px;margin-top:-8px;position:relative;">
+              <div style="width:88%;height:44px;background:repeating-linear-gradient(90deg,var(--color-need-thirst) 0 18px,#fff 18px 36px);border-left:3px solid var(--color-wood-dark);border-right:3px solid var(--color-wood-dark);box-shadow:inset 0 4px 0 rgba(255,255,255,.4);"></div>
+              <svg width="140" height="16" viewBox="0 0 140 18" style="display:block;margin-top:-1px;"><path d="M 2 0 Q 14 20 26 0 Q 38 20 50 0 Q 62 20 74 0 Q 86 20 98 0 Q 110 20 122 0 Q 134 20 138 0 L 138 -2 L 2 -2 Z" fill="#0ea5e9" stroke="#92400e" stroke-width="2.5"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="spec-box">
+        <div class="el-label" style="margin-bottom:4px;">CSS Recipe</div>
+        <div class="el-code">Stripe body: background: repeating-linear-gradient(90deg, var(--color-awning) 0 18px, #fff 18px 36px) · stripe unit: 18px<br>Per-store tokens: Today's Picks → var(--color-gold) · Hay Loft → var(--color-lime) · Grocery → var(--color-need-social) · Bedding → var(--color-violet) · Habitat → var(--color-need-thirst)<br>Sides: border-left/right: 3px solid var(--color-wood-border) (no top/bottom — abuts beam directly)<br>Scallop: &lt;svg viewBox="0 0 180 22" preserveAspectRatio="none"&gt; stretches to match stripe width<br>Path: M 4 0 Q 10 24 20 0 Q 40 24 50 0 Q 70 24 80 0 Q 100 24 110 0 Q 130 24 140 0 Q 160 24 170 0 L 176 0 L 176 -2 L 4 -2 Z<br>Heights: active 64px · hover 56px · inactive 48px · transition: margin-top 220ms cubic-bezier(.34,1.56,.64,1)</div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="sub-title">Panel Header Strip — SimTopBar, Popovers, Banners, Tutorial</div>
+      <div style="display:flex;gap:32px;align-items:flex-start;">
+        <div style="flex-shrink:0;">
+          <div style="position:relative;width:300px;background:linear-gradient(180deg,var(--color-gold-50) 0%,var(--color-gold-100) 100%);border:4px solid var(--color-wood-dark);border-radius:14px;padding:0;box-shadow:rgba(69,26,3,.55) 0 22px 30px -8px,rgba(69,26,3,.4) 0 10px 14px -4px,rgba(255,255,255,.55) 0 2px 0 inset,rgba(0,0,0,.18) 0 -2px 0 inset;overflow:hidden;color:var(--color-wood-border);">
+            <!-- Awning stripe -->
+            <div style="height:14px;background:repeating-linear-gradient(90deg,var(--color-gold) 0 14px,var(--color-gold-50) 14px 28px);border-bottom:2px solid var(--color-wood-dark);box-shadow:rgba(255,255,255,.4) 0 1px 0 inset,rgba(0,0,0,.18) 0 -1px 0 inset;"></div>
+            <!-- Brass studs -->
+            <span aria-hidden="true" style="position:absolute;top:5px;left:5px;width:7px;height:7px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--color-gold-200),var(--color-wood-border));box-shadow:rgba(0,0,0,.4) 0 -1px 1px inset;pointer-events:none;z-index:3;"></span>
+            <span aria-hidden="true" style="position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--color-gold-200),var(--color-wood-border));box-shadow:rgba(0,0,0,.4) 0 -1px 1px inset;pointer-events:none;z-index:3;"></span>
+            <span aria-hidden="true" style="position:absolute;bottom:5px;left:5px;width:7px;height:7px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--color-gold-200),var(--color-wood-border));box-shadow:rgba(0,0,0,.4) 0 -1px 1px inset;pointer-events:none;z-index:3;"></span>
+            <span aria-hidden="true" style="position:absolute;bottom:5px;right:5px;width:7px;height:7px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--color-gold-200),var(--color-wood-border));box-shadow:rgba(0,0,0,.4) 0 -1px 1px inset;pointer-events:none;z-index:3;"></span>
+            <!-- Paper grain overlay -->
+            <div aria-hidden="true" style="position:absolute;inset:20px 6px 6px;background-image:repeating-linear-gradient(transparent 0 7px,rgba(120,53,15,.05) 7px 8px);pointer-events:none;border-radius:4px;"></div>
+            <!-- Content -->
+            <div style="position:relative;padding:14px;">
+              <div style="height:60px;border-radius:6px;background:repeating-linear-gradient(135deg,var(--color-gold-100) 0 8px,var(--color-gold-200) 8px 9px,var(--color-gold-100) 9px 17px);border:1.5px dashed var(--color-wood-amber);display:flex;align-items:center;justify-content:center;">
+                <span style="font-family:Consolas,monospace;font-size:10px;color:var(--color-wood-dark);opacity:.7;">panel content</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="flex:1;font-size:13px;color:var(--color-neutral-600);line-height:1.6;">
+          This is an example of how the Panel Header Strip is displayed. The awning stripe runs along the top of the panel, followed by the parchment body and brass corner studs.
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <table class="de-table" style="margin-bottom:12px;">
+        <thead><tr><th>Hex</th><th>Token</th><th>Used On</th><th style="width:140px;">Preview</th></tr></thead>
+        <tbody>
+          <tr><td colspan="4" style="background:var(--color-neutral-100);padding:7px 14px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--color-neutral-500);border-bottom:1px solid var(--color-neutral-200);">Habitat Item Popovers</td></tr>
+          <tr><td><code>#f59e0b</code></td><td><code>--color-need-hunger</code></td><td>Food container · hay rack · treat</td><td><div style="height:14px;background:repeating-linear-gradient(90deg,var(--color-gold-deep) 0 14px,var(--color-gold-50) 14px 28px);border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.18);"></div></td></tr>
+          <tr><td><code>#06b6d4</code></td><td><code>--color-need-thirst</code></td><td>Water bottle</td><td><div style="height:14px;background:repeating-linear-gradient(90deg,var(--color-need-thirst) 0 14px,var(--color-gold-50) 14px 28px);border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.18);"></div></td></tr>
+          <tr><td><code>#1e3a8a</code></td><td><code>--color-need-energy</code></td><td>Sleeping &amp; energy items</td><td><div style="height:14px;background:repeating-linear-gradient(90deg,var(--color-need-energy) 0 14px,var(--color-gold-50) 14px 28px);border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.18);"></div></td></tr>
+          <tr><td><code>#9a3412</code></td><td><code>--color-need-shelter</code></td><td>Shelter items</td><td><div style="height:14px;background:repeating-linear-gradient(90deg,var(--color-need-shelter) 0 14px,var(--color-gold-50) 14px 28px);border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.18);"></div></td></tr>
+          <tr><td><code>#22c55e</code></td><td><code>--color-need-play</code></td><td>Play items</td><td><div style="height:14px;background:repeating-linear-gradient(90deg,var(--color-need-play) 0 14px,var(--color-gold-50) 14px 28px);border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.18);"></div></td></tr>
+
+          <tr><td><code>#ea580c</code></td><td><code>--color-need-stimulation</code></td><td>Stimulation items</td><td><div style="height:14px;background:repeating-linear-gradient(90deg,var(--color-orange) 0 14px,var(--color-gold-50) 14px 28px);border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.18);"></div></td></tr>
+          <tr><td><code>#8b5cf6</code></td><td><code>--color-need-comfort</code></td><td>Igloo &amp; comfort items</td><td><div style="height:14px;background:repeating-linear-gradient(90deg,var(--color-violet-mid) 0 14px,var(--color-gold-50) 14px 28px);border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.18);"></div></td></tr>
+          <tr><td><code>#67e8f9</code></td><td><code>--color-need-hygiene</code></td><td>Grooming items</td><td><div style="height:14px;background:repeating-linear-gradient(90deg,var(--color-need-hygiene) 0 14px,var(--color-gold-50) 14px 28px);border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.18);"></div></td></tr>
+          <tr><td><code>#64748b</code></td><td><code>--color-need-nails</code></td><td>Nail care items</td><td><div style="height:14px;background:repeating-linear-gradient(90deg,var(--color-neutral-500) 0 14px,var(--color-gold-50) 14px 28px);border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.18);"></div></td></tr>
+          <tr><td><code>#fde68a</code></td><td><code>--color-need-chew</code></td><td>Chew toy</td><td><div style="height:14px;background:repeating-linear-gradient(90deg,var(--color-gold-200) 0 14px,var(--color-gold-50) 14px 28px);border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.18);"></div></td></tr>
+          <tr><td colspan="4" style="background:var(--color-neutral-100);padding:7px 14px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--color-neutral-500);border-top:2px solid var(--color-neutral-200);border-bottom:1px solid var(--color-neutral-200);">Action Bar Buttons</td></tr>
+          <tr><td><code>#ec4899</code></td><td><code>--color-pink</code></td><td>Give Food</td><td><div style="height:14px;background:repeating-linear-gradient(90deg,var(--color-pink) 0 14px,var(--color-gold-50) 14px 28px);border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.18);"></div></td></tr>
+          <tr><td><code>#4ade80</code></td><td><code>--color-lime</code></td><td>Help Play</td><td><div style="height:14px;background:repeating-linear-gradient(90deg,var(--color-lime) 0 14px,var(--color-gold-50) 14px 28px);border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.18);"></div></td></tr>
+          <tr><td><code>#a78bfa</code></td><td><code>--color-violet</code></td><td>Give Care</td><td><div style="height:14px;background:repeating-linear-gradient(90deg,var(--color-violet) 0 14px,var(--color-gold-50) 14px 28px);border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.18);"></div></td></tr>
+          <tr><td><code>#f59e0b</code></td><td><code>--color-gold-deep</code></td><td>Socialize</td><td><div style="height:14px;background:repeating-linear-gradient(90deg,var(--color-gold-deep) 0 14px,var(--color-gold-50) 14px 28px);border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.18);"></div></td></tr>color-gold-50) 14px 28px);border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.18);"></div></td></tr>
+          <tr><td><code>#06b6d4</code></td><td><code>--color-sky</code></td><td>Encourage</td><td><div style="height:14px;background:repeating-linear-gradient(90deg,var(--color-cyan-500) 0 14px,var(--color-gold-50) 14px 28px);border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.18);"></div></td></tr>
+
+          <tr><td colspan="4" style="background:var(--color-neutral-100);padding:7px 14px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--color-neutral-500);border-top:2px solid var(--color-neutral-200);border-bottom:1px solid var(--color-neutral-200);">Standalone Panel Headers</td></tr>
+          <tr><td><code>#fbbf24</code></td><td><code>--color-gold</code></td><td>Activity Log</td><td><div style="height:14px;background:repeating-linear-gradient(90deg,var(--color-gold) 0 14px,var(--color-gold-50) 14px 28px);border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.18);"></div></td></tr>
+          <tr><td><code>#84cc16</code></td><td><code>--color-ivy</code></td><td>Habitat Status</td><td><div style="height:14px;background:repeating-linear-gradient(90deg,var(--color-ivy) 0 14px,var(--color-gold-50) 14px 28px);border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.18);"></div></td></tr>
+          <tr><td><code>#ec4899</code></td><td><code>--color-pink</code></td><td>Per-pig drawer</td><td><div style="height:14px;background:repeating-linear-gradient(90deg,var(--color-pink) 0 14px,var(--color-gold-50) 14px 28px);border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.18);"></div></td></tr>
+          <tr><td><code>#a78bfa</code></td><td><code>--color-violet</code></td><td>Inventory · placed-item drawer</td><td><div style="height:14px;background:repeating-linear-gradient(90deg,var(--color-violet) 0 14px,var(--color-gold-50) 14px 28px);border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.18);"></div></td></tr>
+
+          <tr><td colspan="4" style="background:var(--color-neutral-100);padding:7px 14px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--color-neutral-500);border-top:2px solid var(--color-neutral-200);border-bottom:1px solid var(--color-neutral-200);">Banners &amp; Tutorial</td></tr>
+          <tr><td><code>#fbbf24</code></td><td><code>--color-gold</code></td><td>Placement banners</td><td><div style="height:14px;background:repeating-linear-gradient(90deg,var(--color-gold) 0 14px,var(--color-gold-50) 14px 28px);border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.18);"></div></td></tr>
+          <tr><td><code>#ec4899</code></td><td><code>--color-pink</code></td><td>Targeting banner</td><td><div style="height:14px;background:repeating-linear-gradient(90deg,var(--color-pink) 0 14px,var(--color-gold-50) 14px 28px);border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.18);"></div></td></tr>
+
+          <tr><td colspan="4" style="background:var(--color-neutral-100);padding:7px 14px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--color-neutral-500);border-top:2px solid var(--color-neutral-200);border-bottom:1px solid var(--color-neutral-200);">Storefront Awnings — SuppliesStore</td></tr>
+          <tr><td><code>#fbbf24</code></td><td><code>--color-gold</code></td><td>Today's Picks</td><td><div style="height:14px;background:repeating-linear-gradient(90deg,var(--color-gold) 0 14px,var(--color-gold-50) 14px 28px);border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.18);"></div></td></tr>
+          <tr><td><code>#84cc16</code></td><td><code>--color-ivy</code></td><td>Hay Loft</td><td><div style="height:14px;background:repeating-linear-gradient(90deg,var(--color-ivy) 0 14px,var(--color-gold-50) 14px 28px);border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.18);"></div></td></tr>
+          <tr><td><code>#ec4899</code></td><td><code>--color-pink</code></td><td>Grocery</td><td><div style="height:14px;background:repeating-linear-gradient(90deg,var(--color-pink) 0 14px,var(--color-gold-50) 14px 28px);border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.18);"></div></td></tr>
+          <tr><td><code>#a78bfa</code></td><td><code>--color-violet</code></td><td>Bedding</td><td><div style="height:14px;background:repeating-linear-gradient(90deg,var(--color-violet) 0 14px,var(--color-gold-50) 14px 28px);border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.18);"></div></td></tr>
+          <tr><td><code>#06b6d4</code></td><td><code>--color-sky</code></td><td>Habitat</td><td><div style="height:14px;background:repeating-linear-gradient(90deg,var(--color-cyan-500) 0 14px,var(--color-gold-50) 14px 28px);border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.18);"></div></td></tr>
+        </tbody>
+      </table>
+      <div class="spec-box">
+        <div class="el-label" style="margin-bottom:6px;">Height variants</div>
+        <div style="display:flex;flex-direction:column;gap:7px;">
+          <div style="display:flex;align-items:center;gap:12px;"><div style="width:108px;font-family:Consolas,monospace;font-size:10px;color:var(--color-neutral-500);">10px · banner</div><div style="flex:1;height:10px;background:repeating-linear-gradient(90deg,var(--color-pink) 0 14px,var(--color-gold-50) 14px 28px);border:1px solid var(--color-neutral-200);border-radius:2px;"></div></div>
+          <div style="display:flex;align-items:center;gap:12px;"><div style="width:108px;font-family:Consolas,monospace;font-size:10px;color:var(--color-neutral-500);">12px · popover</div><div style="flex:1;height:12px;background:repeating-linear-gradient(90deg,var(--color-pink) 0 14px,var(--color-gold-50) 14px 28px);border:1px solid var(--color-neutral-200);border-radius:2px;"></div></div>
+          <div style="display:flex;align-items:center;gap:12px;"><div style="width:108px;font-family:Consolas,monospace;font-size:10px;color:var(--color-neutral-500);">14px · dropdown</div><div style="flex:1;height:14px;background:repeating-linear-gradient(90deg,var(--color-pink) 0 14px,var(--color-gold-50) 14px 28px);border:1px solid var(--color-neutral-200);border-radius:2px;"></div></div>
+          <div style="display:flex;align-items:center;gap:12px;"><div style="width:108px;font-family:Consolas,monospace;font-size:10px;color:var(--color-neutral-500);">18px · HelpOverlay</div><div style="flex:1;height:18px;background:repeating-linear-gradient(90deg,var(--color-pink) 0 18px,var(--color-gold-50) 18px 36px);border:1px solid var(--color-neutral-200);border-radius:2px;"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="notes">
+      <h4>Notes</h4>
+      <ul>
+        <li>Storefront stripe unit: 18px color + 18px white. Panel header stripe unit: 14px color + 14px parchment (var(--color-gold-50))</li>
+        <li>Scalloped bottom uses a single SVG path with <code>preserveAspectRatio="none"</code> — auto-stretches to any width</li>
+        <li>Panel header always needs <code>border-bottom: 2px solid var(--color-wood-dark)</code> + <code>box-shadow: inset 0 1px 0 rgba(255,255,255,.4), inset 0 -1px 0 rgba(0,0,0,.18)</code></li>
+        <li>Item accent colors are now tokenized as <code>--color-item-water/hay/chew/basket</code> in <code>colors_and_type.css</code></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ── SIGN ───────────────────────────────────────────────────── -->
+  <section class="section" id="whitebulletin">
+    <div class="section-header">
+      <h2 class="section-title">Signs</h2>
+      <span class="section-count">2 variants · item label + pig nameplate</span>
+    </div>
+
+    <div class="subsection">
+      <div class="sub-title">Assembled Panel — both variants</div>
+      <div style="display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap;background:var(--color-gold-50);border:1px solid var(--color-neutral-200);border-radius:8px;padding:28px 32px;margin-bottom:16px;">
+
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--color-neutral-500);">Item Label</div>
+          <div style="position:relative;background:#ffffff;border:2px solid var(--color-wood-border);border-radius:10px;padding:10px 22px;box-shadow:0 3px 8px rgba(69,26,3,.18);display:inline-block;transform:rotate(-1.5deg);">
+            <span aria-hidden="true" style="position:absolute;top:5px;left:5px;width:5px;height:5px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--color-gold-200),#1c1917);box-shadow:inset 0 -1px 1px rgba(0,0,0,.3);"></span>
+            <span aria-hidden="true" style="position:absolute;top:5px;right:5px;width:5px;height:5px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--color-gold-200),#1c1917);box-shadow:inset 0 -1px 1px rgba(0,0,0,.3);"></span>
+            <span aria-hidden="true" style="position:absolute;bottom:5px;left:5px;width:5px;height:5px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--color-gold-200),#1c1917);box-shadow:inset 0 -1px 1px rgba(0,0,0,.3);"></span>
+            <span aria-hidden="true" style="position:absolute;bottom:5px;right:5px;width:5px;height:5px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--color-gold-200),#1c1917);box-shadow:inset 0 -1px 1px rgba(0,0,0,.3);"></span>
+            <div style="font-family:'Gaegu',cursive;font-size:20px;font-weight:700;color:var(--color-wood-border);line-height:1.2;">Timothy Hay</div>
+            <div style="font-family:'Gaegu',cursive;font-size:14px;font-weight:400;color:var(--color-wood-border);margin-top:2px;">The GOAT of grasses.</div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--color-neutral-500);">Pig Nameplate</div>
+          <div style="position:relative;background:#ffffff;border:2px solid var(--color-wood-border);border-radius:10px;padding:10px 22px;box-shadow:0 3px 8px rgba(69,26,3,.18);display:flex;align-items:center;justify-content:space-between;gap:40px;min-width:240px;transform:rotate(-1deg);">
+            <span aria-hidden="true" style="position:absolute;top:5px;left:5px;width:5px;height:5px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--color-gold-200),#1c1917);box-shadow:inset 0 -1px 1px rgba(0,0,0,.3);"></span>
+            <span aria-hidden="true" style="position:absolute;top:5px;right:5px;width:5px;height:5px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--color-gold-200),#1c1917);box-shadow:inset 0 -1px 1px rgba(0,0,0,.3);"></span>
+            <span aria-hidden="true" style="position:absolute;bottom:5px;left:5px;width:5px;height:5px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--color-gold-200),#1c1917);box-shadow:inset 0 -1px 1px rgba(0,0,0,.3);"></span>
+            <span aria-hidden="true" style="position:absolute;bottom:5px;right:5px;width:5px;height:5px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--color-gold-200),#1c1917);box-shadow:inset 0 -1px 1px rgba(0,0,0,.3);"></span>
+            <div>
+              <div style="font-family:'Gaegu',cursive;font-size:22px;font-weight:700;color:var(--color-wood-mid);line-height:1.1;">Nutmeg</div>
+              <div style="font-size:12px;margin-top:2px;"><span style="font-family:'Nunito',sans-serif;font-weight:700;color:var(--color-neutral-700);">Abyssinian</span><span style="font-family:'Nunito',sans-serif;font-weight:400;color:var(--color-neutral-700);"> · shy</span></div>
+            </div>
+            <div style="font-family:'Nunito',sans-serif;font-size:11px;font-weight:400;color:var(--color-wood-dark);align-self:flex-end;padding-bottom:4px;">sow</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div style="display:flex;gap:32px;align-items:flex-start;">
+        <div style="flex:1;display:flex;flex-direction:column;gap:9px;">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--color-neutral-500);margin-bottom:2px;">Layer Stack — bottom → top</div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <div style="width:28px;height:16px;border-radius:4px;background:#ffffff;border:1px solid var(--color-neutral-300);flex-shrink:0;margin-top:2px;"></div>
+            <div style="font-size:12px;color:var(--color-neutral-700);"><strong>1. White fill</strong> — <code style="font-family:Consolas,monospace;font-size:10px;color:var(--color-wood-dark);">background: #ffffff</code> — no grain, no parchment tint; the clean white creates a "printed label" register against the surrounding parchment</div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <div style="width:28px;height:16px;border-radius:5px;border:2px solid var(--color-wood-border);flex-shrink:0;margin-top:2px;"></div>
+            <div style="font-size:12px;color:var(--color-neutral-700);"><strong>2. Frame border</strong> — <code style="font-family:Consolas,monospace;font-size:10px;color:var(--color-wood-dark);">2px solid var(--color-wood-border)</code> · border-radius: 10px — uses the darkest wood tone, one step darker than parchment panel frames</div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <div style="width:10px;height:10px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--color-gold-200),#1c1917);flex-shrink:0;margin-top:3px;margin-left:9px;"></div>
+            <div style="font-size:12px;color:var(--color-neutral-700);"><strong>3. Brass rivets ×4</strong> — 5px circles, 5px from each corner · same radial gradient as Hardware → Brass Rivet Light — smaller scale suits the card register</div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <div style="width:28px;height:10px;border-radius:2px;background:transparent;box-shadow:0 3px 8px rgba(69,26,3,.18);flex-shrink:0;margin-top:4px;border:1px solid var(--color-neutral-200);"></div>
+            <div style="font-size:12px;color:var(--color-neutral-700);"><strong>4. Drop shadow</strong> — <code style="font-family:Consolas,monospace;font-size:10px;color:var(--color-wood-dark);">0 3px 8px rgba(69,26,3,.18)</code> — warm-tinted, matches the notice-board shadow family</div>
+          </div>
+        </div>
+        <div style="flex:1;">
+          <div class="spec-box">
+            <div class="el-label" style="margin-bottom:4px;">CSS</div>
+            <div class="el-code">background: #ffffff<br>border: 2px solid var(--color-wood-darkest) /* var(--color-wood-border) */<br>border-radius: 10px<br>box-shadow: 0 3px 8px rgba(69,26,3,.18)<br>padding: 10px 22px<br>transform: rotate(-1.5deg)  /* item label · -1deg nameplate */<br><br>/* 4× corner rivets — all identical */<br>position: absolute; width: 5px; height: 5px; border-radius: 50%<br>inset offsets: top/bottom: 5px · left/right: 5px<br>background: radial-gradient(circle at 30% 30%, var(--color-gold-200), #1c1917)<br>box-shadow: inset 0 -1px 1px rgba(0,0,0,.3)<br><br>/* Item Label — title */<br>font-family: 'Gaegu', cursive; font-size: 20px; font-weight: 700; color: var(--color-wood-border)<br>/* Item Label — subtitle */<br>font-family: 'Gaegu', cursive; font-size: 14px; font-weight: 400; color: var(--color-wood-border)<br><br>/* Nameplate — pig name */<br>font-family: 'Gaegu', cursive; font-size: 22px; font-weight: 700; color: var(--color-wood-mid)<br>/* Nameplate — breed (bold) */<br>font-family: 'Nunito', sans-serif; font-size: 12px; font-weight: 700; color: var(--color-neutral-700)<br>/* Nameplate — personality (regular) */<br>font-family: 'Nunito', sans-serif; font-size: 12px; font-weight: 400; color: var(--color-neutral-700)<br>/* Nameplate — gender */<br>font-family: 'Nunito', sans-serif; font-size: 11px; font-weight: 400; color: var(--color-wood-dark) · align-self: flex-end</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="notes">
+      <h4>Notes</h4>
+      <ul>
+        <li>White fill is deliberate contrast — the bulletin always sits inside a parchment (var(--color-gold-50)) or amber-frame container; the white reads as a crisp printed card rather than part of the wood structure</li>
+        <li>Border uses <code>--color-wood-border</code> (darkest wood) vs <code>--color-wood-dark</code> on parchment panels — the darker tone keeps the thin 2px line legible against white</li>
+        <li>No awning stripe header — white bulletins are flat cards, not notice-board panels; the rivet-only hardware treatment is the sole shared motif</li>
+        <li>Rivets are 5px (vs 7–8px on parchment panels) — the smaller size matches the lighter card scale</li>
+        <li><strong>Item label title</strong> uses <code>'Gaegu'</code> bold, <code>--color-wood-border</code> — handwritten name-tag feel</li>
+        <li><strong>Item label subtitle</strong> also uses <code>'Gaegu'</code> regular, same color, smaller — keeps both lines in the same handwritten register</li>
+        <li><strong>Pig name</strong> uses <code>'Gaegu'</code> bold in <code>--color-wood-mid</code> warm brown — personal name, slightly warmer than the item label dark</li>
+        <li><strong>Breed</strong> is <code>'Nunito'</code> bold, dark neutral <code>--color-neutral-700</code> — factual label; <strong>personality</strong> is Nunito regular, same color — less emphasis</li>
+        <li><strong>Gender</strong> is <code>'Nunito'</code> regular, brown <code>--color-wood-dark</code>, <code>align-self:flex-end</code> — sits at the baseline of the flex row</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ── HARDWARE ────────────────────────────────────────────────────── -->
+  <section class="section" id="hardware">
+    <div class="section-header">
+      <h2 class="section-title">Hardware</h2>
+      <span class="section-count">5 elements · brass, ceramic &amp; paper</span>
+    </div>
+
+    <div class="hw-grid">
+      <div class="hw-card">
+        <div class="hw-demo">
+          <div style="display:flex;gap:14px;align-items:center;">
+            <div style="width:10px;height:10px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--color-gold-200),#1c1917);box-shadow:0 1px 2px rgba(0,0,0,.4);"></div>
+            <div style="width:8px;height:8px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--color-gold-200),#1c1917);box-shadow:0 1px 2px rgba(0,0,0,.4);"></div>
+            <span style="font-family:Consolas,monospace;font-size:10px;color:var(--color-wood-dark);">#1c1917</span>
+          </div>
+        </div>
+        <div class="hw-info">
+          <div class="hw-name">Brass Rivet — Light</div>
+          <div class="hw-use">SimTopBar end-caps · parchment panel corners</div>
+          <div class="hw-css">background: radial-gradient(circle at 30% 30%, var(--color-gold-200), #1c1917)<br>size: 8–10px · border-radius: 50%</div>
+        </div>
+      </div>
+
+      <div class="hw-card">
+        <div class="hw-demo">
+          <div style="display:flex;gap:14px;align-items:center;">
+            <div style="width:10px;height:10px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--color-gold-200),var(--color-wood-border));box-shadow:inset 0 -1px 1px rgba(0,0,0,.4);"></div>
+            <div style="width:8px;height:8px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--color-gold-200),var(--color-wood-border));box-shadow:inset 0 -1px 1px rgba(0,0,0,.4);"></div>
+            <span style="font-family:Consolas,monospace;font-size:10px;color:var(--color-wood-dark);">var(--color-wood-border)</span>
+          </div>
+        </div>
+        <div class="hw-info">
+          <div class="hw-name">Brass Rivet — Dark</div>
+          <div class="hw-use">Bonded pair slot corners · Pet Store parchment interior</div>
+          <div class="hw-css">background: radial-gradient(circle at 30% 30%, var(--color-gold-200), var(--color-wood-border))<br>box-shadow: inset 0 -1px 1px rgba(0,0,0,.4)</div>
+        </div>
+      </div>
+
+      <div class="hw-card">
+        <div class="hw-demo">
+          <!-- Open Sign: nail → string → sign body -->
+          <div style="display:flex;flex-direction:column;align-items:center;gap:0;transform:rotate(-2.5deg);transform-origin:top center;">
+            <!-- nail head -->
+            <div aria-hidden="true" style="width:9px;height:9px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#6b7280,#1f2937);box-shadow:0 1px 3px rgba(0,0,0,.5);position:relative;z-index:2;"></div>
+            <!-- hanging string -->
+            <div aria-hidden="true" style="width:1.5px;height:16px;background:#451a03;opacity:.65;"></div>
+            <!-- sign body -->
+            <div style="position:relative;background:linear-gradient(180deg,#fffbeb 0%,#fef3c7 100%);border:3.5px solid #92400e;border-radius:8px;padding:4px 18px;box-shadow:0 5px 10px -3px rgba(69,26,3,.4),inset 0 1px 0 rgba(255,255,255,.65),inset 0 -1px 0 rgba(146,64,14,.2);">
+              <!-- corner rivets ×4 -->
+              <div aria-hidden="true" style="position:absolute;top:3px;left:4px;width:5px;height:5px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fde68a,#451a03);box-shadow:inset 0 -1px 1px rgba(0,0,0,.45);"></div>
+              <div aria-hidden="true" style="position:absolute;top:3px;right:4px;width:5px;height:5px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fde68a,#451a03);box-shadow:inset 0 -1px 1px rgba(0,0,0,.45);"></div>
+              <div aria-hidden="true" style="position:absolute;bottom:3px;left:4px;width:5px;height:5px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fde68a,#451a03);box-shadow:inset 0 -1px 1px rgba(0,0,0,.45);"></div>
+              <div aria-hidden="true" style="position:absolute;bottom:3px;right:4px;width:5px;height:5px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fde68a,#451a03);box-shadow:inset 0 -1px 1px rgba(0,0,0,.45);"></div>
+              <div style="font-family:'Gaegu',cursive;font-size:20px;font-weight:700;color:#7c2d12;letter-spacing:.06em;position:relative;">OPEN</div>
+            </div>
+          </div>
+        </div>
+        <div class="hw-info">
+          <div class="hw-name">Open Sign</div>
+          <div class="hw-use">Pet Store entrance · hangs from a single iron nail via a short string · no rotation</div>
+          <div class="hw-css">nail: 9px circle · radial-gradient(#6b7280 → #1f2937)<br>string: 1.5px × 16px · #451a03 · opacity .65<br>sign bg: linear-gradient(#fffbeb → #fef3c7) · border: 3.5px solid #92400e · border-radius: 8px · padding: 4px 18px<br>font: Gaegu 700 · 20px · #7c2d12 · letter-spacing .06em<br>rivets ×4: 5px · radial-gradient(#fde68a → #451a03) · 3–4px from each corner<br>assembly: transform: rotate(-2.5deg) · transform-origin: top center</div>
+        </div>
+      </div>
+
+      <div class="hw-card">
+        <div class="hw-demo">
+          <div style="position:relative;background:linear-gradient(180deg,var(--color-wood-amber) 0%,var(--color-wood-mid) 100%);border:3px solid var(--color-wood-border);border-radius:8px;padding:6px 14px;transform:rotate(-1deg);box-shadow:0 6px 10px -2px rgba(0,0,0,.3),inset 0 2px 0 rgba(255,255,255,.2),inset 0 -2px 0 rgba(0,0,0,.3);">
+            <div aria-hidden="true" style="position:absolute;inset:0;border-radius:6px;background:repeating-linear-gradient(180deg,transparent 0 5px,rgba(0,0,0,.06) 5px 6px);pointer-events:none;"></div>
+            <div aria-hidden="true" style="position:absolute;top:4px;left:4px;width:6px;height:6px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--color-gold-200),#1c1917);"></div>
+            <div aria-hidden="true" style="position:absolute;top:4px;right:4px;width:6px;height:6px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--color-gold-200),#1c1917);"></div>
+            <div style="font-size:12px;font-weight:700;color:var(--color-gold-100);text-transform:uppercase;letter-spacing:.14em;font-family:'Nunito',sans-serif;position:relative;">AISLE 1</div>
+          </div>
+        </div>
+        <div class="hw-info">
+          <div class="hw-name">Aisle Plaque</div>
+          <div class="hw-use">SuppliesStore section header · amber wood + grain + rivets</div>
+          <div class="hw-css">bg: linear-gradient(180deg, var(--color-wood-amber) 0%, var(--color-wood-mid) 100%) · border: 3px solid var(--color-wood-border)<br>grain: repeating-linear-gradient(180deg, transparent 0 5px, rgba(0,0,0,.06) 5px 6px)<br>color: var(--color-gold-100) · letter-spacing: .14em · transform: rotate(-1deg)</div>
+        </div>
+      </div>
+
+      <div class="hw-card">
+        <div class="hw-demo">
+          <div style="width:64px;height:64px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--color-gold-deep) 0%,#b91c1c 55%,var(--color-gold-800) 100%);border:2px solid var(--color-gold-900);box-shadow:inset 0 -5px 8px rgba(0,0,0,.4),0 5px 8px rgba(69,26,3,.35);display:flex;align-items:center;justify-content:center;transform:rotate(-8deg);">
+            <div style="width:52px;height:52px;border-radius:50%;border:1.5px dashed rgba(255,255,255,.55);display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--color-gold-100);font-family:Georgia,serif;">
+              <div style="font-size:16px;line-height:1;">🐾</div>
+              <div style="font-size:6px;letter-spacing:.16em;font-weight:800;margin-top:1px;">OFFICIAL</div>
+              <div style="font-size:6px;letter-spacing:.16em;font-weight:800;">SEAL</div>
+            </div>
+          </div>
+        </div>
+        <div class="hw-info">
+          <div class="hw-name">Wax Seal</div>
+          <div class="hw-use">AdoptionCertificate only · bottom-right · 72px circle</div>
+          <div class="hw-css">bg: radial-gradient(circle at 35% 30%, var(--color-gold-deep), #b91c1c 55%, var(--color-gold-800) 100%)<br>border: 2px solid var(--color-gold-900) · transform: rotate(-8deg)<br>inner: 1.5px dashed rgba(255,255,255,.55)<br>shadow: inset 0 -5px 8px rgba(0,0,0,.4), 0 5px 8px rgba(69,26,3,.35)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="notes">
+      <h4>Notes</h4>
+      <ul>
+        <li>Light rivets (<code>#1c1917</code> centre) for SimTopBar and parchment panels — read as brass/copper against warm backgrounds</li>
+        <li>Dark rivets (<code>--color-wood-border</code> centre) for amber wood frames — read as iron nails against warm wood</li>
+        <li>Open Sign hangs straight — no rotation. The nail + string imply hand-placement without tilt</li>
+        <li>Aisle Plaque shares the amber wood gradient (<code>var(--color-wood-amber)→var(--color-wood-mid)</code>) with the Bonded Pair frame — they form the same wood tier</li>
+        <li>Wax seal is exclusive to <code>AdoptionCertificate.jsx</code></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ── DECORATIONS ───────────────────────────────────────────────── -->
+  <section class="section" id="decorations">
+    <div class="section-header">
+      <h2 class="section-title">Decorations</h2>
+      <span class="section-count">2 contexts · window: clouds, sun, birds · room: plant, chair, treats, habitats · inline SVG · no external assets</span>
+    </div>
+
+    <!-- Wide window strip — SuppliesStore variant showing all window elements together -->
+    <div class="subsection">
+      <div class="sub-title">Window — assembled (SuppliesStore panoramic variant)</div>
+      <div style="border:1px solid var(--color-neutral-200);border-radius:8px;overflow:hidden;margin-bottom:10px;">
+        <svg viewBox="0 0 1100 190" width="100%" height="130" preserveAspectRatio="xMidYMid meet" aria-hidden="true" style="display:block;">
+          <defs>
+            <linearGradient id="deWinFrame" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#b45309"></stop>
+              <stop offset="50%" stop-color="#92400e"></stop>
+              <stop offset="100%" stop-color="#78350f"></stop>
+            </linearGradient>
+          </defs>
+          <rect x="6" y="6" width="1088" height="172" rx="14" fill="#fff7e6" stroke="url(#deWinFrame)" stroke-width="10" stroke-linejoin="round"></rect>
+          <rect x="0" y="162" width="1100" height="22" rx="4" fill="url(#deWinFrame)"></rect>
+          <rect x="20" y="20" width="1060" height="142" fill="#bfe2f4"></rect>
+          <!-- clouds -->
+          <ellipse cx="240" cy="135" rx="34" ry="11" fill="#fff" opacity=".95"></ellipse>
+          <ellipse cx="262" cy="128" rx="22" ry="9" fill="#fff" opacity=".95"></ellipse>
+          <ellipse cx="640" cy="128" rx="38" ry="12" fill="#fff" opacity=".95"></ellipse>
+          <ellipse cx="666" cy="120" rx="24" ry="10" fill="#fff" opacity=".95"></ellipse>
+          <ellipse cx="430" cy="148" rx="28" ry="9" fill="#fff" opacity=".9"></ellipse>
+          <!-- sun -->
+          <circle cx="1015" cy="42" r="22" fill="#ffd97a" opacity=".95"></circle>
+          <circle cx="1015" cy="42" r="22" fill="none" stroke="#f5b945" stroke-width="2" opacity=".5"></circle>
+          <!-- birds -->
+          <path d="M520 142 q6 -6 12 0 q6 -6 12 0" stroke="#5a7385" stroke-width="2.5" fill="none" stroke-linecap="round"></path>
+          <path d="M820 150 q5 -5 10 0 q5 -5 10 0" stroke="#5a7385" stroke-width="2" fill="none" stroke-linecap="round"></path>
+          <!-- OPEN sign -->
+          <g transform="translate(70 136)">
+            <line x1="0" y1="-26" x2="0" y2="-12" stroke="#451a03" stroke-width="1.5"></line>
+            <circle cx="0" cy="-26" r="2" fill="#451a03"></circle>
+            <g transform="rotate(-3)">
+              <rect x="-36" y="-12" width="72" height="30" rx="5" fill="#fff7e6" stroke="#92400e" stroke-width="3"></rect>
+              <circle cx="-30" cy="-6" r="1.6" fill="#92400e"></circle>
+              <circle cx="30" cy="-6" r="1.6" fill="#92400e"></circle>
+              <text x="0" y="9" font-family="'Gaegu', cursive" font-size="20" font-weight="700" fill="#92400e" text-anchor="middle" letter-spacing=".04em">OPEN</text>
+            </g>
+          </g>
+          <!-- Potted plant -->
+          <g transform="translate(1010 138)">
+            <ellipse cx="-16" cy="-14" rx="8" ry="16" fill="#5b8c3e" transform="rotate(-28 -16 -14)" opacity=".95"></ellipse>
+            <ellipse cx="16" cy="-15" rx="8" ry="18" fill="#6ba348" transform="rotate(26 16 -15)" opacity=".95"></ellipse>
+            <ellipse cx="-4" cy="-22" rx="9" ry="22" fill="#7cb854" opacity=".95"></ellipse>
+            <ellipse cx="9" cy="-18" rx="7" ry="16" fill="#8ec964" transform="rotate(12 9 -18)" opacity=".95"></ellipse>
+            <ellipse cx="-10" cy="-9" rx="6" ry="11" fill="#4f7a36" transform="rotate(-50 -10 -9)" opacity=".9"></ellipse>
+            <path d="M-16 -28 Q-16 -16 -16 -4" stroke="#3d5f29" stroke-width="1" fill="none" opacity=".5"></path>
+            <path d="M16 -30 Q16 -17 16 -5" stroke="#3d5f29" stroke-width="1" fill="none" opacity=".5"></path>
+            <path d="M-4 -42 Q-4 -22 -4 -4" stroke="#3d5f29" stroke-width="1" fill="none" opacity=".5"></path>
+            <path d="M-22 0 L22 0 L20 4 L-20 4 Z" fill="#c97b4d"></path>
+            <path d="M-20 4 L20 4 L17 24 L-17 24 Z" fill="#b46339"></path>
+            <path d="M-16 5 Q-14 14 -15 22" stroke="#d99064" stroke-width="2" fill="none" opacity=".7"></path>
+          </g>
+        </svg>
+      </div>
+      <div class="spec-box" style="margin-bottom:24px;">
+        <div class="el-label" style="margin-bottom:4px;">Usage — SuppliesStore panoramic window</div>
+        <div class="el-code">viewBox="0 0 1100 190" · preserveAspectRatio="xMidYMid meet" · full-width SVG stretches to container<br>Frame: rect rx="14" fill="#fff7e6" stroke="url(woodGradient)" stroke-width="10" + sill rect<br>Sky pane: rect fill="#bfe2f4" inset from frame · all decorations positioned within sky pane<br>Also used in PetStore framed window: viewBox="0 0 220 240" — same elements, mullion grid added</div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="sub-title">Window elements — clouds, sun, birds</div>
+      <div class="hw-grid">
+
+        <div class="hw-card">
+          <div class="hw-demo" style="background:#bfe2f4;">
+            <svg viewBox="0 0 200 70" width="180" height="63" aria-hidden="true">
+              <ellipse cx="62" cy="52" rx="34" ry="11" fill="#fff" opacity=".95"></ellipse>
+              <ellipse cx="80" cy="44" rx="22" ry="9" fill="#fff" opacity=".95"></ellipse>
+              <ellipse cx="148" cy="44" rx="38" ry="12" fill="#fff" opacity=".95"></ellipse>
+              <ellipse cx="168" cy="36" rx="24" ry="10" fill="#fff" opacity=".95"></ellipse>
+              <ellipse cx="40" cy="58" rx="20" ry="7" fill="#fff" opacity=".9"></ellipse>
+            </svg>
+          </div>
+          <div class="hw-info">
+            <div class="hw-name">Clouds</div>
+            <div class="hw-use">Both window variants · low in the sky pane · 2–3 cloud groups</div>
+            <div class="hw-css">Each cloud: 2 overlapping ellipses — wide base pill (rx≈34, ry≈11) + taller offset cap (rx≈22, ry≈9)<br>Near: opacity .95 · distant: opacity .9<br>fill: #fff · positioned at bottom 60–80% of sky pane height</div>
+          </div>
+        </div>
+
+        <div class="hw-card">
+          <div class="hw-demo" style="background:#bfe2f4;">
+            <svg viewBox="0 0 80 80" width="80" height="80" aria-hidden="true">
+              <circle cx="40" cy="40" r="22" fill="#ffd97a" opacity=".95"></circle>
+              <circle cx="40" cy="40" r="22" fill="none" stroke="#f5b945" stroke-width="2" opacity=".5"></circle>
+            </svg>
+          </div>
+          <div class="hw-info">
+            <div class="hw-name">Sun</div>
+            <div class="hw-use">Both window variants · top-right corner of sky pane</div>
+            <div class="hw-css">circle r="22" fill="#ffd97a" opacity=".95"<br>halo ring: same circle fill="none" stroke="#f5b945" stroke-width="2" opacity=".5"<br>SuppliesStore: cx="1015" cy="42" · PetStore: cx="180" cy="40" r="14" opacity=".7"</div>
+          </div>
+        </div>
+
+        <div class="hw-card">
+          <div class="hw-demo" style="background:#bfe2f4;">
+            <svg viewBox="0 0 120 60" width="120" height="60" aria-hidden="true">
+              <path d="M20 38 q6 -6 12 0 q6 -6 12 0" stroke="#5a7385" stroke-width="2.5" fill="none" stroke-linecap="round"></path>
+              <path d="M72 44 q5 -5 10 0 q5 -5 10 0" stroke="#5a7385" stroke-width="2" fill="none" stroke-linecap="round"></path>
+              <path d="M50 22 q4 -4 8 0 q4 -4 8 0" stroke="#5a7385" stroke-width="1.5" fill="none" stroke-linecap="round"></path>
+            </svg>
+          </div>
+          <div class="hw-info">
+            <div class="hw-name">Birds</div>
+            <div class="hw-use">Both window variants · mid-sky · 2–3 birds at varying distances</div>
+            <div class="hw-css">Each bird: single &lt;path&gt; d="M{x} {y} q{d} -{d} {2d} 0 q{d} -{d} {2d} 0"<br>stroke="#5a7385" stroke-linecap="round" fill="none"<br>Near: stroke-width="2.5" · distant: stroke-width="2" / "1.5"</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="sub-title">Room — interior decorations (PetStoreBackdrop)</div>
+      <div class="hw-grid">
+
+        <div class="hw-card">
+          <div class="hw-demo" style="background:var(--color-gold-50);height:120px;">
+            <svg viewBox="0 0 120 160" width="75" height="100" aria-hidden="true">
+              <defs>
+                <linearGradient id="dePotShade" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stop-color="#fff" stop-opacity=".25"></stop>
+                  <stop offset="50%" stop-color="#fff" stop-opacity="0"></stop>
+                  <stop offset="100%" stop-color="#000" stop-opacity=".35"></stop>
+                </linearGradient>
+              </defs>
+              <g transform="translate(60 78)">
+                <ellipse cx="-22" cy="-30" rx="14" ry="34" fill="#5b8c3e" transform="rotate(-30 -22 -30)" opacity=".95"></ellipse>
+                <ellipse cx="22" cy="-32" rx="14" ry="36" fill="#6ba348" transform="rotate(28 22 -32)" opacity=".95"></ellipse>
+                <ellipse cx="-6" cy="-38" rx="13" ry="40" fill="#7cb854" opacity=".95"></ellipse>
+                <ellipse cx="12" cy="-40" rx="11" ry="34" fill="#8ec964" transform="rotate(14 12 -40)" opacity=".95"></ellipse>
+                <ellipse cx="-14" cy="-20" rx="10" ry="22" fill="#4f7a36" transform="rotate(-50 -14 -20)" opacity=".9"></ellipse>
+                <path d="M-22 -54 Q-22 -30 -22 -8" stroke="#3d5f29" stroke-width="1.2" fill="none" opacity=".5"></path>
+                <path d="M22 -56 Q22 -32 22 -10" stroke="#3d5f29" stroke-width="1.2" fill="none" opacity=".5"></path>
+                <path d="M-6 -74 Q-6 -42 -6 -10" stroke="#3d5f29" stroke-width="1.2" fill="none" opacity=".5"></path>
+              </g>
+              <path d="M16 80 L104 80 L100 90 L20 90 Z" fill="#c97b4d"></path>
+              <path d="M22 90 L98 90 L92 148 L28 148 Z" fill="#b46339"></path>
+              <path d="M22 90 L98 90 L92 148 L28 148 Z" fill="url(#dePotShade)" opacity=".4"></path>
+              <path d="M28 92 Q34 100 32 144" stroke="#d99064" stroke-width="3" fill="none" opacity=".7"></path>
+            </svg>
+          </div>
+          <div class="hw-info">
+            <div class="hw-name">Plant</div>
+            <div class="hw-use">PetStoreBackdrop · mid-left + bottom-right · rotate(−3deg) / rotate(5deg) · opacity .55–.6</div>
+            <div class="hw-css">viewBox="0 0 120 160" · 5 layered frond ellipses rotated −50°→+28°<br>fills: #5b8c3e / #6ba348 / #7cb854 / #8ec964 / #4f7a36 · vein paths stroke="#3d5f29"<br>pot rim: trapezoid path fill="#c97b4d" · body: path fill="#b46339" + shade gradient<br>highlight stroke: #d99064 stroke-width="3"</div>
+          </div>
+        </div>
+
+        <div class="hw-card">
+          <div class="hw-demo" style="background:var(--color-gold-50);height:120px;">
+            <svg viewBox="0 0 120 180" width="65" height="98" aria-hidden="true">
+              <defs>
+                <linearGradient id="deSeatShade" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#fff" stop-opacity=".4"></stop>
+                  <stop offset="100%" stop-color="#000" stop-opacity=".3"></stop>
+                </linearGradient>
+              </defs>
+              <rect x="20" y="20" width="10" height="148" fill="#8b5a2b" rx="2"></rect>
+              <rect x="90" y="20" width="10" height="148" fill="#8b5a2b" rx="2"></rect>
+              <rect x="14" y="92" width="9" height="76" fill="#a06b34" rx="2"></rect>
+              <rect x="97" y="92" width="9" height="76" fill="#a06b34" rx="2"></rect>
+              <rect x="10" y="78" width="100" height="14" fill="#a87445" rx="2"></rect>
+              <rect x="10" y="78" width="100" height="14" fill="url(#deSeatShade)" opacity=".5"></rect>
+              <rect x="30" y="28" width="60" height="6" fill="#a87445" rx="2"></rect>
+              <rect x="30" y="42" width="60" height="6" fill="#a87445" rx="2"></rect>
+              <rect x="30" y="56" width="60" height="6" fill="#a87445" rx="2"></rect>
+              <rect x="14" y="130" width="92" height="6" fill="#8b5a2b" rx="2"></rect>
+              <ellipse cx="60" cy="78" rx="48" ry="6" fill="#e6b07d" opacity=".6"></ellipse>
+            </svg>
+          </div>
+          <div class="hw-info">
+            <div class="hw-name">Chair</div>
+            <div class="hw-use">PetStoreBackdrop · mid-right · opacity .55</div>
+            <div class="hw-css">viewBox="0 0 120 180" · back posts: 10×148px fill="#8b5a2b" · front legs: 9×76px fill="#a06b34"<br>seat: 100×14px fill="#a87445" + shade gradient overlay<br>3 backrest slats: 60×6px fill="#a87445" · cross brace: 92×6px<br>seat highlight: ellipse fill="#e6b07d" opacity=".6"</div>
+          </div>
+        </div>
+
+        <div class="hw-card">
+          <div class="hw-demo" style="background:var(--color-gold-50);height:120px;">
+            <svg viewBox="0 0 200 170" width="120" height="102" aria-hidden="true">
+              <defs>
+                <linearGradient id="deTreatsBoxFront" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#c79b6a"></stop>
+                  <stop offset="100%" stop-color="#9a6c43"></stop>
+                </linearGradient>
+                <linearGradient id="deTreatsBoxSide" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#a87a4f"></stop>
+                  <stop offset="100%" stop-color="#754f2e"></stop>
+                </linearGradient>
+                <clipPath id="deTreatsBoxClip">
+                  <path d="M-200,-200 L400,-200 L400,45 L185,45 L170,60 L30,60 L45,45 L-200,45 Z"></path>
+                </clipPath>
+              </defs>
+              <path d="M30,60 L170,60 L185,45 L45,45 Z" fill="#3d2410"></path>
+              <path d="M30,60 L170,60 L177,52 L37,52 Z" fill="#52331a" opacity=".7"></path>
+              <g clip-path="url(#deTreatsBoxClip)">
+                <g transform="translate(112 22) rotate(8)">
+                  <rect x="0" y="0" width="40" height="34" fill="#e3c17a" rx="2"></rect>
+                  <line x1="2" y1="6" x2="38" y2="6" stroke="#b89546" stroke-width="1"></line>
+                  <line x1="2" y1="14" x2="38" y2="14" stroke="#b89546" stroke-width="1"></line>
+                  <line x1="2" y1="22" x2="38" y2="22" stroke="#b89546" stroke-width="1"></line>
+                  <line x1="2" y1="30" x2="38" y2="30" stroke="#b89546" stroke-width="1"></line>
+                  <rect x="14" y="-3" width="6" height="40" fill="#8b5a2b" opacity=".7"></rect>
+                </g>
+                <rect x="50" y="14" width="6" height="50" fill="#a87445" transform="rotate(-14 53 39)"></rect>
+                <rect x="60" y="10" width="6" height="52" fill="#bd8a55" transform="rotate(-6 63 36)"></rect>
+                <circle cx="44" cy="52" r="11" fill="#d94a4a"></circle>
+                <path d="M44 41 q2 -6 6 -6" stroke="#5b8c3e" stroke-width="2" fill="none"></path>
+                <ellipse cx="41" cy="48" rx="2" ry="3" fill="#fff" opacity=".5"></ellipse>
+              </g>
+              <path d="M170,60 L185,45 L185,135 L170,150 Z" fill="url(#deTreatsBoxSide)"></path>
+              <path d="M170,60 L185,45" stroke="#dcb380" stroke-width="1.5" fill="none"></path>
+              <path d="M30,60 L170,60 L170,150 L30,150 Z" fill="url(#deTreatsBoxFront)"></path>
+              <path d="M30,60 L170,60" stroke="#e3c08a" stroke-width="2.5" fill="none"></path>
+              <path d="M30,150 L170,150" stroke="#5c3a1f" stroke-width="1.5" fill="none"></path>
+              <path d="M170,60 L170,150" stroke="#7a5430" stroke-width="1" fill="none" opacity=".5"></path>
+              <path d="M33,58 L167,58 L182,46 L48,46 Z" fill="none" stroke="#dcb380" stroke-width="1" opacity=".55"></path>
+              <path d="M30,60 L170,60 L185,45 L45,45 Z" fill="none" stroke="#5c3a1f" stroke-width="1.2" opacity=".65"></path>
+              <g transform="translate(58 100) rotate(-4)">
+                <rect x="0" y="0" width="80" height="22" fill="#fff7e6" stroke="#92400e" stroke-width="2" rx="2"></rect>
+                <text x="40" y="16" text-anchor="middle" font-family="'Gaegu', cursive" font-size="14" font-weight="700" fill="#92400e">TREATS</text>
+              </g>
+            </svg>
+          </div>
+          <div class="hw-info">
+            <div class="hw-name">Treats Box</div>
+            <div class="hw-use">PetStoreBackdrop · bottom-left · rotate(−5deg) · opacity .6</div>
+            <div class="hw-css">viewBox="0 0 200 170" · oblique projection: front face + right side + top opening<br>clipPath masks items (hay bundle, chew sticks, apple) to above-rim volume only<br>front: linear-gradient #c79b6a→#9a6c43 · side: #a87a4f→#754f2e<br>TREATS label: nailed-sign style — var(--color-gold-50) fill, var(--color-wood-dark) border, Gaegu font, rotate(−4°)</div>
+          </div>
+        </div>
+
+        <div class="hw-card">
+          <div class="hw-demo" style="background:var(--color-gold-50);height:120px;">
+            <svg viewBox="0 0 280 180" width="196" height="126" aria-hidden="true">
+              <rect x="0" y="148" width="280" height="10" fill="#92400e"></rect>
+              <rect x="0" y="158" width="280" height="4" fill="#5c2a0a"></rect>
+              <!-- Cage 1 -->
+              <g transform="translate(10 60)">
+                <rect x="0" y="0" width="80" height="88" fill="#fde8b8" stroke="#92400e" stroke-width="3" rx="4"></rect>
+                <line x1="12" y1="4" x2="12" y2="84" stroke="#92400e" stroke-width="1.5" opacity=".7"></line>
+                <line x1="24" y1="4" x2="24" y2="84" stroke="#92400e" stroke-width="1.5" opacity=".7"></line>
+                <line x1="36" y1="4" x2="36" y2="84" stroke="#92400e" stroke-width="1.5" opacity=".7"></line>
+                <line x1="48" y1="4" x2="48" y2="84" stroke="#92400e" stroke-width="1.5" opacity=".7"></line>
+                <line x1="60" y1="4" x2="60" y2="84" stroke="#92400e" stroke-width="1.5" opacity=".7"></line>
+                <line x1="72" y1="4" x2="72" y2="84" stroke="#92400e" stroke-width="1.5" opacity=".7"></line>
+                <rect x="3" y="74" width="74" height="12" fill="#e9c878" rx="2"></rect>
+                <rect x="58" y="14" width="6" height="22" fill="#a9d6ec" stroke="#3a5a72" stroke-width="1" rx="1"></rect>
+              </g>
+              <!-- Cage 2 -->
+              <g transform="translate(100 50)">
+                <rect x="0" y="0" width="80" height="98" fill="#fbcfe8" stroke="#92400e" stroke-width="3" rx="4"></rect>
+                <line x1="12" y1="4" x2="12" y2="94" stroke="#92400e" stroke-width="1.5" opacity=".7"></line>
+                <line x1="24" y1="4" x2="24" y2="94" stroke="#92400e" stroke-width="1.5" opacity=".7"></line>
+                <line x1="36" y1="4" x2="36" y2="94" stroke="#92400e" stroke-width="1.5" opacity=".7"></line>
+                <line x1="48" y1="4" x2="48" y2="94" stroke="#92400e" stroke-width="1.5" opacity=".7"></line>
+                <line x1="60" y1="4" x2="60" y2="94" stroke="#92400e" stroke-width="1.5" opacity=".7"></line>
+                <line x1="72" y1="4" x2="72" y2="94" stroke="#92400e" stroke-width="1.5" opacity=".7"></line>
+                <rect x="3" y="84" width="74" height="12" fill="#e9c878" rx="2"></rect>
+                <path d="M28 84 q12 -16 24 0 Z" fill="#fff" stroke="#92400e" stroke-width="1.5"></path>
+              </g>
+              <!-- Cage 3 -->
+              <g transform="translate(190 64)">
+                <rect x="0" y="0" width="80" height="84" fill="#bbf7d0" stroke="#92400e" stroke-width="3" rx="4"></rect>
+                <line x1="12" y1="4" x2="12" y2="80" stroke="#92400e" stroke-width="1.5" opacity=".7"></line>
+                <line x1="24" y1="4" x2="24" y2="80" stroke="#92400e" stroke-width="1.5" opacity=".7"></line>
+                <line x1="36" y1="4" x2="36" y2="80" stroke="#92400e" stroke-width="1.5" opacity=".7"></line>
+                <line x1="48" y1="4" x2="48" y2="80" stroke="#92400e" stroke-width="1.5" opacity=".7"></line>
+                <line x1="60" y1="4" x2="60" y2="80" stroke="#92400e" stroke-width="1.5" opacity=".7"></line>
+                <line x1="72" y1="4" x2="72" y2="80" stroke="#92400e" stroke-width="1.5" opacity=".7"></line>
+                <rect x="3" y="70" width="74" height="12" fill="#e9c878" rx="2"></rect>
+                <ellipse cx="40" cy="74" rx="14" ry="5" fill="#c4a55a"></ellipse>
+              </g>
+              <path d="M14 158 L14 174 L24 174" stroke="#5c2a0a" stroke-width="3" fill="none"></path>
+              <path d="M266 158 L266 174 L256 174" stroke="#5c2a0a" stroke-width="3" fill="none"></path>
+            </svg>
+          </div>
+          <div class="hw-info">
+            <div class="hw-name">Habitats</div>
+            <div class="hw-use">PetStoreBackdrop · top-right · rotate(1.5deg) · opacity .5</div>
+            <div class="hw-css">viewBox="0 0 280 180" · 3 cages on a shared shelf<br>cage body: rect fill varies by tint (parchment / pink / green) stroke="#92400e" rx="4"<br>bars: 6× vertical lines x=12,24,36,48,60,72 stroke-width="1.5" opacity=".7"<br>bedding: rect fill="#e9c878" · props: water bottle (cage 1), igloo (cage 2), hay (cage 3)<br>shelf: rect fill="#92400e" + darker underside · bracket legs: L-path stroke="#5c2a0a"</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="notes">
+      <h4>Notes</h4>
+      <ul>
+        <li>All decorations are inline SVG — no external assets; safe for offline use</li>
+        <li>Clouds and birds appear in both the PetStore framed window (<code>viewBox="0 0 220 240"</code>) and the SuppliesStore panoramic window (<code>viewBox="0 0 1100 190"</code>) using the same shapes, just repositioned</li>
+        <li>Plant frond colors: #5b8c3e / #6ba348 / #7cb854 / #8ec964 / #4f7a36 — 5 tiers from dark outer to light inner · vein paths stroke="#3d5f29"</li>
+        <li>Treats box uses a <code>&lt;clipPath&gt;</code> to mask items so the box walls properly occlude them — the clip polygon covers everything above the back rim y=45</li>
+        <li>PetStoreBackdrop wraps all room decorations in <code>position:absolute; inset:0; pointer-events:none; z-index:0; aria-hidden="true"</code></li>
+        <li>Opacity values: window .55, plant .6, habitats .5, chair .55, treats .6 — keeps backdrop from competing with foreground cage cards</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- (Sign Badge and Sign Status moved to GPS2 Buttons → Sign Pill) -->
+
+<!-- ── ICON STICKER ───────────────────────────────────────────────── -->
+  <section class="section" id="iconsticker">
+    <div class="section-header">
+      <h2 class="section-title">Icon Sticker</h2>
+      <span class="section-count">Glossy sphere badge · action bar + SimTopBar + Sign Pill · 2 sizes</span>
+    </div>
+
+    <div class="subsection">
+      <div class="sub-title">Color Variants — action bar &amp; SimTopBar</div>
+      <!-- Shown on a parchment-coloured ground to match in-game button context -->
+      <div style="background:var(--color-gold-100);border:1px solid var(--color-neutral-200);border-radius:10px;padding:20px 24px 18px;margin-bottom:20px;">
+        <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:14px;">
+
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+            <div style="width:38px;height:38px;border-radius:50%;background:radial-gradient(circle at 38% 32%,var(--color-pink-400) 0%,var(--color-pink-deep) 55%,var(--color-pink-700) 100%);box-shadow:0 2px 5px rgba(0,0,0,.18),inset 0 2px 3px rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1;">🍎</div>
+            <div style="text-align:center;"><div style="font-size:11px;font-weight:700;color:var(--color-neutral-700);">Give Food</div><div style="font-family:Consolas,monospace;font-size:9px;color:var(--color-wood-mid);margin-top:1px;">--color-pink</div></div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+            <div style="width:38px;height:38px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#a3e635 0%,#65a30d 55%,#4d7c0f 100%);box-shadow:0 2px 5px rgba(0,0,0,.18),inset 0 2px 3px rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1;">🎾</div>
+            <div style="text-align:center;"><div style="font-size:11px;font-weight:700;color:var(--color-neutral-700);">Help Play</div><div style="font-family:Consolas,monospace;font-size:9px;color:var(--color-wood-mid);margin-top:1px;">--color-lime</div></div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+            <div style="width:38px;height:38px;border-radius:50%;background:radial-gradient(circle at 38% 32%,var(--color-violet-300) 0%,var(--color-violet-deep) 55%,var(--color-violet-800) 100%);box-shadow:0 2px 5px rgba(0,0,0,.18),inset 0 2px 3px rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1;">🪥</div>
+            <div style="text-align:center;"><div style="font-size:11px;font-weight:700;color:var(--color-neutral-700);">Give Care</div><div style="font-family:Consolas,monospace;font-size:9px;color:var(--color-wood-mid);margin-top:1px;">--color-violet</div></div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+            <div style="width:38px;height:38px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#fb923c 0%,var(--color-orange) 55%,var(--color-gold-600) 100%);box-shadow:0 2px 5px rgba(0,0,0,.18),inset 0 2px 3px rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1;">😊</div>
+            <div style="text-align:center;"><div style="font-size:11px;font-weight:700;color:var(--color-neutral-700);">Socialize</div><div style="font-family:Consolas,monospace;font-size:9px;color:var(--color-wood-mid);margin-top:1px;">--color-orange</div></div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+            <div style="width:38px;height:38px;border-radius:50%;background:radial-gradient(circle at 38% 32%,var(--color-cyan) 0%,var(--color-cyan-600) 55%,var(--color-cyan-700) 100%);box-shadow:0 2px 5px rgba(0,0,0,.18),inset 0 2px 3px rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1;">💧</div>
+            <div style="text-align:center;"><div style="font-size:11px;font-weight:700;color:var(--color-neutral-700);">Encourage</div><div style="font-family:Consolas,monospace;font-size:9px;color:var(--color-wood-mid);margin-top:1px;">--color-sky</div></div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+            <div style="width:38px;height:38px;border-radius:50%;background:radial-gradient(circle at 38% 32%,var(--color-lime) 0%,var(--color-green) 55%,var(--color-green-700) 100%);box-shadow:0 2px 5px rgba(0,0,0,.18),inset 0 2px 3px rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1;">🏠</div>
+            <div style="text-align:center;"><div style="font-size:11px;font-weight:700;color:var(--color-neutral-700);">Habitat</div><div style="font-family:Consolas,monospace;font-size:9px;color:var(--color-wood-mid);margin-top:1px;">--color-green</div></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="sub-title">Anatomy</div>
+      <div style="display:flex;gap:32px;align-items:flex-start;">
+
+        <!-- Large anatomy specimen on parchment ground -->
+        <div style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:90px;height:90px;background:var(--color-gold-100);border:1px solid var(--color-neutral-200);border-radius:8px;">
+          <div style="width:48px;height:48px;border-radius:50%;background:radial-gradient(circle at 38% 32%,var(--color-pink-400) 0%,var(--color-pink-deep) 55%,var(--color-pink-700) 100%);box-shadow:0 2px 5px rgba(0,0,0,.18),inset 0 2px 3px rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;font-size:28px;line-height:1;">🍎</div>
+        </div>
+
+        <div style="flex:1;display:flex;flex-direction:column;gap:9px;">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--color-neutral-500);margin-bottom:2px;">Layer Stack — bottom → top</div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <div style="width:28px;height:16px;border-radius:50%;background:radial-gradient(circle at 38% 32%,var(--color-pink-400),var(--color-pink-deep) 55%,var(--color-pink-700));flex-shrink:0;margin-top:2px;"></div>
+            <div style="font-size:12px;color:var(--color-neutral-700);"><strong>1. Radial gradient</strong> — <code style="font-family:Consolas,monospace;font-size:10px;color:var(--color-wood-dark);">radial-gradient(circle at 38% 32%, {mid-light} 0%, {base} 55%, {shade} 100%)</code> — highlight is a mid-tone step (not pale), shadow is only 1–2 steps darker than base, keeping the orb muted</div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <div style="width:28px;height:16px;border-radius:50%;background:rgba(255,255,255,.2);box-shadow:inset 0 2px 3px rgba(255,255,255,.28);border:1px solid var(--color-neutral-200);flex-shrink:0;margin-top:2px;"></div>
+            <div style="font-size:12px;color:var(--color-neutral-700);"><strong>2. Inset highlight</strong> — <code style="font-family:Consolas,monospace;font-size:10px;color:var(--color-wood-dark);">inset 0 2px 3px rgba(255,255,255,.28)</code> — softer than a gem-like shine; no second inset ring</div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <div style="width:28px;height:10px;border-radius:2px;box-shadow:0 2px 5px rgba(0,0,0,.18);border:1px solid var(--color-neutral-200);flex-shrink:0;margin-top:4px;"></div>
+            <div style="font-size:12px;color:var(--color-neutral-700);"><strong>3. Drop shadow</strong> — <code style="font-family:Consolas,monospace;font-size:10px;color:var(--color-wood-dark);">0 2px 5px rgba(0,0,0,.18)</code> — subtle lift, not a deep floating shadow</div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <div style="width:28px;height:16px;border-radius:50%;border:1px dashed var(--color-neutral-400);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;margin-top:2px;">🍎</div>
+            <div style="font-size:12px;color:var(--color-neutral-700);"><strong>4. Icon</strong> — fills ~70–75% of diameter · <code style="font-family:Consolas,monospace;font-size:10px;color:var(--color-wood-dark);">font-size: 22–24px</code> inside a 38px circle — icon should dominate the sticker face</div>
+          </div>
+        </div>
+
+        <div style="flex:1;">
+          <div class="spec-box">
+            <div class="el-label" style="margin-bottom:4px;">CSS Recipe</div>
+            <div class="el-code">/* ── Large (action bar) ── */<br>width: 38px; height: 38px<br>font-size: 22px<br>position: absolute; top: -8px; left: 8px<br>box-shadow: 0 2px 5px rgba(0,0,0,.18),<br>            inset 0 2px 3px rgba(255,255,255,.28)<br><br>/* ── Medium (SimTopBar compact) ── */<br>width: 34px; height: 34px<br>font-size: 20px<br><br>/* ── Small (Sign Pill inline disc) ── */<br>width: 26px; height: 26px<br>font-size: 15px<br>border: 2px solid {color-shade}  /* visible ring */<br>position: static  /* inline in flex row, not absolute */<br>box-shadow: 0 2px 3px rgba(0,0,0,.28),<br>            inset 0 1px 0 rgba(255,255,255,.4)<br><br>/* ── Shared ── */<br>border-radius: 50%<br>background: radial-gradient(<br>  circle at 38% 32%,<br>  {color-mid-light} 0%,<br>  var(--color-action) 55%,<br>  {color-shade} 100%<br>)<br>/* icon fills ~70% of face */<br></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="sub-title">Small variant — Sign Pill inline icon disc · 26px</div>
+      <div style="background:var(--color-gold-100);border:1px solid var(--color-neutral-200);border-radius:10px;padding:20px 24px 18px;margin-bottom:16px;">
+        <div style="display:flex;align-items:flex-end;gap:32px;flex-wrap:wrap;">
+
+          <!-- Amber/parchment — Inventory, Activity -->
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+            <div style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--color-gold-100),var(--color-gold));border:2px solid var(--color-wood-dark);box-shadow:0 2px 3px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.4);font-size:15px;line-height:1;">🎒</div>
+            <div style="text-align:center;"><div style="font-size:11px;font-weight:700;color:var(--color-neutral-700);">Inventory</div><div style="font-family:Consolas,monospace;font-size:9px;color:var(--color-wood-mid);margin-top:1px;">Amber/parchment</div></div>
+          </div>
+
+          <!-- Amber/parchment — Activity -->
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+            <div style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--color-gold-100),var(--color-gold));border:2px solid var(--color-wood-dark);box-shadow:0 2px 3px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.4);font-size:15px;line-height:1;">📓</div>
+            <div style="text-align:center;"><div style="font-size:11px;font-weight:700;color:var(--color-neutral-700);">Activity</div><div style="font-family:Consolas,monospace;font-size:9px;color:var(--color-wood-mid);margin-top:1px;">Amber/parchment</div></div>
+          </div>
+
+          <!-- Green — Habitat -->
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+            <div style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--color-green-200),var(--color-green-500));border:2px solid var(--color-green-800);box-shadow:0 2px 3px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.4);font-size:15px;line-height:1;">🏠</div>
+            <div style="text-align:center;"><div style="font-size:11px;font-weight:700;color:var(--color-neutral-700);">Habitat</div><div style="font-family:Consolas,monospace;font-size:9px;color:var(--color-wood-mid);margin-top:1px;">Green</div></div>
+          </div>
+
+          <!-- Pink — pig face -->
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+            <div style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--color-pink-100),var(--color-pink-300));border:2px solid var(--color-pink-700);box-shadow:0 2px 3px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.4);font-size:15px;line-height:1;">🐹</div>
+            <div style="text-align:center;"><div style="font-size:11px;font-weight:700;color:var(--color-neutral-700);">Guinea Pig</div><div style="font-family:Consolas,monospace;font-size:9px;color:var(--color-wood-mid);margin-top:1px;">Pink</div></div>
+          </div>
+
+          <!-- Size comparison -->
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px;margin-left:16px;padding-left:16px;border-left:1px solid var(--color-neutral-200);">
+            <div style="display:flex;align-items:flex-end;gap:10px;">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+                <div style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;background:radial-gradient(circle at 38% 32%,var(--color-pink-400),var(--color-pink-deep) 55%,var(--color-pink-700));box-shadow:0 2px 5px rgba(0,0,0,.18),inset 0 2px 3px rgba(255,255,255,.28);font-size:22px;line-height:1;">🍎</div>
+                <div style="font-family:Consolas,monospace;font-size:9px;color:var(--color-neutral-500);">38px</div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+                <div style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--color-gold-100),var(--color-gold));border:2px solid var(--color-wood-dark);box-shadow:0 2px 3px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.4);font-size:15px;line-height:1;">🎒</div>
+                <div style="font-family:Consolas,monospace;font-size:9px;color:var(--color-neutral-500);">26px</div>
+              </div>
+            </div>
+            <div style="font-size:11px;font-weight:700;color:var(--color-neutral-700);">Size comparison</div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="el-spec" style="border:1px solid var(--color-neutral-200);border-radius:6px;">
+        <div><div class="el-label">Size</div><div class="el-code">26×26px · font-size: 15px</div></div>
+        <div><div class="el-label">Context</div><div class="el-value">Sign Pill — inline icon disc; sits in flex row, not positioned absolute</div></div>
+        <div><div class="el-label">Border</div><div class="el-code">2px solid {color-shade} — visible ring matches gradient dark stop</div></div>
+        <div><div class="el-label">Box-shadow</div><div class="el-code">0 2px 3px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.4)</div></div>
+        <div class="el-spec-full"><div class="el-label">Gradient (amber/parchment example)</div><div class="el-code">radial-gradient(circle at 35% 30%, var(--color-gold-100), var(--color-gold)) · border: 2px solid var(--color-wood-dark)</div></div>
+        <div class="el-spec-full"><div class="el-label">Gradient (green/habitat example)</div><div class="el-code">radial-gradient(circle at 35% 30%, var(--color-green-200), var(--color-green-500)) · border: 2px solid var(--color-green-800)</div></div>
+      </div>
+    </div>
+
+    <div class="notes">
+      <h4>Notes</h4>
+      <ul>
+        <li>Gradient highlight is a <strong>mid-tone step</strong> of the color, not near-white — this keeps the sticker looking painted rather than gem-like</li>
+        <li>Shadow is intentionally light (<code>rgba(0,0,0,.18)</code>) — the sticker is a flat badge, not a floating object</li>
+        <li>Icon <code>font-size</code> should fill ~70–75% of the circle diameter — err on the side of larger; crowded looks better than lost</li>
+        <li>Sticker color always matches the action bar button's awning strip color — same token, different form: strip = flat repeat, sticker = radial sphere</li>
+        <li>Sticker is <code>position:absolute</code> and intentionally overlaps the top-left corner of its parent button, giving it a "pinned on" quality — <strong>except</strong> the small Sign Pill variant, which is inline in the flex row</li>
+        <li>Sizes: <strong>38px</strong> action bar · <strong>34px</strong> SimTopBar compact notice-board buttons · <strong>26px</strong> Sign Pill inline icon disc</li>
+        <li>Small variant adds a visible <code>border: 2px solid {shade}</code> — the larger variants rely on shadow alone for edge definition</li>
+      </ul>
+    </div>
+  </section>
+
+  
+</main>
+
+<script>
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      document.querySelectorAll('.nav-item').forEach(l =>
+        l.classList.toggle('active', l.getAttribute('href') === `#${e.target.id}`)
+      );
+    }
+  });
+}, { rootMargin: '-10% 0px -70% 0px' });
+document.querySelectorAll('.section').forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
