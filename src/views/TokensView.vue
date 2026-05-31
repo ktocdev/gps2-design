@@ -1,17 +1,37 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import '../styles/tokens-page.css'
+import PageLayout from '../components/design/PageLayout.vue'
+import Section    from '../components/design/Section.vue'
+import Notes      from '../components/design/Notes.vue'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-interface SemToken { name: string; hex: string; alias?: string }
-interface NeedToken { name: string; hex: string; var: string; ramp: string }
-interface WoodToken { name: string; hex: string; var: string; use: string }
-interface TypeEntry { token: string; rem: string; px: string; weight: number; heading: boolean; label: string }
-interface SpaceEntry { token: string; rem: string; px: string }
+interface SemToken    { name: string; hex: string; alias?: string }
+interface NeedToken   { name: string; hex: string; var: string; ramp: string }
+interface WoodToken   { name: string; hex: string; var: string; use: string }
+interface TypeEntry   { token: string; rem: string; px: string; weight: number; heading: boolean; label: string }
+interface SpaceEntry  { token: string; rem: string; px: string }
 interface RadiusEntry { token: string; val: string; px: string }
 interface ShadowEntry { token: string; val: string; use: string; bg?: string }
-interface PaletteDef { id: string; label: string; desc: string; code: string; colors: string[] }
-interface GameColor { name: string; hex: string; use: string; alias: string }
+interface PaletteDef  { id: string; label: string; desc: string; code: string; colors: string[] }
+interface GameColor   { name: string; hex: string; use: string; alias: string }
+
+// ── Nav ────────────────────────────────────────────────────────────────────────
+
+const navGroups = [
+  {
+    label: 'Tokens',
+    items: [
+      { id: 'colors',      label: 'Colors' },
+      { id: 'typography',  label: 'Typography' },
+      { id: 'spacing',     label: 'Spacing' },
+      { id: 'radius',      label: 'Border Radius' },
+      { id: 'shadows',     label: 'Shadows' },
+      { id: 'z-index',     label: 'Z-Index' },
+      { id: 'transitions', label: 'Transitions' },
+    ]
+  }
+]
 
 // ── Palette data ───────────────────────────────────────────────────────────────
 
@@ -75,12 +95,12 @@ const semStatus: SemToken[][] = [
 
 const semBgTxt: SemToken[][] = [
   [
-    { name: '--color-bg-primary',   hex: '#ffffff', alias: 'Light mode default' },
+    { name: '--color-bg-primary',   hex: '#ffffff', alias: 'Page background' },
     { name: '--color-bg-secondary', hex: '#f8fafc', alias: '' },
     { name: '--color-bg-tertiary',  hex: '#f1f5f9', alias: '' },
   ],
   [
-    { name: '--color-text-inverse',   hex: '#ffffff', alias: 'On dark surfaces' },
+    { name: '--color-text-inverse',   hex: '#ffffff', alias: 'On colored surfaces' },
     { name: '--color-text-muted',     hex: '#94a3b8', alias: '' },
     { name: '--color-text-tertiary',  hex: '#64748b', alias: '' },
     { name: '--color-text-secondary', hex: '#475569', alias: '' },
@@ -112,19 +132,19 @@ const needs: NeedToken[] = [
 ]
 
 const gameColors: GameColor[] = [
-  { name: '--color-pink',       hex: '#ec4899', use: 'Give Food · Grocery · Primary CTA',     alias: '↳ --color-pink-500' },
-  { name: '--color-pink-deep',  hex: '#db2777', use: 'Primary CTA bottom stop',                alias: '↳ --color-pink-600' },
-  { name: '--color-orange',     hex: '#ea580c', use: 'Action board (play · social)',            alias: '↳ --color-gold-500' },
-  { name: '--color-gold-deep',  hex: '#f59e0b', use: 'Activity icon border',                   alias: '↳ --color-gold-400' },
-  { name: '--color-gold',       hex: '#fbbf24', use: 'Activity · Today\'s Picks',              alias: '↳ --color-gold-300' },
-  { name: '--color-lime',       hex: '#4ade80', use: 'Habitat · Hay Loft',                     alias: '↳ --color-green-400' },
-  { name: '--color-ivy',        hex: '#84cc16', use: 'Hay Loft · Habitat Status',              alias: '↳ bespoke' },
-  { name: '--color-green',      hex: '#178740', use: 'Habitat icon border · player action',    alias: '↳ --color-green-600' },
-  { name: '--color-sky',        hex: '#06b6d4', use: 'Habitat dept awning',                    alias: '↳ --color-cyan-500' },
-  { name: '--color-cyan',       hex: '#22d3ee', use: 'Action board (hygiene · water)',          alias: '↳ --color-cyan-400' },
-  { name: '--color-violet',     hex: '#a78bfa', use: 'Inventory pill · action board',          alias: '↳ --color-violet-400' },
-  { name: '--color-violet-mid', hex: '#8b5cf6', use: 'Activity badge · Bedding awning',        alias: '↳ --color-violet-500' },
-  { name: '--color-violet-deep',hex: '#7c3aed', use: 'Inventory icon border',                  alias: '↳ --color-violet-600' },
+  { name: '--color-pink',        hex: '#ec4899', use: 'Give Food · Grocery · Primary CTA',     alias: '↳ --color-pink-500' },
+  { name: '--color-pink-deep',   hex: '#db2777', use: 'Primary CTA bottom stop',                alias: '↳ --color-pink-600' },
+  { name: '--color-orange',      hex: '#ea580c', use: 'Action board (play · social)',            alias: '↳ --color-gold-500' },
+  { name: '--color-gold-deep',   hex: '#f59e0b', use: 'Activity icon border',                   alias: '↳ --color-gold-400' },
+  { name: '--color-gold',        hex: '#fbbf24', use: "Activity · Today's Picks",               alias: '↳ --color-gold-300' },
+  { name: '--color-lime',        hex: '#4ade80', use: 'Habitat · Hay Loft',                     alias: '↳ --color-green-400' },
+  { name: '--color-ivy',         hex: '#84cc16', use: 'Hay Loft · Habitat Status',              alias: '↳ bespoke' },
+  { name: '--color-green',       hex: '#178740', use: 'Habitat icon border · player action',    alias: '↳ --color-green-600' },
+  { name: '--color-sky',         hex: '#06b6d4', use: 'Habitat dept awning',                    alias: '↳ --color-cyan-500' },
+  { name: '--color-cyan',        hex: '#22d3ee', use: 'Action board (hygiene · water)',          alias: '↳ --color-cyan-400' },
+  { name: '--color-violet',      hex: '#a78bfa', use: 'Inventory pill · action board',          alias: '↳ --color-violet-400' },
+  { name: '--color-violet-mid',  hex: '#8b5cf6', use: 'Activity badge · Bedding awning',        alias: '↳ --color-violet-500' },
+  { name: '--color-violet-deep', hex: '#7c3aed', use: 'Inventory icon border',                  alias: '↳ --color-violet-600' },
 ]
 
 // ── Typography data ────────────────────────────────────────────────────────────
@@ -199,23 +219,6 @@ const componentShadowData: ShadowEntry[] = [
   { token: '--shadow-confirm',     val: '0 6px 10px -2px rgba(0,0,0,.28), 0 2px 4px -1px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.4)',                                                     use: 'Confirm / Pause button',           bg: 'default' },
 ]
 
-// ── Active nav tracking ───────────────────────────────────────────────────────
-
-const activeSection = ref('colors')
-const pageRef = ref<HTMLElement | null>(null)
-let observer: IntersectionObserver | null = null
-
-onMounted(() => {
-  observer = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) activeSection.value = e.target.id
-    })
-  }, { rootMargin: '-10% 0px -70% 0px' })
-  pageRef.value?.querySelectorAll('.section').forEach(s => observer!.observe(s))
-})
-
-onUnmounted(() => { observer?.disconnect() })
-
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function spBarWidth(px: string): string {
@@ -228,522 +231,452 @@ function typeFamily(heading: boolean): string {
 </script>
 
 <template>
-  <div class="tokens-page" ref="pageRef">
-
-    <!-- ── Sidebar ──────────────────────────────────────────────────────── -->
-    <nav class="sidebar">
-      <div class="sidebar-brand">
-        <h1>GPS2</h1>
-        <span>Design Tokens v1.0</span>
+  <PageLayout title="GPS2" title-accent="Design Tokens" :nav-groups="navGroups">
+    <template #brand-subtitle>Design Tokens v1.0</template>
+    <template #page-meta>
+      <div class="page-meta">
+        <span>Source: <code>src/styles/tokens.css</code></span>
+        <span class="badge">v1.0 · May 2026</span>
       </div>
-      <span class="nav-label">Tokens</span>
-      <a href="#colors"      class="nav-item" :class="{ active: activeSection === 'colors' }">Colors</a>
-      <a href="#typography"  class="nav-item" :class="{ active: activeSection === 'typography' }">Typography</a>
-      <a href="#spacing"     class="nav-item" :class="{ active: activeSection === 'spacing' }">Spacing</a>
-      <a href="#radius"      class="nav-item" :class="{ active: activeSection === 'radius' }">Border Radius</a>
-      <a href="#shadows"     class="nav-item" :class="{ active: activeSection === 'shadows' }">Shadows</a>
-      <a href="#z-index"     class="nav-item" :class="{ active: activeSection === 'z-index' }">Z-Index</a>
-      <a href="#transitions" class="nav-item" :class="{ active: activeSection === 'transitions' }">Transitions</a>
-    </nav>
+    </template>
 
-    <!-- ── Main ─────────────────────────────────────────────────────────── -->
-    <main class="tokens-main">
+    <!-- ── COLORS ──────────────────────────────────────────────────────── -->
+    <Section id="colors" title="Colors" count="11 palettes · 10-step scales · 12 game colors · 11 need tokens">
 
-      <header class="page-header">
-        <h1 class="page-title">GPS2 <span>Design Tokens</span></h1>
-        <div class="page-meta">
-          <span>Source: <code>src/styles/variables.css</code></span>
-          <span class="badge">v1.0 · May 2026</span>
+      <!-- Palette rows -->
+      <div class="subsection" v-for="p in paletteDefs" :key="p.id">
+        <div class="sub-title">
+          {{ p.label }}
+          <span v-if="p.desc || p.code" style="font-weight:400;color:var(--color-neutral-400);text-transform:none;letter-spacing:0">
+            {{ p.desc ? p.desc + ' · ' : '' }}<code style="font-family:Consolas,monospace;font-size:10px;">{{ p.code }}</code>
+          </span>
         </div>
-      </header>
-
-      <!-- ── COLORS ──────────────────────────────────────────────────────── -->
-      <section class="section" id="colors">
-        <div class="section-header">
-          <h2 class="section-title">Colors</h2>
-          <span class="section-count">11 palettes · 10-step scales · 12 game colors · 11 need tokens</span>
-        </div>
-
-        <!-- Palette rows -->
-        <div class="subsection" v-for="p in paletteDefs" :key="p.id">
-          <div class="sub-title">
-            {{ p.label }}
-            <span v-if="p.desc || p.code" style="font-weight:400;color:#94a3b8;text-transform:none;letter-spacing:0">
-              {{ p.desc ? p.desc + ' · ' : '' }}<code style="font-family:Consolas,monospace;font-size:10px;">{{ p.code }}</code>
-            </span>
+        <div class="palette-row">
+          <div class="swatch" v-for="(hex, i) in p.colors" :key="i">
+            <div class="swatch-color" :style="{ background: `var(--color-${p.id}-${steps[i]})` }"></div>
+            <div class="swatch-info">
+              <div class="swatch-step">{{ steps[i] }}</div>
+              <div class="swatch-hex">{{ hex.toUpperCase() }}</div>
+              <div class="swatch-var">--color-{{ p.id }}-{{ steps[i] }}</div>
+            </div>
           </div>
-          <div class="palette-row">
-            <div class="swatch" v-for="(hex, i) in p.colors" :key="i">
-              <div class="swatch-color" :style="{ background: hex }"></div>
-              <div class="swatch-info">
-                <div class="swatch-step">{{ steps[i] }}</div>
-                <div class="swatch-hex">{{ hex.toUpperCase() }}</div>
-                <div class="swatch-var">--color-{{ p.id }}-{{ steps[i] }}</div>
+        </div>
+      </div>
+
+      <!-- Semantic — Action -->
+      <div class="subsection">
+        <div class="sub-title">Semantic — Primary &amp; Secondary Action</div>
+        <div class="semantic-grid">
+          <div class="sem-row" v-for="(row, ri) in semAction" :key="ri">
+            <div class="sem-token" v-for="t in row" :key="t.name">
+              <div class="sem-swatch" :style="{ background: `var(${t.name})`, outline: t.hex === '#ffffff' ? '1px solid var(--color-neutral-200)' : undefined }"></div>
+              <div class="sem-info">
+                <div class="sem-name">{{ t.name }}</div>
+                <div class="sem-hex">{{ t.hex.toUpperCase() }}</div>
+                <div v-if="t.alias" class="sem-alias">{{ t.alias }}</div>
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Semantic — Action -->
-        <div class="subsection">
-          <div class="sub-title">Semantic — Primary &amp; Secondary Action</div>
-          <div class="semantic-grid">
-            <div class="sem-row" v-for="(row, ri) in semAction" :key="ri">
-              <div class="sem-token" v-for="t in row" :key="t.name">
-                <div class="sem-swatch" :style="{ background: t.hex, outline: t.hex === '#ffffff' ? '1px solid #e2e8f0' : undefined }"></div>
-                <div class="sem-info">
-                  <div class="sem-name">{{ t.name }}</div>
-                  <div class="sem-hex">{{ t.hex.toUpperCase() }}</div>
-                  <div v-if="t.alias" class="sem-alias">{{ t.alias }}</div>
-                </div>
+      <!-- Semantic — Status -->
+      <div class="subsection">
+        <div class="sub-title">Semantic — Status</div>
+        <div class="semantic-grid">
+          <div class="sem-row" v-for="(row, ri) in semStatus" :key="ri">
+            <div class="sem-token" v-for="t in row" :key="t.name">
+              <div class="sem-swatch" :style="{ background: `var(${t.name})` }"></div>
+              <div class="sem-info">
+                <div class="sem-name">{{ t.name }}</div>
+                <div class="sem-hex">{{ t.hex.toUpperCase() }}</div>
+                <div v-if="t.alias" class="sem-alias">{{ t.alias }}</div>
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Semantic — Status -->
-        <div class="subsection">
-          <div class="sub-title">Semantic — Status</div>
-          <div class="semantic-grid">
-            <div class="sem-row" v-for="(row, ri) in semStatus" :key="ri">
-              <div class="sem-token" v-for="t in row" :key="t.name">
-                <div class="sem-swatch" :style="{ background: t.hex }"></div>
-                <div class="sem-info">
-                  <div class="sem-name">{{ t.name }}</div>
-                  <div class="sem-hex">{{ t.hex.toUpperCase() }}</div>
-                  <div v-if="t.alias" class="sem-alias">{{ t.alias }}</div>
-                </div>
+      <!-- Semantic — Bg & Text -->
+      <div class="subsection">
+        <div class="sub-title">Semantic — Background &amp; Text</div>
+        <div class="semantic-grid">
+          <div class="sem-row" v-for="(row, ri) in semBgTxt" :key="ri">
+            <div class="sem-token" v-for="t in row" :key="t.name">
+              <div class="sem-swatch" :style="{ background: `var(${t.name})`, outline: t.hex === '#ffffff' ? '1px solid var(--color-neutral-200)' : undefined }"></div>
+              <div class="sem-info">
+                <div class="sem-name">{{ t.name }}</div>
+                <div class="sem-hex">{{ t.hex.toUpperCase() }}</div>
+                <div v-if="t.alias" class="sem-alias">{{ t.alias }}</div>
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Semantic — Bg & Text -->
-        <div class="subsection">
-          <div class="sub-title">Semantic — Background &amp; Text</div>
-          <div class="semantic-grid">
-            <div class="sem-row" v-for="(row, ri) in semBgTxt" :key="ri">
-              <div class="sem-token" v-for="t in row" :key="t.name">
-                <div class="sem-swatch" :style="{ background: t.hex, outline: t.hex === '#ffffff' ? '1px solid #e2e8f0' : undefined }"></div>
-                <div class="sem-info">
-                  <div class="sem-name">{{ t.name }}</div>
-                  <div class="sem-hex">{{ t.hex.toUpperCase() }}</div>
-                  <div v-if="t.alias" class="sem-alias">{{ t.alias }}</div>
-                </div>
-              </div>
+      <!-- Wood tokens -->
+      <div class="subsection">
+        <div class="sub-title">Wood — Structural UI Surfaces</div>
+        <div class="needs-grid">
+          <div class="need-token" v-for="n in woodTokens" :key="n.var">
+            <div class="need-swatch" :style="{ background: `var(${n.var})` }"></div>
+            <div class="need-info">
+              <div class="need-name">{{ n.name }}</div>
+              <div class="need-var">{{ n.var }}</div>
+              <div class="need-hex">{{ n.hex.toUpperCase() }}</div>
+              <div style="font-size:9px;color:var(--color-neutral-400);margin-top:3px;">{{ n.use }}</div>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Wood tokens -->
-        <div class="subsection">
-          <div class="sub-title">Wood — Structural UI Surfaces</div>
-          <div class="needs-grid">
-            <div class="need-token" v-for="n in woodTokens" :key="n.var">
-              <div class="need-swatch" :style="{ background: n.hex }"></div>
-              <div class="need-info">
-                <div class="need-name">{{ n.name }}</div>
-                <div class="need-var">{{ n.var }}</div>
-                <div class="need-hex">{{ n.hex.toUpperCase() }}</div>
-                <div style="font-size:9px;color:#94a3b8;margin-top:3px;">{{ n.use }}</div>
-              </div>
+      <!-- Needs -->
+      <div class="subsection">
+        <div class="sub-title">Needs — Game-Specific Semantic Colors</div>
+        <div class="needs-grid">
+          <div class="need-token" v-for="n in needs" :key="n.var">
+            <div class="need-swatch" :style="{ background: `var(${n.var})` }"></div>
+            <div class="need-info">
+              <div class="need-name">{{ n.name }}</div>
+              <div class="need-var">{{ n.var }}</div>
+              <div class="need-hex">{{ n.hex.toUpperCase() }}</div>
+              <div style="font-family:Consolas,monospace;font-size:9px;color:var(--color-violet-400);margin-top:2px;">↳ {{ n.ramp }}</div>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Needs -->
-        <div class="subsection">
-          <div class="sub-title">Needs — Game-Specific Semantic Colors</div>
-          <div class="needs-grid">
-            <div class="need-token" v-for="n in needs" :key="n.var">
-              <div class="need-swatch" :style="{ background: n.hex }"></div>
-              <div class="need-info">
-                <div class="need-name">{{ n.name }}</div>
-                <div class="need-var">{{ n.var }}</div>
-                <div class="need-hex">{{ n.hex.toUpperCase() }}</div>
-                <div style="font-family:Consolas,monospace;font-size:9px;color:#a78bfa;margin-top:2px;">↳ {{ n.ramp }}</div>
-              </div>
+      <!-- Game colors -->
+      <div class="subsection">
+        <div class="sub-title">Game Colors <span style="font-weight:400;color:var(--color-neutral-400);text-transform:none;letter-spacing:0">— Panel header strips · icon discs · awning stripes · action boards</span></div>
+        <div class="needs-grid">
+          <div class="need-token" v-for="c in gameColors" :key="c.name">
+            <div class="need-swatch" :style="{ background: `var(${c.name})` }"></div>
+            <div class="need-info">
+              <div class="need-name">{{ c.name }}</div>
+              <div style="font-family:Consolas,monospace;font-size:9px;color:var(--color-neutral-400);">{{ c.hex.toUpperCase() }}</div>
+              <div style="font-size:9px;color:var(--color-neutral-400);margin-top:2px;">{{ c.use }}</div>
+              <div style="font-family:Consolas,monospace;font-size:9px;color:var(--color-violet-400);margin-top:2px;">{{ c.alias }}</div>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Game colors -->
-        <div class="subsection">
-          <div class="sub-title">Game Colors <span style="font-weight:400;color:#94a3b8;text-transform:none;letter-spacing:0">— Panel header strips · icon discs · awning stripes · action boards</span></div>
-          <div class="needs-grid">
-            <div class="need-token" v-for="c in gameColors" :key="c.name">
-              <div class="need-swatch" :style="{ background: c.hex }"></div>
-              <div class="need-info">
-                <div class="need-name">{{ c.name }}</div>
-                <div style="font-family:Consolas,monospace;font-size:9px;color:#94a3b8;">{{ c.hex.toUpperCase() }}</div>
-                <div style="font-size:9px;color:#94a3b8;margin-top:2px;">{{ c.use }}</div>
-                <div style="font-family:Consolas,monospace;font-size:9px;color:#a78bfa;margin-top:2px;">{{ c.alias }}</div>
-              </div>
+      <Notes>
+        <li>Only use semantic colors when used purposefully in an appropriate component, like warning colors in a warning icon.</li>
+        <li><code>--color-primary</code> = <code>--color-pink-600</code> (#DB2777) — selected for WCAG AA contrast on white</li>
+        <li>Light mode only — <code>:root</code> pins <code>color-scheme: light</code>; the site does not respond to OS dark mode</li>
+        <li>Needs colors are semantic-only (no scale) — use only within the needs/wellness UI, not as general purpose colors</li>
+        <li><code>--color-bg-canvas: #000000</code> is reserved for the 3D/WebGL viewport background</li>
+      </Notes>
+    </Section>
+
+    <!-- ── TYPOGRAPHY ──────────────────────────────────────────────────── -->
+    <Section id="typography" title="Typography" count="4 families + 2 screen-specific · 8 sizes · 4 weights · 3 line-heights">
+
+      <div class="subsection">
+        <div class="sub-title">Font Families</div>
+        <div class="ff-grid">
+          <div class="ff-card">
+            <div class="ff-sample" style="font-family:'Gaegu',cursive;font-weight:700;">Guinea Pig Sim</div>
+            <div class="ff-label">Heading</div>
+            <div class="ff-var">--font-family-heading</div>
+            <div class="ff-note">Gaegu · wght 300, 400, 700</div>
+            <div class="ff-note" style="margin-top:3px;">h1–h6, panel titles, game UI</div>
+          </div>
+          <div class="ff-card">
+            <div class="ff-sample" style="font-family:'Nunito',sans-serif;">The quick brown fox</div>
+            <div class="ff-label">Body</div>
+            <div class="ff-var">--font-family-body</div>
+            <div class="ff-note">Nunito · wght 300–700, italic</div>
+            <div class="ff-note" style="margin-top:3px;">Body copy, labels, inputs, buttons</div>
+          </div>
+          <div class="ff-card">
+            <div class="ff-sample" style="font-family:Consolas,monospace;font-size:17px;">#db2777 · 0.375rem</div>
+            <div class="ff-label">Mono</div>
+            <div class="ff-var">--font-family-mono</div>
+            <div class="ff-note">Consolas, Monaco · system</div>
+            <div class="ff-note" style="margin-top:3px;">Code, token values, debug UI</div>
+          </div>
+          <div class="ff-card">
+            <div class="ff-sample" style="font-family:'Roboto',sans-serif;">42 / 100 · 3.2 oz</div>
+            <div class="ff-label">Stats</div>
+            <div class="ff-var">--font-family-stats</div>
+            <div class="ff-note">Roboto · wght 400, 500, 700</div>
+            <div class="ff-note" style="margin-top:3px;">Numeric stat grids (stats.css)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <div class="sub-title">Screen-Specific Fonts — Adoption Certificate <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--color-neutral-400);">not global tokens</span></div>
+        <div style="background:var(--color-gold-50);border:1px solid var(--color-gold-200);border-left:3px solid var(--color-gold-400);border-radius:8px;padding:16px 20px;">
+          <div style="font-size:11px;color:var(--color-wood-dark);margin-bottom:14px;">Hardcoded in <code style="font-family:Consolas,monospace;font-size:11px;background:rgba(245,158,11,.15);padding:1px 5px;border-radius:3px;">AdoptionCertificate.jsx</code> for the parchment certificate aesthetic — do not use globally.</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;">
+            <div class="ff-card" style="border-color:var(--color-gold-200);">
+              <div class="ff-sample" style="font-family:Georgia,'Times New Roman',serif;font-size:18px;">Certificate of Adoption</div>
+              <div class="ff-label" style="color:var(--color-wood-dark);">Serif — Certificate Formal</div>
+              <div class="ff-var" style="color:var(--color-wood-mid);">Georgia, "Times New Roman", serif</div>
+              <div class="ff-note">System font — no import needed</div>
+              <div class="ff-note" style="margin-top:3px;">Certificate title, stats table, preamble body, footer meta, signature titles, wax seal, ADOPTED stamp</div>
+            </div>
+            <div class="ff-card" style="border-color:var(--color-gold-200);">
+              <div class="ff-sample" style="font-family:'Caveat',cursive;font-size:26px;font-weight:700;">Hazel Whiskers</div>
+              <div class="ff-label" style="color:var(--color-wood-dark);">Script — Handwritten Signatures</div>
+              <div class="ff-var" style="color:var(--color-wood-mid);">'Caveat', cursive</div>
+              <div class="ff-note">Caveat · Google Fonts · wght 400, 700</div>
+              <div class="ff-note" style="margin-top:3px;">Endorsement signatures, pig display name in card header, name callout in preamble</div>
             </div>
           </div>
         </div>
+      </div>
 
-        <div class="notes">
-          <h4>Notes</h4>
-          <ul>
-            <li>Only use semantic colors when used purposefully in an appropriate component, like warning colors in a warning icon.</li>
-            <li><code>--color-primary</code> = <code>--color-pink-600</code> (#DB2777) — selected for WCAG AA contrast on white</li>
-            <li>Dark mode overrides via <code>@media (prefers-color-scheme: dark)</code> and <code>[data-theme="dark"]</code>; accent scales stay fixed in both modes</li>
-            <li>Needs colors are semantic-only (no scale) — use only within the needs/wellness UI, not as general purpose colors</li>
-            <li><code>--color-bg-canvas: #000000</code> is reserved for the 3D/WebGL viewport background</li>
-          </ul>
-        </div>
-      </section>
-
-      <!-- ── TYPOGRAPHY ──────────────────────────────────────────────────── -->
-      <section class="section" id="typography">
-        <div class="section-header">
-          <h2 class="section-title">Typography</h2>
-          <span class="section-count">4 families + 2 screen-specific · 8 sizes · 4 weights · 3 line-heights</span>
-        </div>
-
-        <div class="subsection">
-          <div class="sub-title">Font Families</div>
-          <div class="ff-grid">
-            <div class="ff-card">
-              <div class="ff-sample" style="font-family:'Gaegu',cursive;font-weight:700;">Guinea Pig Sim</div>
-              <div class="ff-label">Heading</div>
-              <div class="ff-var">--font-family-heading</div>
-              <div class="ff-note">Gaegu · wght 300, 400, 700</div>
-              <div class="ff-note" style="margin-top:3px;">h1–h6, panel titles, game UI</div>
+      <div class="subsection">
+        <div class="sub-title">Type Scale</div>
+        <div class="type-scale">
+          <div class="type-row" v-for="t in typeScale" :key="t.token">
+            <div>
+              <div class="type-token-name">{{ t.token }}</div>
+              <div class="type-token-value">{{ t.rem }} · {{ t.px }}</div>
             </div>
-            <div class="ff-card">
-              <div class="ff-sample" style="font-family:'Nunito',sans-serif;">The quick brown fox</div>
-              <div class="ff-label">Body</div>
-              <div class="ff-var">--font-family-body</div>
-              <div class="ff-note">Nunito · wght 300–700, italic</div>
-              <div class="ff-note" style="margin-top:3px;">Body copy, labels, inputs, buttons</div>
+            <div :style="{ fontSize: t.rem, fontWeight: t.weight, fontFamily: typeFamily(t.heading), overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }">
+              {{ t.label }}
             </div>
-            <div class="ff-card">
-              <div class="ff-sample" style="font-family:Consolas,monospace;font-size:17px;">#db2777 · 0.375rem</div>
-              <div class="ff-label">Mono</div>
-              <div class="ff-var">--font-family-mono</div>
-              <div class="ff-note">Consolas, Monaco · system</div>
-              <div class="ff-note" style="margin-top:3px;">Code, token values, debug UI</div>
-            </div>
-            <div class="ff-card">
-              <div class="ff-sample" style="font-family:'Roboto',sans-serif;">42 / 100 · 3.2 oz</div>
-              <div class="ff-label">Stats</div>
-              <div class="ff-var">--font-family-stats</div>
-              <div class="ff-note">Roboto · wght 400, 500, 700</div>
-              <div class="ff-note" style="margin-top:3px;">Numeric stat grids (stats.css)</div>
+            <div class="type-props">
+              <span class="type-prop">family: {{ t.heading ? 'heading' : 'body' }}</span>
+              <span class="type-prop">weight: {{ t.weight }}</span>
             </div>
           </div>
         </div>
+      </div>
 
-        <div class="subsection">
-          <div class="sub-title">Screen-Specific Fonts — Adoption Certificate <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#94a3b8;">not global tokens</span></div>
-          <div style="background:#fffbeb;border:1px solid #fde68a;border-left:3px solid #f59e0b;border-radius:8px;padding:16px 20px;">
-            <div style="font-size:11px;color:#92400e;margin-bottom:14px;">Hardcoded in <code style="font-family:Consolas,monospace;font-size:11px;background:rgba(245,158,11,.15);padding:1px 5px;border-radius:3px;">AdoptionCertificate.jsx</code> for the parchment certificate aesthetic — do not use globally.</div>
-            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;">
-              <div class="ff-card" style="border-color:#fde68a;">
-                <div class="ff-sample" style="font-family:Georgia,'Times New Roman',serif;font-size:18px;">Certificate of Adoption</div>
-                <div class="ff-label" style="color:#92400e;">Serif — Certificate Formal</div>
-                <div class="ff-var" style="color:#b45309;">Georgia, "Times New Roman", serif</div>
-                <div class="ff-note">System font — no import needed</div>
-                <div class="ff-note" style="margin-top:3px;">Certificate title, stats table, preamble body, footer meta, signature titles, wax seal, ADOPTED stamp</div>
-              </div>
-              <div class="ff-card" style="border-color:#fde68a;">
-                <div class="ff-sample" style="font-family:'Caveat',cursive;font-size:26px;font-weight:700;">Hazel Whiskers</div>
-                <div class="ff-label" style="color:#92400e;">Script — Handwritten Signatures</div>
-                <div class="ff-var" style="color:#b45309;">'Caveat', cursive</div>
-                <div class="ff-note">Caveat · Google Fonts · wght 400, 700</div>
-                <div class="ff-note" style="margin-top:3px;">Endorsement signatures, pig display name in card header, name callout in preamble</div>
-              </div>
-            </div>
+      <div class="subsection">
+        <div class="sub-title">Font Weights</div>
+        <div class="weight-list">
+          <div class="weight-row">
+            <div class="weight-meta"><div class="weight-var">--font-weight-normal</div><div class="weight-val">400</div></div>
+            <span style="font-size:18px;font-weight:400;">The quick brown fox jumps over the lazy dog</span>
+          </div>
+          <div class="weight-row">
+            <div class="weight-meta"><div class="weight-var">--font-weight-medium</div><div class="weight-val">500</div></div>
+            <span style="font-size:18px;font-weight:500;">The quick brown fox jumps over the lazy dog</span>
+          </div>
+          <div class="weight-row">
+            <div class="weight-meta"><div class="weight-var">--font-weight-semibold</div><div class="weight-val">600</div></div>
+            <span style="font-size:18px;font-weight:600;">The quick brown fox jumps over the lazy dog</span>
+          </div>
+          <div class="weight-row">
+            <div class="weight-meta"><div class="weight-var">--font-weight-bold / --font-weight-heading</div><div class="weight-val">700</div></div>
+            <span style="font-size:18px;font-weight:700;">The quick brown fox jumps over the lazy dog</span>
           </div>
         </div>
+      </div>
 
-        <div class="subsection">
-          <div class="sub-title">Type Scale</div>
-          <div class="type-scale">
-            <div class="type-row" v-for="t in typeScale" :key="t.token">
-              <div>
-                <div class="type-token-name">{{ t.token }}</div>
-                <div class="type-token-value">{{ t.rem }} · {{ t.px }}</div>
-              </div>
-              <div :style="{ fontSize: t.rem, fontWeight: t.weight, fontFamily: typeFamily(t.heading), overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }">
-                {{ t.label }}
-              </div>
-              <div class="type-props">
-                <span class="type-prop">family: {{ t.heading ? 'heading' : 'body' }}</span>
-                <span class="type-prop">weight: {{ t.weight }}</span>
-              </div>
-            </div>
+      <div class="subsection">
+        <div class="sub-title">Line Heights</div>
+        <div class="lh-table">
+          <div class="lh-row" style="background:var(--color-neutral-50);">
+            <span class="lh-token">--line-height-tight</span>
+            <span class="lh-val">1.25</span>
+            <p class="lh-text" style="line-height:1.25;">Social animals that thrive with companionship. Regular interaction builds trust and deepens the bond between pet and owner over time.</p>
+          </div>
+          <div class="lh-row">
+            <span class="lh-token">--line-height-normal</span>
+            <span class="lh-val">1.5</span>
+            <p class="lh-text" style="line-height:1.5;">Social animals that thrive with companionship. Regular interaction builds trust and deepens the bond between pet and owner over time.</p>
+          </div>
+          <div class="lh-row" style="background:var(--color-neutral-50);">
+            <span class="lh-token">--line-height-relaxed</span>
+            <span class="lh-val">1.75</span>
+            <p class="lh-text" style="line-height:1.75;">Social animals that thrive with companionship. Regular interaction builds trust and deepens the bond between pet and owner over time.</p>
           </div>
         </div>
+      </div>
 
-        <div class="subsection">
-          <div class="sub-title">Font Weights</div>
-          <div class="weight-list">
-            <div class="weight-row">
-              <div class="weight-meta"><div class="weight-var">--font-weight-normal</div><div class="weight-val">400</div></div>
-              <span style="font-size:18px;font-weight:400;">The quick brown fox jumps over the lazy dog</span>
-            </div>
-            <div class="weight-row">
-              <div class="weight-meta"><div class="weight-var">--font-weight-medium</div><div class="weight-val">500</div></div>
-              <span style="font-size:18px;font-weight:500;">The quick brown fox jumps over the lazy dog</span>
-            </div>
-            <div class="weight-row">
-              <div class="weight-meta"><div class="weight-var">--font-weight-semibold</div><div class="weight-val">600</div></div>
-              <span style="font-size:18px;font-weight:600;">The quick brown fox jumps over the lazy dog</span>
-            </div>
-            <div class="weight-row">
-              <div class="weight-meta"><div class="weight-var">--font-weight-bold / --font-weight-heading</div><div class="weight-val">700</div></div>
-              <span style="font-size:18px;font-weight:700;">The quick brown fox jumps over the lazy dog</span>
-            </div>
+      <Notes>
+        <li>Body font is <code>Nunito</code> (replaced Inter) — loaded via <code>base.css</code> at wght 300–700 + italic</li>
+        <li>Base font size is <code>16px</code> on <code>html</code>; all <code>rem</code> values scale from this root</li>
+        <li>Responsive heading scale: h1–h3 scale ×1.125 at 640px, ×1.25 at 1024px via <code>calc()</code> inside media queries</li>
+        <li><code>--font-weight-heading</code> is an alias for 700 — always use for h1–h6 elements</li>
+        <li><code>-webkit-font-smoothing: antialiased</code> applied globally on <code>body</code></li>
+        <li>Heading font (Gaegu) is a handwritten-style display face — avoid using below 14px</li>
+        <li>Georgia and Caveat are not global tokens — scoped exclusively to <code>AdoptionCertificate.jsx</code>; do not use elsewhere</li>
+        <li><code>--font-family-stats</code> (Roboto) is used only in <code>stats.css</code> stat grid components</li>
+      </Notes>
+    </Section>
+
+    <!-- ── SPACING ─────────────────────────────────────────────────────── -->
+    <Section id="spacing" title="Spacing" count="10 base steps · 6 semantic aliases · 4px base unit">
+
+      <div class="subsection">
+        <div class="sub-title">Base Scale — --space-*</div>
+        <div class="spacing-list">
+          <div class="sp-row" v-for="s in spacingData" :key="s.token">
+            <span class="sp-var">{{ s.token }}</span>
+            <span class="sp-rem">{{ s.rem }}</span>
+            <span class="sp-px">{{ s.px }}</span>
+            <div><div class="sp-bar" :style="{ width: spBarWidth(s.px) }"></div></div>
           </div>
         </div>
+      </div>
 
-        <div class="subsection">
-          <div class="sub-title">Line Heights</div>
-          <div class="lh-table">
-            <div class="lh-row" style="background:#f8fafc;">
-              <span class="lh-token">--line-height-tight</span>
-              <span class="lh-val">1.25</span>
-              <p class="lh-text" style="line-height:1.25;">Social animals that thrive with companionship. Regular interaction builds trust and deepens the bond between pet and owner over time.</p>
-            </div>
-            <div class="lh-row">
-              <span class="lh-token">--line-height-normal</span>
-              <span class="lh-val">1.5</span>
-              <p class="lh-text" style="line-height:1.5;">Social animals that thrive with companionship. Regular interaction builds trust and deepens the bond between pet and owner over time.</p>
-            </div>
-            <div class="lh-row" style="background:#f8fafc;">
-              <span class="lh-token">--line-height-relaxed</span>
-              <span class="lh-val">1.75</span>
-              <p class="lh-text" style="line-height:1.75;">Social animals that thrive with companionship. Regular interaction builds trust and deepens the bond between pet and owner over time.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="notes">
-          <h4>Notes</h4>
-          <ul>
-            <li>Body font is <code>Nunito</code> (replaced Inter) — loaded via <code>colors_and_type.css</code> at wght 300–700 + italic</li>
-            <li>Base font size is <code>16px</code> on <code>html</code>; all <code>rem</code> values scale from this root</li>
-            <li>Responsive heading scale: h1–h3 scale ×1.125 at 640px, ×1.25 at 1024px via <code>calc()</code> inside media queries</li>
-            <li><code>--font-weight-heading</code> is an alias for 700 — always use for h1–h6 elements</li>
-            <li><code>-webkit-font-smoothing: antialiased</code> applied globally on <code>body</code></li>
-            <li>Heading font (Gaegu) is a handwritten-style display face — avoid using below 14px</li>
-            <li>Georgia and Caveat are not global tokens — scoped exclusively to <code>AdoptionCertificate.jsx</code>; do not use elsewhere</li>
-            <li><code>--font-family-stats</code> (Roboto) is used only in <code>stats.css</code> stat grid components</li>
-          </ul>
-        </div>
-      </section>
-
-      <!-- ── SPACING ─────────────────────────────────────────────────────── -->
-      <section class="section" id="spacing">
-        <div class="section-header">
-          <h2 class="section-title">Spacing</h2>
-          <span class="section-count">10 base steps · 6 semantic aliases · 4px base unit</span>
-        </div>
-
-        <div class="subsection">
-          <div class="sub-title">Base Scale — --space-*</div>
-          <div class="spacing-list">
-            <div class="sp-row" v-for="s in spacingData" :key="s.token">
-              <span class="sp-var">{{ s.token }}</span>
-              <span class="sp-rem">{{ s.rem }}</span>
-              <span class="sp-px">{{ s.px }}</span>
-              <div><div class="sp-bar" :style="{ width: spBarWidth(s.px) }"></div></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="subsection">
-          <div class="sub-title">Semantic Aliases — --spacing-*</div>
-          <table class="token-table">
-            <thead><tr><th>Token</th><th>Resolves To</th><th>px</th><th>Intended Usage</th></tr></thead>
-            <tbody>
-              <tr><td><code>--spacing-2xs</code></td><td><code>--space-1</code></td><td>4px</td><td>Tight gaps, icon nudges, inline offsets</td></tr>
-              <tr><td><code>--spacing-xs</code></td><td><code>--space-2</code></td><td>8px</td><td>Compact item gaps, badge padding</td></tr>
-              <tr><td><code>--spacing-sm</code></td><td><code>--space-3</code></td><td>12px</td><td>Inline gaps, compact list items</td></tr>
-              <tr><td><code>--spacing-md</code></td><td><code>--space-4</code></td><td>16px</td><td>Default component padding, standard gap</td></tr>
-              <tr><td><code>--spacing-lg</code></td><td><code>--space-5</code></td><td>20px</td><td>Section internal spacing, looser gaps</td></tr>
-              <tr><td><code>--spacing-xl</code></td><td><code>--space-6</code></td><td>24px</td><td>Panel padding (desktop), section dividers</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="notes">
-          <h4>Notes</h4>
-          <ul>
-            <li>All spacing tokens defined in <code>rem</code>; pixel values assume <code>html { font-size: 16px }</code></li>
-            <li>Scale skips <code>--space-7</code> and <code>--space-9</code> — intentional gaps to avoid ambiguity</li>
-            <li>Prefer <code>--spacing-*</code> semantic aliases in component code; use <code>--space-*</code> for precise one-off values</li>
-            <li>Min touch targets: button sm=40px, md=44px, lg=48px (iOS HIG minimum)</li>
-            <li>Habitat sidebar width: 360px fixed; collapses to 100% width / max-height 300px on mobile</li>
-          </ul>
-        </div>
-      </section>
-
-      <!-- ── BORDER RADIUS ───────────────────────────────────────────────── -->
-      <section class="section" id="radius">
-        <div class="section-header">
-          <h2 class="section-title">Border Radius</h2>
-          <span class="section-count">8 tokens · logical property variants</span>
-        </div>
-
-        <div class="subsection">
-          <div class="sub-title">Radius Scale</div>
-          <div class="radius-grid">
-            <div class="radius-card" v-for="r in radiusData" :key="r.token">
-              <div class="radius-box" :style="{ borderRadius: r.val }"></div>
-              <div class="radius-var">{{ r.token }}</div>
-              <div class="radius-val">{{ r.px }}</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="subsection">
-          <div class="sub-title">Logical Property Variants (RTL support)</div>
-          <table class="token-table">
-            <thead><tr><th>Token</th><th>Default Value</th><th>Resolves To (LTR)</th></tr></thead>
-            <tbody>
-              <tr><td><code>--border-radius-start-start</code></td><td><code>--radius-base · 4px</code></td><td>Top-left</td></tr>
-              <tr><td><code>--border-radius-start-end</code></td><td><code>--radius-base · 4px</code></td><td>Top-right</td></tr>
-              <tr><td><code>--border-radius-end-start</code></td><td><code>--radius-base · 4px</code></td><td>Bottom-left</td></tr>
-              <tr><td><code>--border-radius-end-end</code></td><td><code>--radius-base · 4px</code></td><td>Bottom-right</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="notes">
-          <h4>Notes</h4>
-          <ul>
-            <li>Components use logical border-radius properties (<code>border-start-start-radius</code> etc.) throughout for LTR/RTL parity</li>
-            <li>Button radii: sm → <code>--radius-base</code> (4px), md → <code>--radius-md</code> (6px), lg → <code>--radius-lg</code> (8px)</li>
-            <li>Panel: <code>--radius-md</code> on mobile → <code>--radius-lg</code> on desktop (769px+)</li>
-            <li><code>--radius-full</code> (9999px) used for pill badges, chips, FABs, and segmented controls overflow container</li>
-            <li>Subpanel accent bar (<code>.panel--accent::before</code>) has no border-radius — it's a 4px-wide flush strip</li>
-          </ul>
-        </div>
-      </section>
-
-      <!-- ── SHADOWS ─────────────────────────────────────────────────────── -->
-      <section class="section" id="shadows">
-        <div class="section-header">
-          <h2 class="section-title">Shadows</h2>
-          <span class="section-count">5 elevation · 16 component tokens</span>
-        </div>
-
-        <div class="subsection">
-          <div class="sub-title">Elevation Scale</div>
-          <div class="shadow-grid">
-            <div class="shadow-card" v-for="s in shadowData" :key="s.token">
-              <div class="shadow-box" :style="{ boxShadow: s.val }"></div>
-              <div class="shadow-var">{{ s.token }}</div>
-              <div class="shadow-val" style="margin-top:4px;">{{ s.val }}</div>
-              <div class="shadow-use">{{ s.use }}</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="subsection" style="margin-top:28px;">
-          <div class="sub-title">Component tokens — game-specific · warm-brown + inset families</div>
-          <div class="shadow-grid">
-            <div class="shadow-card" v-for="s in componentShadowData" :key="s.token">
-              <div :class="['shadow-box', { 'shadow-box--warm': s.bg === 'warm' }]" :style="{ boxShadow: s.val }"></div>
-              <div class="shadow-var">{{ s.token }}</div>
-              <div class="shadow-val" style="margin-top:4px;">{{ s.val }}</div>
-              <div class="shadow-use">{{ s.use }}</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="notes">
-          <h4>Notes</h4>
-          <ul>
-            <li>All shadows use <code>rgb(0 0 0 / alpha)</code> modern syntax — not compatible with IE11</li>
-            <li>Panel resting state: <code>--shadow-sm</code>; hover state: <code>--shadow-md</code> (set via <code>transition: all var(--transition-normal)</code>)</li>
-            <li>Modal / dialog elevation: <code>--shadow-xl</code></li>
-            <li>Disabled buttons: <code>box-shadow: none !important</code> overrides all elevation</li>
-            <li>Colored hover shadows (primary/danger/warning) are per-component RGBA values at 0.1 opacity — not tokens</li>
-            <li>Tooltip backdrop blur: <code>backdrop-filter: blur(1px)</code> used on loading panel overlay, not as a token</li>
-          </ul>
-        </div>
-      </section>
-
-      <!-- ── Z-INDEX ─────────────────────────────────────────────────────── -->
-      <section class="section" id="z-index">
-        <div class="section-header">
-          <h2 class="section-title">Z-Index</h2>
-          <span class="section-count">7 layers · increments of 10</span>
-        </div>
-
+      <div class="subsection">
+        <div class="sub-title">Semantic Aliases — --spacing-*</div>
         <table class="token-table">
-          <thead><tr><th>Token</th><th>Value</th><th>Layer</th><th>Usage</th></tr></thead>
+          <thead><tr><th>Token</th><th>Resolves To</th><th>px</th><th>Intended Usage</th></tr></thead>
           <tbody>
-            <tr><td><code>--z-index-dropdown</code></td><td>1000</td><td>1 / 7</td><td>Dropdown menus, context menus, select popouts</td></tr>
-            <tr><td><code>--z-index-sticky</code></td><td>1020</td><td>2 / 7</td><td>Sticky headers, sticky sidebars</td></tr>
-            <tr><td><code>--z-index-fixed</code></td><td>1030</td><td>3 / 7</td><td>Fixed navigation bars, FAB buttons, game HUD</td></tr>
-            <tr><td><code>--z-index-modal-backdrop</code></td><td>1040</td><td>4 / 7</td><td>Modal overlay scrim / background dimmer</td></tr>
-            <tr><td><code>--z-index-modal</code></td><td>1050</td><td>5 / 7</td><td>Modal dialogs, bottom sheets, drawers</td></tr>
-            <tr><td><code>--z-index-popover</code></td><td>1060</td><td>6 / 7</td><td>Popovers, floating info panels, command palettes</td></tr>
-            <tr><td><code>--z-index-tooltip</code></td><td>1070</td><td>7 / 7</td><td>Tooltips — always topmost, above all other layers</td></tr>
+            <tr><td><code>--spacing-2xs</code></td><td><code>--space-1</code></td><td>4px</td><td>Tight gaps, icon nudges, inline offsets</td></tr>
+            <tr><td><code>--spacing-xs</code></td><td><code>--space-2</code></td><td>8px</td><td>Compact item gaps, badge padding</td></tr>
+            <tr><td><code>--spacing-sm</code></td><td><code>--space-3</code></td><td>12px</td><td>Inline gaps, compact list items</td></tr>
+            <tr><td><code>--spacing-md</code></td><td><code>--space-4</code></td><td>16px</td><td>Default component padding, standard gap</td></tr>
+            <tr><td><code>--spacing-lg</code></td><td><code>--space-5</code></td><td>20px</td><td>Section internal spacing, looser gaps</td></tr>
+            <tr><td><code>--spacing-xl</code></td><td><code>--space-6</code></td><td>24px</td><td>Panel padding (desktop), section dividers</td></tr>
           </tbody>
         </table>
+      </div>
 
-        <div class="notes">
-          <h4>Notes</h4>
-          <ul>
-            <li>All layers increment by 10, leaving room for intermediate values if a future component needs them</li>
-            <li>Tooltip (1070) is always the ceiling — it must appear above modals and popovers per UX convention</li>
-            <li>3D WebGL canvas (<code>--color-bg-canvas: #000000</code>) lives at <code>z-index: 0</code>; all UI layers stack above</li>
-            <li>FAB subnavigation uses <code>position: fixed</code> — respect <code>--z-index-fixed</code> (1030)</li>
-            <li>Do not use arbitrary z-index values in components — always reference a token</li>
-          </ul>
+      <Notes>
+        <li>All spacing tokens defined in <code>rem</code>; pixel values assume <code>html { font-size: 16px }</code></li>
+        <li>Scale skips <code>--space-7</code> and <code>--space-9</code> — intentional gaps to avoid ambiguity</li>
+        <li>Prefer <code>--spacing-*</code> semantic aliases in component code; use <code>--space-*</code> for precise one-off values</li>
+        <li>Min touch targets: button sm=40px, md=44px, lg=48px (iOS HIG minimum)</li>
+        <li>Habitat sidebar width: 360px fixed; collapses to 100% width / max-height 300px on mobile</li>
+      </Notes>
+    </Section>
+
+    <!-- ── BORDER RADIUS ───────────────────────────────────────────────── -->
+    <Section id="radius" title="Border Radius" count="8 tokens · logical property variants">
+
+      <div class="subsection">
+        <div class="sub-title">Radius Scale</div>
+        <div class="radius-grid">
+          <div class="radius-card" v-for="r in radiusData" :key="r.token">
+            <div class="radius-box" :style="{ borderRadius: r.val }"></div>
+            <div class="radius-var">{{ r.token }}</div>
+            <div class="radius-val">{{ r.px }}</div>
+          </div>
         </div>
-      </section>
+      </div>
 
-      <!-- ── TRANSITIONS ─────────────────────────────────────────────────── -->
-      <section class="section" id="transitions">
-        <div class="section-header">
-          <h2 class="section-title">Transitions</h2>
-          <span class="section-count">3 speeds · ease-in-out easing</span>
-        </div>
-
+      <div class="subsection">
+        <div class="sub-title">Logical Property Variants (RTL support)</div>
         <table class="token-table">
-          <thead><tr><th>Token</th><th>Value</th><th>Usage</th><th style="width:80px;">Demo ↗ hover</th></tr></thead>
+          <thead><tr><th>Token</th><th>Default Value</th><th>Resolves To (LTR)</th></tr></thead>
           <tbody>
-            <tr>
-              <td><code>--transition-fast</code></td>
-              <td><code>150ms ease-in-out</code></td>
-              <td>Button states, focus rings, hover color shifts, tooltip opacity fade</td>
-              <td><div class="transition-box" style="transition:transform 150ms ease-in-out, background 150ms ease-in-out;"></div></td>
-            </tr>
-            <tr>
-              <td><code>--transition-normal</code></td>
-              <td><code>250ms ease-in-out</code></td>
-              <td>Panel hover states, accordion expand/collapse, page-level transitions</td>
-              <td><div class="transition-box" style="transition:transform 250ms ease-in-out, background 250ms ease-in-out;"></div></td>
-            </tr>
-            <tr>
-              <td><code>--transition-slow</code></td>
-              <td><code>350ms ease-in-out</code></td>
-              <td>Modal open/close, slide-in drawers, complex layout animations</td>
-              <td><div class="transition-box" style="transition:transform 350ms ease-in-out, background 350ms ease-in-out;"></div></td>
-            </tr>
+            <tr><td><code>--border-radius-start-start</code></td><td><code>--radius-base · 4px</code></td><td>Top-left</td></tr>
+            <tr><td><code>--border-radius-start-end</code></td><td><code>--radius-base · 4px</code></td><td>Top-right</td></tr>
+            <tr><td><code>--border-radius-end-start</code></td><td><code>--radius-base · 4px</code></td><td>Bottom-left</td></tr>
+            <tr><td><code>--border-radius-end-end</code></td><td><code>--radius-base · 4px</code></td><td>Bottom-right</td></tr>
           </tbody>
         </table>
+      </div>
 
-        <div class="notes">
-          <h4>Notes</h4>
-          <ul>
-            <li><code>@media (prefers-reduced-motion: reduce)</code> — transitions set to <code>none</code> in panel, button, and tooltip components</li>
-            <li>Button hover: adds <code>translateY(-1px)</code>; active state removes it — both via <code>--transition-fast</code></li>
-            <li>Avoid <code>transition: all</code> on performance-critical components; specify individual properties explicitly</li>
-            <li>3D WebGL animations and frame pacing are managed separately outside this token system</li>
-            <li>Tooltip opacity fade uses <code>--transition-fast</code>; the tooltip itself has no transform animation</li>
-          </ul>
+      <Notes>
+        <li>Components use logical border-radius properties (<code>border-start-start-radius</code> etc.) throughout for LTR/RTL parity</li>
+        <li>Button radii: sm → <code>--radius-base</code> (4px), md → <code>--radius-md</code> (6px), lg → <code>--radius-lg</code> (8px)</li>
+        <li>Panel: <code>--radius-md</code> on mobile → <code>--radius-lg</code> on desktop (769px+)</li>
+        <li><code>--radius-full</code> (9999px) used for pill badges, chips, FABs, and segmented controls overflow container</li>
+        <li>Subpanel accent bar (<code>.panel--accent::before</code>) has no border-radius — it's a 4px-wide flush strip</li>
+      </Notes>
+    </Section>
+
+    <!-- ── SHADOWS ─────────────────────────────────────────────────────── -->
+    <Section id="shadows" title="Shadows" count="5 elevation · 16 component tokens">
+
+      <div class="subsection">
+        <div class="sub-title">Elevation Scale</div>
+        <div class="shadow-grid">
+          <div class="shadow-card" v-for="s in shadowData" :key="s.token">
+            <div class="shadow-box" :style="{ boxShadow: s.val }"></div>
+            <div class="shadow-var">{{ s.token }}</div>
+            <div class="shadow-val" style="margin-top:4px;">{{ s.val }}</div>
+            <div class="shadow-use">{{ s.use }}</div>
+          </div>
         </div>
-      </section>
+      </div>
 
-    </main>
-  </div>
+      <div class="subsection" style="margin-top:28px;">
+        <div class="sub-title">Component tokens — game-specific · warm-brown + inset families</div>
+        <div class="shadow-grid">
+          <div class="shadow-card" v-for="s in componentShadowData" :key="s.token">
+            <div :class="['shadow-box', { 'shadow-box--warm': s.bg === 'warm' }]" :style="{ boxShadow: s.val }"></div>
+            <div class="shadow-var">{{ s.token }}</div>
+            <div class="shadow-val" style="margin-top:4px;">{{ s.val }}</div>
+            <div class="shadow-use">{{ s.use }}</div>
+          </div>
+        </div>
+      </div>
+
+      <Notes>
+        <li>All shadows use <code>rgb(0 0 0 / alpha)</code> modern syntax — not compatible with IE11</li>
+        <li>Panel resting state: <code>--shadow-sm</code>; hover state: <code>--shadow-md</code> (set via <code>transition: all var(--transition-normal)</code>)</li>
+        <li>Modal / dialog elevation: <code>--shadow-xl</code></li>
+        <li>Disabled buttons: <code>box-shadow: none !important</code> overrides all elevation</li>
+        <li>Colored hover shadows (primary/danger/warning) are per-component RGBA values at 0.1 opacity — not tokens</li>
+        <li>Tooltip backdrop blur: <code>backdrop-filter: blur(1px)</code> used on loading panel overlay, not as a token</li>
+      </Notes>
+    </Section>
+
+    <!-- ── Z-INDEX ─────────────────────────────────────────────────────── -->
+    <Section id="z-index" title="Z-Index" count="7 layers · increments of 10">
+
+      <table class="token-table">
+        <thead><tr><th>Token</th><th>Value</th><th>Layer</th><th>Usage</th></tr></thead>
+        <tbody>
+          <tr><td><code>--z-index-dropdown</code></td><td>1000</td><td>1 / 7</td><td>Dropdown menus, context menus, select popouts</td></tr>
+          <tr><td><code>--z-index-sticky</code></td><td>1020</td><td>2 / 7</td><td>Sticky headers, sticky sidebars</td></tr>
+          <tr><td><code>--z-index-fixed</code></td><td>1030</td><td>3 / 7</td><td>Fixed navigation bars, FAB buttons, game HUD</td></tr>
+          <tr><td><code>--z-index-modal-backdrop</code></td><td>1040</td><td>4 / 7</td><td>Modal overlay scrim / background dimmer</td></tr>
+          <tr><td><code>--z-index-modal</code></td><td>1050</td><td>5 / 7</td><td>Modal dialogs, bottom sheets, drawers</td></tr>
+          <tr><td><code>--z-index-popover</code></td><td>1060</td><td>6 / 7</td><td>Popovers, floating info panels, command palettes</td></tr>
+          <tr><td><code>--z-index-tooltip</code></td><td>1070</td><td>7 / 7</td><td>Tooltips — always topmost, above all other layers</td></tr>
+        </tbody>
+      </table>
+
+      <Notes>
+        <li>All layers increment by 10, leaving room for intermediate values if a future component needs them</li>
+        <li>Tooltip (1070) is always the ceiling — it must appear above modals and popovers per UX convention</li>
+        <li>3D WebGL canvas (<code>--color-bg-canvas: #000000</code>) lives at <code>z-index: 0</code>; all UI layers stack above</li>
+        <li>FAB subnavigation uses <code>position: fixed</code> — respect <code>--z-index-fixed</code> (1030)</li>
+        <li>Do not use arbitrary z-index values in components — always reference a token</li>
+      </Notes>
+    </Section>
+
+    <!-- ── TRANSITIONS ─────────────────────────────────────────────────── -->
+    <Section id="transitions" title="Transitions" count="3 speeds · ease-in-out easing">
+
+      <table class="token-table">
+        <thead><tr><th>Token</th><th>Value</th><th>Usage</th><th style="width:80px;">Demo ↗ hover</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>--transition-fast</code></td>
+            <td><code>150ms ease-in-out</code></td>
+            <td>Button states, focus rings, hover color shifts, tooltip opacity fade</td>
+            <td><div class="transition-box" style="transition:transform 150ms ease-in-out, background 150ms ease-in-out;"></div></td>
+          </tr>
+          <tr>
+            <td><code>--transition-normal</code></td>
+            <td><code>250ms ease-in-out</code></td>
+            <td>Panel hover states, accordion expand/collapse, page-level transitions</td>
+            <td><div class="transition-box" style="transition:transform 250ms ease-in-out, background 250ms ease-in-out;"></div></td>
+          </tr>
+          <tr>
+            <td><code>--transition-slow</code></td>
+            <td><code>350ms ease-in-out</code></td>
+            <td>Modal open/close, slide-in drawers, complex layout animations</td>
+            <td><div class="transition-box" style="transition:transform 350ms ease-in-out, background 350ms ease-in-out;"></div></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <Notes>
+        <li><code>@media (prefers-reduced-motion: reduce)</code> — transitions set to <code>none</code> in panel, button, and tooltip components</li>
+        <li>Button hover: adds <code>translateY(-1px)</code>; active state removes it — both via <code>--transition-fast</code></li>
+        <li>Avoid <code>transition: all</code> on performance-critical components; specify individual properties explicitly</li>
+        <li>3D WebGL animations and frame pacing are managed separately outside this token system</li>
+        <li>Tooltip opacity fade uses <code>--transition-fast</code>; the tooltip itself has no transform animation</li>
+      </Notes>
+    </Section>
+
+  </PageLayout>
 </template>
