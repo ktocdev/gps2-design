@@ -55,22 +55,16 @@ onUnmounted(() => { observer?.disconnect() })
       </div>
 
       <!-- Inter-page navigation -->
-      <RouterLink
-        v-for="p in pageNav.ungrouped"
-        :key="p.path"
-        :to="p.path"
-        class="nav-item"
-        :class="{ active: route.path === p.path }"
-      >{{ p.label }}</RouterLink>
+      <template v-for="p in pageNav.ungrouped" :key="p.path">
+        <a v-if="p.href" :href="p.href" target="_blank" rel="noopener" class="nav-item">{{ p.label }}</a>
+        <RouterLink v-else :to="p.path" class="nav-item" :class="{ active: route.path === p.path }">{{ p.label }}</RouterLink>
+      </template>
       <template v-for="g in pageNav.groups" :key="g.label">
         <span class="nav-label">{{ g.label }}</span>
-        <RouterLink
-          v-for="p in g.items"
-          :key="p.path"
-          :to="p.path"
-          class="nav-item"
-          :class="{ active: route.path === p.path }"
-        >{{ p.label }}</RouterLink>
+        <template v-for="p in g.items" :key="p.path">
+          <a v-if="p.href" :href="p.href" target="_blank" rel="noopener" class="nav-item">{{ p.label }}</a>
+          <RouterLink v-else :to="p.path" class="nav-item" :class="{ active: route.path === p.path }">{{ p.label }}</RouterLink>
+        </template>
       </template>
 
       <!-- In-page section navigation (scroll-spy) -->
