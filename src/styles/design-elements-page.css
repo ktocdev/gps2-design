@@ -1,0 +1,92 @@
+/* ============================================================
+   Design Elements page display styles — DesignElementsView.vue
+   Uses .design-page layout from base.css
+   ============================================================ */
+
+/* Element demo + spec block */
+
+.wood-item {
+  margin-block-end: var(--space-6);
+}
+
+.wood-item-label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-neutral-700);
+  margin-block-end: var(--space-2);
+}
+
+.wood-item-label span {
+  font-weight: var(--font-weight-normal);
+  color: var(--color-neutral-500);
+}
+
+.el-demo {
+  border: 1px solid var(--color-neutral-200);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  overflow: hidden;
+}
+
+.el-spec {
+  background: var(--color-neutral-50);
+  border: 1px solid var(--color-neutral-200);
+  border-block-start: none;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  padding: var(--space-3) var(--space-4);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+}
+
+.el-spec-full {
+  grid-column: 1 / -1;
+}
+
+.el-label {
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--color-neutral-500);
+  margin-block-end: 2px;
+}
+
+.el-value {
+  font-size: var(--font-size-xs);
+  color: var(--color-neutral-700);
+}
+
+.el-code {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-3xs);
+  color: var(--color-wood-dark);
+  line-height: var(--line-height-relaxed);
+}
+
+/* Frames grid */
+
+.frame-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-4);
+}
+
+.frame-card {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--color-neutral-200);
+}
+
+.frame-demo {
+  background: var(--color-gold-50);
+  padding: var(--space-5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 170px;
+}
+
+.frame-card .el-spec {
+  border-radius: 0;
+  border-block-start: 1px solid var(--color-neutral-200);
+}

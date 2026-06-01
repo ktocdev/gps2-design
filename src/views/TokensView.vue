@@ -239,7 +239,6 @@ function typeFamily(heading: boolean): string {
     <template #page-meta>
       <div class="page-meta">
         <span>Source: <code>src/styles/tokens.css</code></span>
-        <span class="badge">v1.0 · May 2026</span>
       </div>
     </template>
 
