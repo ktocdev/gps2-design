@@ -140,8 +140,8 @@
   --color-warning-hover:  var(--color-gold-600);
 
   --color-error-bg:         var(--color-red-50);
-  --color-danger-surface:   var(--color-red-100);
-  --color-critical-surface: var(--color-red-200);
+  --color-danger:           var(--color-red-100);
+  --color-critical:         var(--color-red-200);
   --color-danger-border:    var(--color-red-300);
   --color-critical-border:  var(--color-red-400);
   --color-error:            var(--color-red-500);

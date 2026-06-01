@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import '../styles/tokens-page.css'
+
 import PageLayout from '../components/design/PageLayout.vue'
 import Section    from '../components/design/Section.vue'
 import Notes      from '../components/design/Notes.vue'
@@ -78,14 +79,16 @@ const semStatus: SemToken[][] = [
     { name: '--color-warning',        hex: '#ea580c', alias: '--color-gold-500' },
   ],
   [
-    { name: '--color-error-bg',         hex: '#fef2f2', alias: '--color-red-50' },
-    { name: '--color-danger-surface',   hex: '#fee2e2', alias: '--color-red-100' },
-    { name: '--color-critical-surface', hex: '#fecaca', alias: '--color-red-200' },
+    { name: '--color-error-bg', hex: '#fef2f2', alias: '--color-red-50' },
+    { name: '--color-error',    hex: '#dc2626', alias: '--color-red-500' },
   ],
   [
-    { name: '--color-danger-border',   hex: '#f87171', alias: '--color-red-300' },
+    { name: '--color-danger',        hex: '#fee2e2', alias: '--color-red-100' },
+    { name: '--color-danger-border', hex: '#f87171', alias: '--color-red-300' },
+  ],
+  [
+    { name: '--color-critical',        hex: '#fecaca', alias: '--color-red-200' },
     { name: '--color-critical-border', hex: '#ef4444', alias: '--color-red-400' },
-    { name: '--color-error',           hex: '#dc2626', alias: '--color-red-500' },
   ],
   [
     { name: '--color-info-bg', hex: '#eff6ff', alias: '--color-blue-50' },

@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watchEffect, onMounted, onUnmounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { pages } from '../../pages'
 
 interface NavItem  { id: string; label: string }
 interface NavGroup { label: string; items: NavItem[] }
@@ -7,8 +9,28 @@ interface NavGroup { label: string; items: NavItem[] }
 const props = defineProps<{
   title: string
   titleAccent?: string
+  pageTitle?: string
   navGroups: NavGroup[]
 }>()
+
+const route = useRoute()
+
+// Inter-page navigation, sourced from the shared page registry.
+// Ungrouped pages render first; named groups follow in first-seen order.
+const pageNav = computed(() => {
+  const ungrouped = pages.filter(p => !p.group)
+  const named = new Map<string, typeof pages>()
+  for (const p of pages) {
+    if (!p.group) continue
+    if (!named.has(p.group)) named.set(p.group, [])
+    named.get(p.group)!.push(p)
+  }
+  return { ungrouped, groups: Array.from(named, ([label, items]) => ({ label, items })) }
+})
+
+watchEffect(() => {
+  document.title = props.pageTitle ?? [props.title, props.titleAccent].filter(Boolean).join(' ')
+})
 
 const activeSection = ref(props.navGroups[0]?.items[0]?.id ?? '')
 const mainRef = ref<HTMLElement | null>(null)
@@ -31,8 +53,29 @@ onUnmounted(() => { observer?.disconnect() })
         <h1>GPS2</h1>
         <span><slot name="brand-subtitle">Design System</slot></span>
       </div>
+
+      <!-- Inter-page navigation -->
+      <RouterLink
+        v-for="p in pageNav.ungrouped"
+        :key="p.path"
+        :to="p.path"
+        class="nav-item"
+        :class="{ active: route.path === p.path }"
+      >{{ p.label }}</RouterLink>
+      <template v-for="g in pageNav.groups" :key="g.label">
+        <span class="nav-label">{{ g.label }}</span>
+        <RouterLink
+          v-for="p in g.items"
+          :key="p.path"
+          :to="p.path"
+          class="nav-item"
+          :class="{ active: route.path === p.path }"
+        >{{ p.label }}</RouterLink>
+      </template>
+
+      <!-- In-page section navigation (scroll-spy) -->
       <template v-for="group in navGroups" :key="group.label">
-        <span class="nav-label">{{ group.label }}</span>
+        <span class="nav-label nav-label--sections">{{ group.label }}</span>
         <a
           v-for="item in group.items"
           :key="item.id"

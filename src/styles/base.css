@@ -142,6 +142,13 @@ a:hover {
   display: block;
 }
 
+/* Divider between inter-page nav and the current page's section nav */
+.nav-label--sections {
+  margin-block-start: var(--space-3);
+  padding-block-start: var(--space-4);
+  border-block-start: 1px solid var(--color-neutral-200);
+}
+
 .nav-item {
   display: block;
   padding: 5px var(--space-4);
