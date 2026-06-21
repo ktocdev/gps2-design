@@ -13,4 +13,5 @@ export const pages: PageDef[] = [
   { path: '/prototype',       label: 'Prototype',       group: null, href: `${import.meta.env.BASE_URL}prototype/index.html` },
   { path: '/tokens',          label: 'Tokens',          group: 'Foundations' },
   { path: '/design-elements', label: 'Design Elements', group: 'Foundations' },
+  { path: '/guinea-pigs',     label: 'Guinea Pigs',     group: 'Foundations' },
 ]

@@ -270,13 +270,18 @@ a:hover {
 }
 
 /* Notes */
+.wood-item + .notes,
+.notes:has(+ .wood-item) {
+  margin-block-end: var(--space-4);
+}
+
 .notes {
   background: var(--color-gold-50);
   border: 1px solid var(--color-gold-200);
   border-left: 3px solid var(--color-gold-400);
   border-radius: var(--radius-md);
   padding: var(--space-3) var(--space-4);
-  margin-top: var(--space-5);
+  margin-block-start: var(--space-5);
 }
 
 .notes h4 {
