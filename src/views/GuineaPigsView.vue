@@ -306,7 +306,7 @@ const navGroups = [
         <div class="wood-item-label">Eye Colors <span>— 5 named values · White base shown</span></div>
         <div class="el-demo pig-demo">
           <div class="pig-breed-row">
-            <div v-for="(hex, name) in EYE_COLORS" :key="name" class="pig-breed-card">
+            <div v-for="name in Object.keys(EYE_COLORS)" :key="name" class="pig-breed-card">
               <PigSvg :colors="['White']" :eye="name" :size="110" :uid="`eye-${name}`" />
               <span class="pig-breed-label">{{ name }}</span>
             </div>
