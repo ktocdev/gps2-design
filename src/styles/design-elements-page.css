@@ -168,3 +168,160 @@
   color: inherit;
   opacity: 0.7;
 }
+
+/* Generic single-block spec box (no demo above) */
+
+.spec-box {
+  background: var(--color-neutral-50);
+  border: 1px solid var(--color-neutral-200);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+}
+
+/* Hardware / small-element card grid */
+
+.hw-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-4);
+}
+
+.hw-card {
+  border: 1px solid var(--color-neutral-200);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.hw-demo {
+  block-size: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-gold-50);
+  border-block-end: 1px solid var(--color-neutral-200);
+}
+
+.hw-info {
+  padding: var(--space-3);
+}
+
+.hw-name {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-neutral-700);
+}
+
+.hw-use {
+  font-size: var(--font-size-2xs);
+  color: var(--color-neutral-500);
+  margin-block-start: 2px;
+}
+
+.hw-css {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-4xs);
+  color: var(--color-neutral-400);
+  margin-block-start: var(--space-1);
+  line-height: var(--line-height-normal);
+  word-break: break-word;
+}
+
+/* Reference table (tokens → usage) */
+
+.de-table {
+  inline-size: 100%;
+  border-collapse: collapse;
+  border: 1px solid var(--color-neutral-200);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  font-size: var(--font-size-xs);
+}
+
+.de-table th {
+  background: var(--color-neutral-50);
+  padding: var(--space-2) var(--space-4);
+  text-align: start;
+  font-size: var(--font-size-3xs);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--color-neutral-500);
+  border-block-end: 1px solid var(--color-neutral-200);
+}
+
+.de-table td {
+  padding: var(--space-2) var(--space-4);
+  border-block-end: 1px solid var(--color-neutral-100);
+  vertical-align: middle;
+}
+
+.de-table tr:last-child td {
+  border-block-end: none;
+}
+
+.de-table tr:nth-child(even) td {
+  background: var(--color-neutral-50);
+}
+
+.de-table code {
+  background: var(--color-neutral-100);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-2xs);
+  color: var(--color-wood-mid);
+}
+
+.de-table__group td {
+  background: var(--color-neutral-100) !important;
+  padding-block: var(--space-2);
+  font-size: var(--font-size-3xs);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--color-neutral-500);
+}
+
+.de-swatch {
+  block-size: 14px;
+  border-radius: var(--radius-sm);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .4),
+    inset 0 -1px 0 rgba(0, 0, 0, .18);
+}
+
+/* Sticker board — parchment ground for icon discs */
+
+.sticker-board {
+  background: var(--color-gold-100);
+  border: 1px solid var(--color-neutral-200);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5) var(--space-6);
+}
+
+.sticker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: var(--space-4);
+}
+
+.sticker-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  text-align: center;
+}
+
+.sticker-cell-name {
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-neutral-700);
+}
+
+.sticker-cell-token {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-4xs);
+  color: var(--color-wood-mid);
+  margin-block-start: 1px;
+}
